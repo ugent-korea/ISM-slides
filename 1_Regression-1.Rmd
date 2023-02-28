@@ -3,20 +3,23 @@ title: "Chapter 7: Linear regression"
 subtitle: "Simple Linear Regression"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
 
 
 ```{r include = FALSE}
-CWD <- read.table("./datasets/christ.csv", header = T, sep = ",", dec = ".")
+CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
 attach(CWD)
 
 model <- lm(CWD.BASA ~ RIP.DENS)
@@ -35,7 +38,7 @@ Statistical method with \alert{goal} to describe the relationship between 2 seri
 \end{exampleblock}
 
 \centering
-\includegraphics[width=0.30\textwidth]{pdf/riparian.png}
+\includegraphics[width=0.30\textwidth]{riparian.png}
 
 ## Scatterplot with local regression smoother
 
@@ -405,7 +408,7 @@ with $MSE=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
 ## Spread and precision
 
 \centering
-\includegraphics[height = 7.5 cm , width = 10cm]{pdf/spread.pdf}
+\includegraphics[height = 7.5 cm , width = 10cm]{spread.pdf}
 
 ## Association tree density vs.\ CWD
 

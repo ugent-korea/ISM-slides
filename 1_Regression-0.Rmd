@@ -3,15 +3,17 @@ title: "Chapter 1: Linear regression"
 subtitle: "Introduction"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
 
 

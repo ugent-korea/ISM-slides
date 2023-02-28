@@ -41,8 +41,6 @@ m <- lm(Height ~ Palm.width, data=heights)
 
 ## The raw data
 
-\centering
-\vspace*{-1cm}
 ```{r, echo=FALSE, fig.height=5, fig.width=6}
 par(mfrow=c(1, 1))
 plot(heights$Palm.width, heights$Height, 
@@ -56,8 +54,6 @@ legend(x = "topleft", legend = levels(heights$Gender),
 
 ## Associating height with palm width
 
-\centering
-\vspace*{-1cm}
 ```{r, echo=FALSE, fig.height=5, fig.width=6}
 par(mfrow=c(1, 1))
 plot(heights$Palm.width, heights$Height, 
@@ -95,8 +91,7 @@ plot(m)
 
 ## Predicting height from palm width
 
-\centering
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=5, fig.width=6}
 par(mfrow=c(1, 1))
 plot(heights$Palm.width, heights$Height, 
      xlab = "Palm Width", ylab = "Height",

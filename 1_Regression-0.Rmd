@@ -1,0 +1,109 @@
+---
+title: "Chapter 1: Linear regression"
+subtitle: "Introduction"
+author: "Joris Vankerschaver"
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{color}
+  - \usepackage{Ghent}
+  - \usepackage{alltt}
+output: 
+  beamer_presentation:
+    theme: "AnnArbor"
+    colortheme: "dolphin"
+    keep_tex: true
+---
+
+
+```{r, include=F}
+heights <- read.csv("./datasets/01-linear-regression/heights-2022.csv", stringsAsFactors = T)
+m <- lm(Height ~ Palm.width, data=heights)
+```
+
+## Problem setting
+
+\begin{itemize}
+\item 26 observations from class of 2021-22 (19 female and 7 male) + 1 professor.
+\item Measurement of right \alert{palm width} and \alert{height} (both in cm).
+\item Random sample? From which population?
+\item Sources of bias, error?
+\end{itemize}
+
+\begin{block}{Research questions}
+\begin{enumerate}
+\item Is there an association between height and palm width?
+\item Can we predict a person's height from their palm width?
+\item If yes, how confident are we in these results?
+\end{enumerate}
+\end{block}
+
+## The raw data
+
+\centering
+\vspace*{-1cm}
+```{r, echo=FALSE, fig.height=5, fig.width=6}
+par(mfrow=c(1, 1))
+plot(heights$Palm.width, heights$Height, 
+     xlab = "Palm Width", ylab = "Height",
+     pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
+grid()
+legend(x = "topleft", legend = levels(heights$Gender), 
+       fill =c("Pink", "Lightblue"))
+
+```
+
+## Associating height with palm width
+
+\centering
+\vspace*{-1cm}
+```{r, echo=FALSE, fig.height=5, fig.width=6}
+par(mfrow=c(1, 1))
+plot(heights$Palm.width, heights$Height, 
+     xlab = "Palm Width", ylab = "Height",
+     pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
+grid()
+legend(x = "topleft", legend = levels(heights$Gender), 
+       fill =c("Pink", "Lightblue"))
+
+pred <- data.frame(
+  Palm.width=seq(min(heights$Palm.width), max(heights$Palm.width), by=0.1)
+)
+pc <- predict(m, interval="c", newdata = pred)
+matlines(pred$Palm.width, pc, lty=c(1, 2, 2), col = "black")
+
+a <- round(coef(m)[1], 2)
+b <- round(coef(m)[2], 2)
+legend(8.5, 163, paste("H =", a, "+", b, "W"), bg="white", box.col="white", adj=0.2)
+```
+
+## Via R
+
+\footnotesize
+```{r, echo=FALSE}
+summary(m)
+```
+\normalsize
+
+## Model diagnostics
+
+```{r, echo=FALSE}
+par(mfrow=c(2, 2))
+plot(m)
+```
+
+## Predicting height from palm width
+
+\centering
+```{r, echo=FALSE}
+par(mfrow=c(1, 1))
+plot(heights$Palm.width, heights$Height, 
+     xlab = "Palm Width", ylab = "Height",
+     pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
+grid()
+
+pred <- data.frame(
+  Palm.width=seq(min(heights$Palm.width), max(heights$Palm.width), by=0.1)
+)
+pc <- predict(m, interval="p", newdata = pred)
+matlines(pred$Palm.width, pc, lty=c(1, 2, 2), col = "black")
+```

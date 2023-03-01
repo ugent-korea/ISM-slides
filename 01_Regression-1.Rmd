@@ -149,7 +149,7 @@ RIP.DENS      0.11552    0.02343   4.930 0.000222
 \item Model
 \[E(Y|X=x)=-77.10+0.12 x\]
 \item Expected CWD basal area is 1.2 m$^2$ larger alongside lakes with 10 more trees per km
-\item Expected CWD basal ared alongside lakes with 1,600 trees per km shoreline: 
+\item Expected CWD basal area alongside lakes with 1,600 trees per km shoreline: 
 \[-77.10 +0.12\times 1600=108 \ {\rm m}^2\]
 \item Expected CWD basal area alongside lakes with 500 trees per km shoreline:
 \[-77.10 +0.12\times 500=-17 \ {\rm m}^2\]

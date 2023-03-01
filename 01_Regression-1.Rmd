@@ -134,19 +134,25 @@ text(1700, 100, paste("y =", a, "+", b, "x"))
 
 See also: [residuals animation](https://yihui.org/animation/example/least-squares/).
 
-## Output linear regression
+## Output linear regression (coefficients only)
 
-```{r eval = FALSE}
+\footnotesize
+```{r}
 model <- lm(CWD.BASA ~ RIP.DENS)
+summary(model)$coefficients
+```
+\normalsize
+\[
+  E(Y|X=x)=-77.10+0.12 x
+\]
+
+## Output linear regression (full)
+
+\footnotesize
+```{r}
 summary(model)
 ```
-\begin{verbatim}
-Coefficients:
-             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) -77.09908   30.60801  -2.519 0.024552 
-RIP.DENS      0.11552    0.02343   4.930 0.000222 
-\end{verbatim}
-\[E(Y|X=x)=-77.10+0.12 x\]
+\normalsize
 
 ## Output linear regression
 

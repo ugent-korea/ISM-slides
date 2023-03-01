@@ -612,7 +612,9 @@ abline(m2)
 ## Association tree density vs.\ CWD
 
 Tests and confidence intervals for $\beta$ are based on
-\[\frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-2}\]
+\[
+  \frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-2}
+\]
 
 \vfill
 
@@ -622,8 +624,11 @@ summary(model)$coefficients
 ```
 
 ## Association tree density vs.\ CWD
-\alert{95\% CI} for $\beta$ needs $t_{14,0.975}=2.14$
-\[[0.116 - 2.14\times 0.0234,0.116 + 2.14\times 0.0234]=[0.066,0.166]\]
+
+95\% CI for $\beta$ needs $t_{14,0.975} = 2.14$
+\[
+  [0.116 - 2.14\times 0.0234,0.116 + 2.14\times 0.0234]=[0.066,0.166]
+\]
 
 \vfill
 

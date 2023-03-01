@@ -26,6 +26,8 @@ model <- lm(CWD.BASA ~ RIP.DENS)
 
 ```
 
+# Introduction
+
 ## Regression
 
 Statistical method with \alert{goal} to describe the relationship between 2 series of observations $(X_i,Y_i)$, obtained for individual subjects $i=1,...,n$
@@ -153,6 +155,8 @@ RIP.DENS      0.11552    0.02343   4.930 0.000222
 \[-77.10 +0.12\times 500=-17 \ {\rm m}^2\]
 \item \alert{Be careful with extrapolation!} (linearity assumption can only be verified within range of data)
 \end{itemize}
+
+# Assumptions for linear models
 
 ## Verifying linearity assumption
 
@@ -393,46 +397,6 @@ par(mfrow=c(2,2))
 plot(model)
 ```
 
-## Inference for $\beta$
-
-\begin{itemize}
-\item $\hat{\beta}$ unbiased estimator of $\beta$
-\item Standard error of $\hat{\beta}$:
-$$
-SE(\hat{\beta})=\sqrt{\frac{MSE}{\sum_i (X_i-\bar X)^2}}
-$$
-with $MSE=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
-\item Large spread on $X$ improves precision
-\end{itemize}
-
-## Spread and precision
-
-\centering
-\includegraphics[height = 7.5 cm , width = 10cm]{spread.pdf}
-
-## Association tree density vs.\ CWD
-
-Tests and confidence intervals for $\beta$ are based on
-\[\frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-2}\]
-
-\vfill
-
-\small
-```{r}
-summary(model)$coefficients
-```
-
-## Association tree density vs.\ CWD
-\alert{95\% CI} for $\beta$ needs $t_{14,0.975}=2.14$
-\[[0.116 - 2.14\times 0.0234,0.116 + 2.14\times 0.0234]=[0.066,0.166]\]
-
-\vfill
-
-\small
-```{r}
-confint(model)
-```
-
 ## What if homoscedasticity or normality false?
 
 \begin{itemize}
@@ -488,6 +452,8 @@ summary(model2)
 par(mfrow=c(2,2))
 plot(model2)
 ```
+
+# Higher-order regression
 
 ## What if linearity assumption is false?
 
@@ -564,6 +530,7 @@ or equivalently that geometric mean CWD basal area for given tree density $X$ is
 \item How precise is this?
 \end{itemize}
 
+# Interpreting the results of a regression model
 
 ## Inference for mean outcome 
 
@@ -608,4 +575,45 @@ abline(model, lty=3)
 lines(800:2200, exp(p[,1]))
 lines(800:2200, exp(p[,2]), lty=2)
 lines(800:2200, exp(p[,3]), lty=2)
+```
+
+
+## Inference for $\beta$
+
+\begin{itemize}
+\item $\hat{\beta}$ unbiased estimator of $\beta$
+\item Standard error of $\hat{\beta}$:
+$$
+SE(\hat{\beta})=\sqrt{\frac{MSE}{\sum_i (X_i-\bar X)^2}}
+$$
+with $MSE=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
+\item Large spread on $X$ improves precision
+\end{itemize}
+
+## Spread and precision
+
+\centering
+\includegraphics[height = 7.5 cm , width = 10cm]{spread.pdf}
+
+## Association tree density vs.\ CWD
+
+Tests and confidence intervals for $\beta$ are based on
+\[\frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-2}\]
+
+\vfill
+
+\small
+```{r}
+summary(model)$coefficients
+```
+
+## Association tree density vs.\ CWD
+\alert{95\% CI} for $\beta$ needs $t_{14,0.975}=2.14$
+\[[0.116 - 2.14\times 0.0234,0.116 + 2.14\times 0.0234]=[0.066,0.166]\]
+
+\vfill
+
+\small
+```{r}
+confint(model)
 ```

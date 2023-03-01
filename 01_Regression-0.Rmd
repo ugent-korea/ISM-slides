@@ -24,12 +24,10 @@ m <- lm(Height ~ Palm.width, data=heights)
 
 ## Problem setting
 
-\begin{itemize}
-\item 26 observations from class of 2021-22 (19 female and 7 male) + 1 professor.
-\item Measurement of right \alert{palm width} and \alert{height} (both in cm).
-\item Random sample? From which population?
-\item Sources of bias, error?
-\end{itemize}
+- 26 observations from class of 2021-22 (19 female and 7 male) + 1 professor (**27 total**)
+- Measurement of right \alert{palm width} and \alert{height} (both in cm).
+- Random sample? From which population?
+- Sources of bias, error?
 
 \begin{block}{Research questions}
 \begin{enumerate}
@@ -101,7 +99,7 @@ plot(m)
 
 - Predicted expected height of a person with palm width 8.75cm:
 $$
-  E(H|W = 8.75) = 87.45 + 9.91 \times 8.75 =  174.16 \,\text{cm}
+  E(H|W = 8.75) = 87.45 + 9.91 \times 8.75 =  174.17 \,\text{cm}
 $$
 
 Regression coefficients:
@@ -118,7 +116,16 @@ Predicting outside the range of the data can yield misleading results.
 
 [Source: XKCD](https://xkcd.com/605/)
 
-## Predicting height from palm width
+## What is the uncertainty in our prediction?
+
+Assuming that our model is good, how accurate are the predictions from it?
+
+For prediction $E(H|W = 8.75) =  174.17 \,\text{cm}$:
+
+- 95% confidence interval: $[171.27, 177.08]$. Uncertainty in **average prediction**.
+- 95% prediction interval: $[162.56, 185.79]$. Uncertainty in **individual predictions**.
+
+## What is the uncertainty in our prediction?
 
 ```{r, echo=FALSE, fig.height=5, fig.width=6}
 par(mfrow=c(1, 1))
@@ -130,6 +137,12 @@ grid()
 pred <- data.frame(
   Palm.width=seq(min(heights$Palm.width), max(heights$Palm.width), by=0.1)
 )
-pc <- predict(m, interval="p", newdata = pred)
-matlines(pred$Palm.width, pc, lty=c(1, 2, 2), col = "black")
+pi <- predict(m, interval="p", newdata = pred)
+matlines(pred$Palm.width, pi, lty=c(1, 3, 3), col = "black")
+ci <- predict(m, interval="c", newdata = pred)
+matlines(pred$Palm.width, ci, lty=c(1, 2, 2), col = "black")
+
+legend(7, 190, 
+       legend = c("Prediction", "95% P.I.", "95% C.I."),
+       lty = c(1, 3, 2))
 ```

@@ -44,8 +44,7 @@ Statistical method with \alert{goal} to describe the relationship between 2 seri
 
 ## Scatterplot with local regression smoother
 
-\centering
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.align='center'}
 par(mfrow=c(1,1))
 plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area")
 lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
@@ -154,25 +153,25 @@ summary(model)
 ```
 \normalsize
 
-## Output linear regression
+## Interpreting linear regression
 
-\begin{itemize}
-\item Model
-\[E(Y|X=x)=-77.10+0.12 x\]
-\item Expected CWD basal area is 1.2 m$^2$ larger alongside lakes with 10 more trees per km
-\item Expected CWD basal area alongside lakes with 1,600 trees per km shoreline: 
-\[-77.10 +0.12\times 1600=108 \ {\rm m}^2\]
-\item Expected CWD basal area alongside lakes with 500 trees per km shoreline:
-\[-77.10 +0.12\times 500=-17 \ {\rm m}^2\]
-\item \alert{Be careful with extrapolation!} (linearity assumption can only be verified within range of data)
-\end{itemize}
+- Model: $E(Y|X=x)=-77.10+0.12 x$
+- Expected CWD basal area is 1.2 m$^2$ larger alongside lakes with 10 more trees per km
+- Expected CWD basal area alongside lakes with 1,600 trees per km shoreline: 
+\[
+  -77.10 +0.12\times 1600=108 \ {\rm m}^2
+\]
+- Expected CWD basal area alongside lakes with 500 trees per km shoreline:
+\[
+  -77.10 +0.12\times 500=-17 \ {\rm m}^2
+\]
+- \alert{Be careful with extrapolation!} (linearity assumption can only be verified within range of data)
 
-# Assumptions for linear models
+# Assumptions for linear regression
 
 ## Verifying linearity assumption
 
-\centering
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.align='center'}
 par(mfrow=c(1,1))
 plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area")
 lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
@@ -181,13 +180,12 @@ abline(model)
 
 ## Verifying linearity assumption
 
-\begin{itemize}
-\item An alternative, that will be more convenient when there are multiple predictors, is a \alert{residual plot}
-\begin{block}{Residuals} = prediction errors
-\[e_i=y_i-\hat{\alpha}-\hat{\beta}x_i\]
-\end{block}
-\item If linear model correct, then scatterplot of $e_i$ versus $x_i$ or predictions $\hat{\alpha}+\hat{\beta}x_i$ shows no pattern
-\end{itemize}
+- An alternative, that will be more convenient when there are multiple predictors, is a \alert{residual plot}.
+- Note: residuals are prediction errors:
+\[
+  e_i = y_i-\hat{\alpha}-\hat{\beta}x_i
+\]
+- If linear model correct, then scatterplot of $e_i$ versus $x_i$ or predictions $\hat{\alpha}+\hat{\beta}x_i$ shows no pattern
 
 ```{r eval = FALSE}
 model <- lm(CWD.BASA ~ RIP.DENS)
@@ -197,8 +195,7 @@ plot(model)
 
 ## Verifying linearity assumption
 
-\centering
-```{r echo = FALSE}
+```{r echo = FALSE, fig.align='center'}
 model <- lm(CWD.BASA ~ RIP.DENS)
 par(mfrow=c(2,2))
 plot(model)
@@ -207,24 +204,28 @@ plot(model)
 ## Inference for simple linear regression
 
 To be able to draw conclusions about the linear regression model
-\[E(Y|X)=\alpha+\beta X\]
-we need extra assumptions:
-\begin{itemize}
-\item \alert{Homoscedasticity}: for fixed $X$, $Y$ has constant variance
 \[
-  \mathrm{Var}(Y|X)=\sigma^2,
+  E(Y|X)=\alpha+\beta X
+\]
+we need extra assumptions:
+
+- **Homoscedasticity**: for fixed $X$, $Y$ has constant variance
+\[
+  \text{Var}(Y|X)=\sigma^2,
 \]
 estimated by the residual mean square error:
-$$
+\[
 \text{MSE}=\sum_{i=1}^n e_i^2/(n-2)
-$$
-\item \alert{Normality}: for fixed $X$, $Y$ is normally distributed
-\[Y|X \sim N(\alpha+\beta X, \sigma^2)\]
-\end{itemize}
+\]
+- **Normality**: for fixed $X$, $Y$ is normally distributed
+\[
+  Y|X \sim N(\alpha+\beta X, \sigma^2)
+\]
+
 
 ## Homoscedasticity versus heteroscedasticity
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.align='center'}
 set.seed(1234)
 n <- 100
 a <- -1
@@ -247,8 +248,7 @@ abline(a, b)
 
 Hard to check on regression plot directly!
 
-\centering
-```{r, echo=FALSE}
+```{r echo=FALSE, fig.align='center'}
 par(mfrow=c(1,1))
 plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area")
 lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
@@ -257,11 +257,9 @@ abline(model)
 
 ## Assumption of homoscedasticity
 
-\begin{itemize}
-\item Squared residuals carry information on residual variability
-\item If these are associated with explanatory variable, then indication of \alert{heteroscedasticity}
-\item Scatterplot of $e_i^2$ or $\sqrt{|e_i|}$ versus $x_i$ or predictions
-\end{itemize}
+- Squared residuals carry information on residual variability.
+- If these are associated with explanatory variable, then indication of \alert{heteroscedasticity}.
+- Scatterplot of $e_i^2$ or $\sqrt{|e_i|}$ versus $x_i$ or predictions.
 
 ```{r echo = FALSE, out.width="70%", out.height="70%", fig.align='center'}
 par(cex = 1.5)
@@ -271,8 +269,7 @@ lines(lowess(RIP.DENS, abs(residuals(model))^0.5,f=3/4))
 
 ## Assumption of homoscedasticity
 
-\centering
-```{r echo = FALSE}
+```{r echo = FALSE, fig.align='center'}
 model <- lm(CWD.BASA ~ RIP.DENS)
 par(mfrow=c(2,2))
 plot(model)
@@ -281,13 +278,12 @@ plot(model)
 
 ## Normality assumption
 
-Assumption: outcomes normally distributed \alert{for fixed values of explanatory variable}
+- Assumption: outcomes normally distributed \alert{for fixed values of explanatory variable}:
 \[
-  Y|X \sim N(a + bX, \sigma^2)
+  Y|X \sim N(a + bX, \sigma^2).
 \]
+- Can be checked using QQ-plot of the residuals.
 
-
-Can be checked using QQ-plot of the residuals.
 
 ## Normality assumption valid
 
@@ -308,6 +304,7 @@ boxplot(y ~ bin, xlab = "", ylab = "")
 residuals <- y - a - b*x 
 
 ```
+
 
 ## Normality assumption not valid
 
@@ -333,6 +330,7 @@ plot(x, y, xlab = "", ylab = "")
 boxplot(y ~ bin, xlab = "", ylab = "", side="right")
 ```
 
+
 ## QQ plot of residuals (Y|X normal)
 
 ```{r, echo=FALSE}
@@ -353,6 +351,7 @@ qqnorm(residuals, main = "Q-Q plot of Y|X")
 qqline(residuals)
 
 ```
+
 
 ## QQ plot of residuals (Y|X not normal)
 
@@ -380,6 +379,7 @@ qqnorm(residuals, main = "Q-Q plot of Y|X")
 qqline(residuals)
 ```
 
+
 ## Do not use QQ-plot of Y!
 
 ```{r, echo=FALSE}
@@ -401,10 +401,10 @@ qqnorm(y, main = "Q-Q plot of Y")
 qqline(y)
 ```
 
-## Normality?
 
-\centering
-```{r echo = FALSE}
+## Checking for normality with R diagnostic plots
+
+```{r echo = FALSE, fig.align='center'}
 model <- lm(CWD.BASA ~ RIP.DENS)
 par(mfrow=c(2,2))
 plot(model)
@@ -412,40 +412,19 @@ plot(model)
 
 ## What if homoscedasticity or normality false?
 
-\begin{itemize}
-\item \alert{Transformation of dependent variable} can help to obtain normality and homoscedasticity
-\begin{exampleblock}{Example} $\sqrt{Y}, Y^2, 1/Y, \exp{Y}, \exp{-Y}, \ln{Y}$
-\end{exampleblock}
-\vfill
-\item \alert{Transformation of independent variable} does not change distribution of $Y$ for given $X$:
-\begin{itemize}
-\item does not help in obtaining normality or homoscedasticity
-\item does help to obtain linearity if normality and homoscedasticity ok
-\end{itemize}
-\end{itemize}
+- Transformation of **dependent variable** can help to obtain normality and homoscedasticity.
+- Example transformations: $\sqrt{Y}, Y^2, 1/Y, \exp{Y}, \exp{(-Y)}, \ln{Y}$.
+
+- Transformation of **independent variable** does not change distribution of $Y$ for given $X$:
+  - does not help in obtaining normality or homoscedasticity.
+  - does help to obtain linearity if normality and homoscedasticity are ok.
+
 
 ## What if homoscedasticity or normality false?
 
-\begin{itemize}
-\item Often heteroscedasticity or non-normality caused by fact that outcome can only take on values in certain interval and hence linear regression is not fit
-\vfill
-\item \alert{Solution}: transform outcome such that it can take on all real values
-\begin{exampleblock}{Example} $\ln(Y)$ for positive outcomes $Y$
-\end{exampleblock}
-\vfill
-\item \alert{Variance stabilising transformations}
-\begin{exampleblock}{Example} $\arcsin{\sqrt{Y}}$ for proportions $Y$
-\end{exampleblock}
-\end{itemize}
-
-## Transforming the outcome
-
-\begin{itemize}
-\item Heteroscedasticity possible because outcome positive, but linear model does not respect this 
-\item $\ln$-transformation makes outcomes real-valued
-\end{itemize}
-
-\small
+- Often because  outcome can only take on values in certain interval (e.g. $[0, 1]$, positive numbers, ...)
+- **Solution**: transform outcome such that it can take on all real values
+- Example: `CWD.BASA` is always positive: take $\ln$ to make outcome real-valued:
 ```{r eval=FALSE}
 model2 <- lm(I(log(CWD.BASA)) ~ RIP.DENS)
 summary(model2)
@@ -470,30 +449,32 @@ plot(model2)
 
 ## What if linearity assumption is false?
 
-\begin{itemize}
-\item Transformation of dependent variable 
-\item Transformation of independent variable
-\begin{exampleblock}{Example} If either independent or dependent variable right skewed, often log-transformation helps
-\end{exampleblock}
-\vfill
-\item If residuals reveal \alert{quadratic association}, such that
-\[e_i\approx \delta_0+\delta_1 x_i+\delta_2 x_i^2\]
+- Transformation of dependent variable
+- Transformation of independent variable
+- If residuals reveal **quadratic association**, such that
+\[
+  e_i\approx \delta_0+\delta_1 x_i+\delta_2 x_i^2
+\]
 then
-\[y_i=\hat{\alpha}+\hat{\beta}x_i+e_i\approx
+\[
+  y_i=\hat{\alpha}+\hat{\beta}x_i+e_i\approx
 (\hat{\alpha}+\delta_0)+(\hat{\beta}+\delta_1)x_i+\delta_2
-x_i^2\] 
-\end{itemize}
+x_i^2
+\] 
+
 
 ## Quadratic regression
 
-\begin{itemize}
-\item We assume
-\[E(Y|X)=\alpha+\beta X+\gamma X^2\]
-\item Unknown parameters estimated by \alert{least squares method}: minimisation of
-\[\sum_{i=1}^n (Y_i-\alpha-\beta X_i-\gamma X_i^2)^2\]
-\end{itemize}
+- We assume
+\[
+  E(Y|X)=\alpha+\beta X+\gamma X^2
+\]
+- Unknown parameters estimated by **least squares method**: minimize
+\[
+  \sum_{i=1}^n (Y_i-\alpha-\beta X_i-\gamma X_i^2)^2
+\]
+
 \vfill
-\small
 ```{r eval=FALSE}
 model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
 summary(model3)
@@ -520,69 +501,66 @@ plot(model3)
 ```{r echo=FALSE}
 summary(model3)$coefficients
 ```
-
 \normalsize
-\begin{itemize}
-\item Add terms to model and keep those as long as they are significantly associated with outcome
-\begin{exampleblock}{Example} adding third order term is not significant contribution (p-value 0.26)
-\end{exampleblock}
-\item Adding proceeds \alert{hierarchically}: lower order terms are kept as long as higher order terms are in model
-\end{itemize}
+
+- Add terms to model and keep those as long as they are significantly associated with outcome
+- Example: adding third order term is not significant contribution (p-value 0.26)
+- Adding proceeds **hierarchically**: lower order terms are kept as long as higher order terms are in model
 
 ## Results
 
-\begin{itemize}
-\item We conclude 
-\[E\{\ln(Y)|X\}=-9.69+0.017X-4.96 \ 10^{-6}X^2\]
+- We conclude 
+\[
+  E\{\ln(Y)|X\}=-9.69+0.017X-4.96 \ 10^{-6}X^2
+\]
 or equivalently that geometric mean CWD basal area for given tree density $X$ is equal to
-\[\exp(-9.69+0.017X-4.96 \ 10^{-6}X^2)\]
-\vfill
-\begin{exampleblock}{Example} for $X=500$ we now find 0.086 m$^2$ (previously: -17 m$^2$)
-\end{exampleblock}
-\vfill
-\item How precise is this?
-\end{itemize}
+\[
+  \exp(-9.69+0.017X-4.96 \ 10^{-6}X^2)
+\]
+- For $X=500$ we now find 0.086 m$^2$ (previously: -17 m$^2$)
+- **How precise is this?**
+
 
 # Interpreting the results of a regression model
 
 ## Inference for mean outcome 
 
-\begin{itemize}
+- $\hat{Y}_h=\hat{\alpha}+\hat{\beta}X_h$ is unbiased estimator of $E(Y|X_h)=\alpha+\beta X_h$.
+- Standard error of $\hat{Y}_h$ is
+\[
+  SE(\hat{Y}_h)=\sqrt{MSE\left\{\frac{1}{n}+\frac{(X_h-\bar X)^2}{\sum_i (X_i-\bar X)^2}\right\}}.
+\]
+- Highest precision for predictions in $X_h=\bar X$.
+- Tests and CI for $E(Y|X_h)$ based on
+\[
+  \frac{\hat{Y}_h-E(Y|X_h)}{SE(\hat{Y}_h)}\sim t_{n-p}
+\]
+with $p$ number of unknown parameters in model.
 
-\item $\hat{Y}_h=\hat{\alpha}+\hat{\beta}X_h$ is unbiased estimator of $E(Y|X_h)=\alpha+\beta X_h$
-\item Standard error of $\hat{Y}_h$ is
-\[SE(\hat{Y}_h)=\sqrt{MSE\left\{\frac{1}{n}+\frac{(X_h-\bar X)^2}{\sum_i (X_i-\bar X)^2}\right\}}\]
-\item Highest precision for predictions in $X_h=\bar X$
-\vfill
-\item Tests and CI for $E(Y|X_h)$ based on
-\[\frac{\hat{Y}_h-E(Y|X_h)}{SE(\hat{Y}_h)}\sim t_{n-p}\]
-with $p$ number of unknown parameters in model
-\end{itemize}
 
-## Prediction in \texttt{R}
+## Prediction in R
 
 \small
 ```{r}
 model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
-p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
+p <- predict(model3,
+             newdata = data.frame(RIP.DENS=c(1000, 1500)), 
              interval = "confidence")
+p
 ```
-\begin{verbatim}
-            fit          lwr        upr
-             .            .           .
-             .            .           .
-             .            .           .
-\end{verbatim}
-```{r eval=FALSE}
-exp(p$fit)
-exp(p$lwr)
-exp(p$upr)
+
+## Prediction in R
+
+Predictions and lower/upper bound of the CI are for `log(CWD.BASA)` and need to be transformed back:
+```{r}
+exp(p)
 ```
 
 ## Expected outcome with 95\% CI
 
-\centering
-```{r echo=FALSE}
+```{r echo=FALSE, fig.align='center'}
+p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
+             interval = "confidence")
 plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", ylim = c(0, max(exp(p[,3]))))
 abline(model, lty=3)
 lines(800:2200, exp(p[,1]))

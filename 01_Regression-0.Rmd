@@ -39,6 +39,12 @@ m <- lm(Height ~ Palm.width, data=heights)
 \end{enumerate}
 \end{block}
 
+## Simple and multiple linear regression
+
+- In this lecture, we build a **simple linear regression** model.
+- Simple regression: effect on height of a single predictor (palm width)
+- Multiple regression: multiple predictors (palm width, gender, year, ...)
+
 ## The raw data
 
 ```{r, echo=FALSE, fig.height=5, fig.width=6}

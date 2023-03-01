@@ -1,5 +1,5 @@
 ---
-title: "Chapter 7: Linear regression"
+title: "Chapter 1: Linear regression"
 subtitle: "Simple Linear Regression"
 author: "Joris Vankerschaver"
 header-includes:

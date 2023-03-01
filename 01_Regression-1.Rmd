@@ -200,10 +200,12 @@ To be able to draw conclusions about the linear regression model
 we need extra assumptions:
 \begin{itemize}
 \item \alert{Homoscedasticity}: for fixed $X$, $Y$ has constant variance
-\[\mathrm{Var}(Y|X)=\sigma^2\]
-that is estimated by the residual mean square error:
+\[
+  \mathrm{Var}(Y|X)=\sigma^2,
+\]
+estimated by the residual mean square error:
 $$
-\text{RMSE}=\sum_{i=1}^n e_i^2/(n-2)
+\text{MSE}=\sum_{i=1}^n e_i^2/(n-2)
 $$
 \item \alert{Normality}: for fixed $X$, $Y$ is normally distributed
 \[Y|X \sim N(\alpha+\beta X, \sigma^2)\]
@@ -232,6 +234,8 @@ abline(a, b)
 
 ## Homoscedasticity?
 
+Hard to check on regression plot directly!
+
 \centering
 ```{r, echo=FALSE}
 par(mfrow=c(1,1))
@@ -248,15 +252,13 @@ abline(model)
 \item Scatterplot of $e_i^2$ or $\sqrt{|e_i|}$ versus $x_i$ or predictions
 \end{itemize}
 
-## Homoscedasticity?
-
-\centering
-```{r echo = FALSE}
-plot(RIP.DENS, residuals(model)^2, xlab = "Riparian tree density", ylab = "Squared residuals")
-lines(lowess(RIP.DENS, residuals(model)^2,f=3/4))
+```{r echo = FALSE, out.width="70%", out.height="70%", fig.align='center'}
+par(cex = 1.5)
+plot(RIP.DENS, abs(residuals(model))^0.5, xlab = "Riparian tree density", ylab = "Square root of residuals")
+lines(lowess(RIP.DENS, abs(residuals(model))^0.5,f=3/4))
 ```
 
-## Homoscedasticity?
+## Assumption of homoscedasticity
 
 \centering
 ```{r echo = FALSE}

@@ -40,7 +40,7 @@ Statistical method with \alert{goal} to describe the relationship between 2 seri
 \end{exampleblock}
 
 \centering
-\includegraphics[width=0.30\textwidth]{riparian.png}
+![](./images/01-linear-regression/riparian-small.png){width="33%"}
 
 ## Scatterplot with local regression smoother
 

@@ -97,6 +97,29 @@ plot(m)
 
 ## Predicting height from palm width
 
+- Model: $E(H|W = w) = 87.45 + 9.91 \times w$. 
+
+- Predicted expected height of a person with palm width 8.75cm:
+$$
+  E(H|W = 8.75) = 87.45 + 9.91 \times 8.75 =  174.16 \,\text{cm}
+$$
+
+Regression coefficients:
+
+- **Slope** (87.45cm): height of a hypothetical student with palms that are 0 cm wide. Often makes more sense after mean-centering.
+- **Intercept** (9.91): each extra cm in palm width is associated with an increase of 9.91 cm in height.
+
+
+## Be careful with extrapolating
+
+Predicting outside the range of the data can yield misleading results.
+
+![](./images/01-linear-regression/xkcd-605.png)
+
+[Source: XKCD](https://xkcd.com/605/)
+
+## Predicting height from palm width
+
 ```{r, echo=FALSE, fig.height=5, fig.width=6}
 par(mfrow=c(1, 1))
 plot(heights$Palm.width, heights$Height, 

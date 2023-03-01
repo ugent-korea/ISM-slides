@@ -571,20 +571,43 @@ lines(800:2200, exp(p[,3]), lty=2)
 
 ## Inference for $\beta$
 
-\begin{itemize}
-\item $\hat{\beta}$ unbiased estimator of $\beta$
-\item Standard error of $\hat{\beta}$:
+- The regression coefficient $\hat{\beta}$ is an (unbiased) estimator of $\beta$, the population regression coefficient.
+- It comes with a measure of uncertainty: standard error of $\hat{\beta}$:
 $$
-SE(\hat{\beta})=\sqrt{\frac{MSE}{\sum_i (X_i-\bar X)^2}}
+SE(\hat{\beta})=\sqrt{\frac{MSE}{\sum_i (X_i-\bar X)^2}}.
 $$
 with $MSE=\frac{1}{n-2}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
-\item Large spread on $X$ improves precision
-\end{itemize}
+- Large spread on $X$ improves precision.
 
 ## Spread and precision
 
-\centering
-\includegraphics[height = 7.5 cm , width = 10cm]{spread.pdf}
+```{r, echo=FALSE}
+
+set.seed(1234)
+n <- 50
+a <- 0
+b <- 0.5
+
+x1 <- seq(-3, 3, length.out = n)
+y1 <- a + b*x1 + rnorm(n, sd = 0.5)
+x2 <- x1 / 3
+y2 <- a + b*x2 + rnorm(n, sd = 0.5)
+
+m1 <- lm(y1 ~ x1)
+m2 <- lm(y2 ~ x2)
+
+se1 <- summary(m1)$coefficients["x1", "Std. Error"]
+se2 <- summary(m2)$coefficients["x2", "Std. Error"]
+
+par(mfrow=c(1, 2))
+plot(x1, y1, xlim = c(-3, 3), xlab = "", ylab = "",
+     main = paste0("SE(beta) = ", round(se1, digits = 2)))
+abline(m1)
+plot(x2, y2, xlim = c(-3, 3), xlab = "", ylab = "",
+     main = paste0("SE(beta) = ", round(se2, digits = 2)))
+abline(m2)
+```
+
 
 ## Association tree density vs.\ CWD
 

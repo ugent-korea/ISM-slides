@@ -588,7 +588,7 @@ lines(800:2200, exp(p[,3]), lty=2)
 $$
 SE(\hat{\beta})=\sqrt{\frac{MSE}{\sum_i (X_i-\bar X)^2}}
 $$
-with $MSE=\frac{1}{n}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
+with $MSE=\frac{1}{n-2}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
 \item Large spread on $X$ improves precision
 \end{itemize}
 

@@ -55,60 +55,63 @@ abline(model)
 
 ## Regression
 
-\begin{itemize}
-\item For fixed $X$, $Y$ will not necessarily take on same value:
+- For fixed $X$, $Y$ will not necessarily take on same value:
 \begin{center}
 \alert{observation = signal + noise}
 \end{center}
-\item Mathematical modelling of observation:
-\[Y_i=f(X_i)+\epsilon_i\]
-\item Define $f(x)$ as expected outcome for subjects with $X_i=x$
-\[E(Y_i|X_i=x)=f(x)\] 
-where $\epsilon_i$ is on average 0 for subjects with same $X_i$: \[E(\epsilon_i|X_i)=0\]
-\end{itemize}
+- Mathematical modelling of observation:
+\[
+  Y_i=f(X_i)+\epsilon_i
+\]
+where $f(x)$ is the expected outcome for subjects with $X_i=x$
+\[
+  E(Y_i|X_i=x) = f(x)
+\] 
+and $\epsilon_i$ is on average 0 for subjects with same $X_i$:
+\[
+  E(\epsilon_i|X_i) = 0.
+\]
+
 
 ## Linear regression
 
-\begin{itemize}
-\item To obtain \alert{accurate} and \alert{interpretable} results, $f(X)$ is often chosen as linear function of unknown parameters
-\item Use \alert{linear regression model}
-\[E(Y|X=x)=\alpha + \beta x\]
-with unknown \alert{intercept} $\alpha$ and \alert{slope} $\beta$
-\item Linear regression model makes \alert{assumption} on distribution of $X$ and $Y$, so can be incorrect
-\end{itemize}
+- To obtain accurate and interpretable results, $f(X)$ is often chosen as linear function of unknown parameters
+- Use \alert{linear regression model}
+\[
+  E(Y|X=x)=\alpha + \beta x
+\]
+with unknown \alert{intercept} $\alpha$ and \alert{slope} $\beta$.
+- Linear regression model makes assumption on distribution of $X$ and $Y$, so can be incorrect.
+
 
 ## Use of linear regression
 
-\begin{itemize}
-\item \alert{Prediction}: when $Y$ unknown, but $X$ known, we can predict $Y$ based on $X$ 
-\[E(Y|X=x)=\alpha + \beta x\]
-\begin{itemize} 
-\item \alert{Intercept}: $E(Y|X=0)=\alpha$
-\end{itemize}
-\vfill
-\item \alert{Association}: describe biological relation between variable $X$ and continuous measurement $Y$
-\begin{itemize} 
-\item \alert{Slope}: 
-\begin{eqnarray*}
-E(Y|X=x+\delta)-E(Y|X=x)&=&\alpha + \beta (x+\delta) -\alpha-\beta x\\
-&=& \beta\delta
-\end{eqnarray*}
-$\beta=$ difference in mean outcome between subjects that differ 1 unit in the value of $X$
-\end{itemize}
-\end{itemize}
+- **Prediction**: when $Y$ unknown, but $X$ known, we can predict $Y$ based on $X$:
+\[
+  E(Y|X=x)=\alpha + \beta x.
+\]
+- **Association**: describe biological relation between variable $X$ and continuous measurement $Y$
+  - \alert{Slope} $\beta$: difference in mean outcome between subjects that differ 1 unit in the value of $X$:
+  \begin{align*}
+    E(Y|X=x+\delta) - E(Y|X=x) & = \alpha + \beta (x+\delta)      
+                                    -\alpha-\beta x\\
+      & = \beta\delta.
+  \end{align*}
+
 
 ## Least squares estimates
 
-\begin{itemize}
-\item \alert{Least squares (regression) line}: line that `best' fits data
-\item Found by choosing values for $\alpha$ and $\beta$ that minimise sum of squares of \alert{residuals}: 
-\[\sum_{i=1}^n (\underbrace{Y_i-\alpha-\beta X_i}_{\text{Residual}})^2\]
-\item Estimates for $\beta$ and $\alpha$:
-\[\hat{\beta}=\frac{\mbox{Cor}(x,y)S_y}{S_x} \quad \mbox{\rm and} \quad \hat{\alpha}=\bar Y - \hat{\beta} \bar X
+- Least squares (regression) line: line that `best' fits data.
+- Found by choosing values for $\alpha$ and $\beta$ that minimize sum of squares of \alert{residuals}: 
+\[
+  \sum_{i=1}^n (\underbrace{Y_i-\alpha-\beta X_i}_{\text{Residual}})^2
 \]
-\end{itemize}
+- Estimates for $\beta$ and $\alpha$:
+\[
+  \hat{\beta} = \mbox{Cor}(x,y) \frac{S_y}{S_x} \quad \text{and} \quad \hat{\alpha}=\bar Y - \hat{\beta} \bar X.
+\]
 
-## 
+## Residuals plot
 
 ```{r, echo=F}
 a <- -77.10

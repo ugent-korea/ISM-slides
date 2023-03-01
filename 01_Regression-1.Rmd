@@ -132,6 +132,8 @@ plot_residuals(a, b)
 text(1700, 100, paste("y =", a, "+", b, "x"))
 ```
 
+See also: [residuals animation](https://yihui.org/animation/example/least-squares/).
+
 ## Output linear regression
 
 ```{r eval = FALSE}

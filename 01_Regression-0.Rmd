@@ -104,8 +104,8 @@ $$
 
 Regression coefficients:
 
-- **Slope** (87.45cm): height of a hypothetical student with palms that are 0 cm wide. Often makes more sense after mean-centering.
-- **Intercept** (9.91): each extra cm in palm width is associated with an increase of 9.91 cm in height.
+- **Intercept** (87.45cm): height of a hypothetical student with palms that are 0 cm wide. Often makes more sense after mean-centering.
+- **Slope** (9.91): each extra cm in palm width is associated with an increase of 9.91 cm in height.
 
 
 ## Be careful with extrapolating

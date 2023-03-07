@@ -1,18 +1,22 @@
 ---
-title: "Chapter 7: Linear regression"
+title: "Chapter 1: Linear regression"
 subtitle: "Multiple Linear Regression"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
+
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
@@ -369,11 +373,11 @@ summary(model_l5)$coefficients
 ```
 
 
-\begin{alltt}
+\begin{verbatim}
 Residual standard error: 33.43 on 19 degrees of freedom
 Multiple R-squared:  0.9069,	Adjusted R-squared:  0.8774 
 F-statistic: 30.83 on 6 and 19 DF,  p-value: 8.159e-09
-\end{alltt}
+\end{verbatim}
 
 ## Constructing statistical models
 

@@ -58,37 +58,33 @@ Image source: [Wikipedia](https://en.wikipedia.org/wiki/Larix_kaempferi).
 
 ## Simple linear regression not possible
 
-\begin{itemize}
-\item Separate linear regression models
-\[E(Y|X_P)=\alpha+\beta_P X_P\]
-only allow to predict based on 1 mineral
-\item More accurate predictions based on all minerals simultaneously
-\item Separate models might \alert{not} show \alert{pure effect}
-\begin{itemize}
-\item $\beta_P$ is mean difference in length between trees that differ 1 unit in proportion phosphorus
-\item \alert{Confounding}: even if phosphorus would not have influence on length, trees with higher level of phosphorus might be taller because they contain, for example, more potassium
-\item Necessity to compare trees with different level of phosphorus, but same level of potassium
-\end{itemize}
-\end{itemize}
+- Separate linear regression models
+\[
+  E(Y|X_P)=\alpha+\beta_P X_P
+\]
+only allow to predict based on 1 mineral.
+- More accurate predictions based on all minerals simultaneously.
+- Separate models might \alert{not} show \alert{pure effect}
+  - $\beta_P$ is mean difference in length between trees that differ 1 unit in proportion phosphorus.
+  - \alert{Confounding}: even if phosphorus would not have influence on length, trees with higher level of phosphorus might be taller because they contain, for example, more potassium.
+  - Necessity to compare trees with different level of phosphorus, but same level of potassium.
 
 ## Multiple linear regression
 
-\begin{itemize}
-\item Assume that 
-\[E(Y|X_N,X_P,X_K,X_r)=\alpha + \beta_N X_N+ \beta_P X_P + \beta_K X_K +\beta_r X_r
+- Assume that 
+\[
+  E(Y|X_N,X_P,X_K,X_r)=\alpha + \beta_N X_N+ \beta_P X_P + \beta_K X_K +\beta_r X_r
 \]
-for unknown \alert{intercept} $\alpha$ and \alert{slopes} $\beta_N, \beta_P, \beta_K, \beta_r$
+for unknown \alert{intercept} $\alpha$ and \alert{slopes} $\beta_N, \beta_P, \beta_K, \beta_r$.
 
-\item Now prediction based on multiple minerals possible
-
-\item Confounding \alert{partially circumvented}: 
+- Now prediction based on multiple minerals possible.
+- Confounding \alert{partially circumvented}: 
 \begin{eqnarray*}
 &&E(Y|X_N,X_P=x_P+\delta,X_K,X_r)-E(Y|X_N,X_P=x_P,X_K,X_r)\\
 &&=\alpha + \beta_N X_N + \beta_P (x_P+\delta)+ \beta_K X_K +\beta_r X_r\\
 &&\hspace*{1cm}-\alpha - \beta_N X_N- \beta_P x_P- \beta_K X_K -\beta_r X_r = \beta_P\delta
 \end{eqnarray*}
-$\beta_P=$ difference in mean length between trees that differ 1 unit in proportion phosphorus, \alert{but have same value for other explaining variables}
-\end{itemize}
+$\beta_P=$ difference in mean length between trees that differ 1 unit in proportion phosphorus, but have **same value for other explaining variables**.
 
 ## Analysis of larches
 
@@ -97,7 +93,7 @@ model_l <- lm(length ~ phosphor)
 summary(model_l)
 ```
 
-We call in this case the association between phosphorus and length \alert{unadjusted}
+We call in this case the association between phosphorus and length **unadjusted**.
 
 ## Analysis of larches
 
@@ -109,7 +105,7 @@ summary(model_l)
 
 ## Analysis of larches
 
-Parameters estimated using least squares method
+Parameters estimated using least squares method:
 
 \small
 ```{r eval = FALSE}
@@ -123,16 +119,16 @@ summary(model_l2)$coefficients
 ```
 
 \normalsize
-We say in this case that the association between phosphorus and length is \alert{adjusted} for nitrogen, potassium, and residual ash
+We say in this case that the association between phosphorus and length is **adjusted** for nitrogen, potassium, and residual ash.
 
 ## Tests and confidence intervals 
 
-\begin{itemize}
-\item Tests and confidence intervals for parameter $\beta$ based on
-\[\frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-p}\]
-with $p$ number of unknown parameters in model
-\item Or directly using
-\end{itemize}
+- Tests and confidence intervals for parameter $\beta$ based on
+\[
+  \frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-p}
+\]
+with $p$ number of unknown parameters in model.
+- Or directly using
 ```{r eval = FALSE} 
 confint(model_l2)
 ```
@@ -142,14 +138,17 @@ confint(model_l2)
 ```{r echo = FALSE}
 summary(model_l2)$coefficients
 ```
-
 \normalsize
-\begin{itemize}
-\item \alert{95\% CI} for $\beta_N$ needs $t_{21,0.975}=2.08$
-\[[97.76 \pm 2.08\times 24.57]=[46.66, 148.86]\]
-\item \alert{95\% CI} for $\beta_P$
-\[[256.97 \pm 2.08\times 169.91]=[-96.36, 610.31]\]
-\end{itemize}
+
+- **95\% CI** for $\beta_N$ needs $t_{21,0.975}=2.08$
+\[
+  [97.76 \pm 2.08\times 24.57]=[46.66, 148.86].
+\]
+- **95\% CI** for $\beta_P$
+\[
+  [256.97 \pm 2.08\times 169.91]=[-96.36, 610.31].
+\]
+
 
 ## Analysis of larches: individual residual plots
 
@@ -174,21 +173,15 @@ plot(model_l2)
 
 ## Interaction or effect modification
 
-\begin{itemize}
-\item \alert{Interaction} or \alert{effect modification}: effect of variable $X$ on outcome $Y$ depends on third variable $Z$
-\begin{exampleblock}{Examples}
-\begin{itemize}
-\item Effect of nitrogen on growth depends on proportion phosphorus
-\item Pharmacogenetics: effect of steroids for asthma on lung function depends on certain genes
-\item Gene-environment interactions: effect of certain genes on COPD depends on history of smoking
-\end{itemize}
-\end{exampleblock}
-
-\item Model interactions through \alert{cross-product term}:
+- **Interaction** or **effect modification**: effect of variable $X$ on outcome $Y$ depends on third variable $Z$.
+- Examples:
+  - Effect of nitrogen on growth depends on proportion phosphorus
+  - Pharmacogenetics: effect of steroids for asthma on lung function depends on certain genes.
+  - Gene-environment interactions: effect of certain genes on COPD depends on history of smoking.
+- Model interactions through **cross-product term**:
 \[
-E(Y|X_N,X_P)=\alpha + \beta_N X_N+ \beta_P X_P+ \beta_{NP} X_NX_P
+  E(Y|X_N,X_P)=\alpha + \beta_N X_N+ \beta_P X_P+ \beta_{NP} X_NX_P.
 \]
-\end{itemize}
 
 ## Interpretation
 
@@ -196,13 +189,13 @@ E(Y|X_N,X_P)=\alpha + \beta_N X_N+ \beta_P X_P+ \beta_{NP} X_NX_P
 &&E(Y|X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
 &&=\alpha + \beta_N (x_N+1)+ \beta_P X_P+ \beta_{NP} (x_N+1)X_P\\
 &&\hspace*{1cm}-\alpha - \beta_N x_N- \beta_P X_P- \beta_{NP} x_N X_P\\
-&&=\beta_N+\beta_{NP}X_P
+&&=\beta_N+\beta_{NP}X_P.
 \end{eqnarray*}
-\begin{itemize}
-\item $\beta_{NP}$ is difference in nitrogen \alert{effect} between trees that differ 1 percentage in phosphorus
-\item Decide whether nitrogen effect depends on quantity phosphorus can be done by testing if $\beta_{NP}=0$
-\item $\beta_N$ is effect of 1 percentage increase in nitrogen when percentage phosphorus is 0
-\end{itemize}
+
+- $\beta_{NP}$ is difference in nitrogen \alert{effect} between trees that differ 1 percentage in phosphorus.
+- Decide whether nitrogen effect depends on quantity phosphorus can be done by testing if $\beta_{NP}=0$.
+- $\beta_N$ is effect of 1 percentage increase in nitrogen when percentage phosphorus is 0.
+
 
 ## Analysis of larches with interaction
 
@@ -221,9 +214,7 @@ summary(model_l3)
 
 ## Predicted association (full model, interaction)
 
-\begin{center}
-\includegraphics[width=\textwidth]{./images/01-linear-regression/needles-interaction.png}
-\end{center}
+![](./images/01-linear-regression/needles-interaction.png)
 
 Interactive visualization at \url{https://jvkersch.shinyapps.io/multi-regression/}.
 
@@ -330,44 +321,43 @@ plot(phosphor_plot, nitrogen_effect, type = "l", lwd = 2,
 ## Constructing statistical models
 
 Statistical models are built hierarchically by adding or removing one predictor at a time:
-\begin{itemize}
-\item \alert{forward} model construction: starts from empty model
-\item \alert{backward} model construction: starts from full model, i.e., one that contains all available predictors
-\item \alert{stepwise} model construction: combination of both
-\end{itemize}
+
+- **Forward** model construction: starts from empty model.
+- **Backward** model construction: starts from full model, i.e., one that contains all available predictors.
+- **Stepwise** model construction: combination of both.
+
 
 ## Constructing statistical models
 
-\begin{itemize}
-\item \alert{Forward} model construction: include predictors \alert{1 by 1}
-\item After each inclusion
-\begin{itemize}
-\item verify if certain predictors in the model are no longer significantly associated with outcome
-\item remove those \alert{1 by 1} until model contains only significant predictors
-\end{itemize}
-\item Repeat until no inclusion is significant \vfill
-\item \alert{Backward} model construction excludes \alert{1 by 1} the \alert{nonsignificant} predictors
-\item Until model only contains significant predictors \vfill
-\item The included (excluded) predictor is ideally the one that is most (least) strongly associated with outcome, after verification for the other predictors in the model
-\end{itemize}
+**Forward** model construction:
+
+- Include predictors \alert{1 by 1}
+- After each inclusion:
+  - Verify if certain predictors in the model are no longer significantly associated with outcome.
+  - Remove those \alert{1 by 1} until model contains only significant predictors.
+- Repeat until no inclusion is significant
+
+**Backward** model construction: 
+
+- Exclude \alert{1 by 1} the **nonsignificant** predictors.
+- Until model only contains significant predictors.
+
+In either case, the included (excluded) predictor is ideally the one that is most (least) strongly associated with outcome, after verification for the other predictors in the model.
+
 
 ## Constructing statistical models
 
-\begin{itemize}
-\item Example larches in \texttt{R}
-\item Once all \alert{first order terms} have been verified, investigate \alert{higher order terms} (interactions, quadratic effects, ...)
-\item This is \alert{not} done in \alert{exhaustive} way:
-\begin{itemize}
-\item because number of higher order terms can get very large
-\item because \alert{problem of multiple testing} might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant
-\end{itemize}
-\item Instead higher order terms will be considered for inclusion based on:
-\begin{itemize}
-\item biological judgment
-\item insight from residual plots
-\end{itemize}
-\item Once final model is obtained, verify its virtue through residual plots
-\end{itemize} 
+- Once all **first order terms** have been verified, investigate **higher order terms** (interactions, quadratic effects, ...)
+- This is **not** done in exhaustive way:
+  - Because number of higher order terms can get very large.
+  - Because \alert{problem of multiple testing} might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant.
+
+- Higher order terms considered for inclusion based on:
+  - Biological judgment
+  - Insight from residual plots.
+
+- Once final model is obtained, verify through residual plots.
+
 
 ## Analysis of larches: provisonally `final' model
 
@@ -380,7 +370,6 @@ model_l5 <- lm(length ~ nitrogen * phosphor + potassium
 summary(model_l5)$coefficients
 ```
 
-
 \begin{verbatim}
 Residual standard error: 33.43 on 19 degrees of freedom
 Multiple R-squared:  0.9069,	Adjusted R-squared:  0.8774 
@@ -389,18 +378,14 @@ F-statistic: 30.83 on 6 and 19 DF,  p-value: 8.159e-09
 
 ## Constructing statistical models
 
-\begin{itemize}
-\item How to build statistical models \alert{depends ideally from goal} of these models:
-\begin{itemize}
-\item make predictions
-\item determine effect of an exposure on an outcome
-\end{itemize}
-\item To make predictions, previous strategy is sensible since it aims at avoiding \alert{overfitting}
-\item To determine \alert{effect of an exposure} on an outcome, must make sure above all to adjust for all \alert{confounders}
-\begin{block}{Confounder are factors}
-\begin{itemize}
-\item that are not comparable between exposure groups
-\item in particular, that are associated with outcome and exposure, but are \alert{not influenced by either}
-\end{itemize}
-\end{block}
-\end{itemize}
+
+- How to build statistical models \alert{depends ideally from goal} of these models:
+  - Making predictions
+  - Determining effect of an exposure on an outcome.
+
+- To make predictions, previous strategy is sensible since it aims at avoiding overfitting.
+- To determine effect of an exposure on an outcome, must make sure above all to adjust for all \alert{confounders}
+- Recall: Confounder are factors
+  - that are not comparable between exposure groups
+  - in particular, that are associated with outcome and exposure, but are \alert{not influenced by either}.
+

@@ -34,19 +34,27 @@ attach(needles)
 
 ## Example: Mineral composition versus growth
 
-\begin{exampleblock}{}
-\begin{itemize}
-\item 26 8-year-old Japanese larches
-\item \alert{Goal}: association between height $Y$ of tree (in cm) and mineral composition of needles:
-\begin{itemize}
-\item nitrogen $X_N$
-\item phosphorus $X_P$
-\item potassium $X_K$
-\item residual ash $X_r$
-\end{itemize}
-expressed in percentage observed in dried needles
-\end{itemize}
-\end{exampleblock}
+::::::: {.cols data-latex=""}
+:::: {.col data-latex="{0.75\textwidth}"}
+- Case study: 26 8-year-old Japanese larches
+- **Goal**: study association between height $Y$ of tree (in cm) and mineral composition of needles:
+  - Nitrogen $X_N$
+  - Phosphorus $X_P$
+  - Potassium $X_K$
+  - Residual ash $X_r$
+- Independent variables expressed in percentage observed in dried needles.
+::::
+
+:::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+::::
+:::: {.col data-latex="{0.2\textwidth}"}
+![](./images/01-linear-regression/Larix-kaempferi.jpeg)
+\scriptsize
+Image source: [Wikipedia](https://en.wikipedia.org/wiki/Larix_kaempferi).
+::::
+:::::::
+
 
 ## Simple linear regression not possible
 

@@ -283,13 +283,15 @@ Multiple R-squared:  0.8836,	Adjusted R-squared:  0.8614
 
 ## Aside: adjusted multiple correlation coefficient
 
-- $R^2$ always increases (closer to 1) when model becomes more complex
+- $R^2$ always increases (gets closer to 1) when model becomes more complex
 - To "punish" complexity, use adjusted $R^2$:
 \[
   R^2_\mathrm{adj} = 1 - \frac{n-1}{n - p - 1}(1 - R^2).
 \]
 - Adjusted $R^2$ is always lower than $R^2$.
-- Larches: $n = 26$, $p = 4$, $R^2 = 0.8836$, so
+- Interpretation not so straightforward, used mainly for **model comparison**.
+
+Larches: $n = 26$, $p = 4$, $R^2 = 0.8836$, so
 \[
   R^2_\mathrm{adj} = 1 - \frac{25}{21}(1 - 0.8836) = 0.8614.
 \]

@@ -39,7 +39,9 @@ body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header
 attach(body.fat)
 ```
 
-## Prediction
+# Prediction
+
+## Example
 
 Use model to predict length of larch based on mineral composition of needles.
 
@@ -139,6 +141,8 @@ predict.lm(model_l8, newdata, interval = "confidence")
 predict.lm(model_l8, newdata, interval = "prediction")
 ```
 
+# Variability in regression models
+
 ## Predictivity 
 
 Another way to gain insight in predictivity compares 
@@ -196,7 +200,9 @@ Residual sum of squares}
 \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
 
 
-## Comparing simple vs. complex model
+# Comparing simple vs. complex models
+
+## Example
 
 ```{r, echo=FALSE, out.height="50%", fig.align='center'}
 set.seed(123)
@@ -222,7 +228,7 @@ Compare linear model (line) with model that just predicts the mean (dashed)
 - Left: linear model barely better than mean value.
 - Right: linear model **obviously better** than mean value.
 
-## Comparing simple vs. complex model: nested models
+## Nested models
 
 Nested models:
 
@@ -239,7 +245,7 @@ How do we quantify which model is better?
 - Single regression: hypothesis test for $\beta$.
 - Multiple regression: need to compare effect of **all coefficients at once**. 
 
-## Comparing simple vs. complex model: intuition
+## Intuition: comparing variance
 
 Idea: compare residual variability (SSE) to assess model fit.
 
@@ -285,7 +291,7 @@ anova(model_l1, model_l2)
 ```
 \normalsize
 
-## Comparing simple vs. complex model: \texttt{R} summary
+## \texttt{R} summary command
 
 ```{r, echo=TRUE, results="hide"}
 summary(model_l8)

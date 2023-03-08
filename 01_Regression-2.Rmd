@@ -274,9 +274,7 @@ summary(model_l4)
 
 ## Predicted association (full model, no interaction)
 
-\begin{center}
-\includegraphics[width=\textwidth]{./images/01-linear-regression/needles-no-interaction}
-\end{center}
+![](./images/01-linear-regression/needles-no-interaction)
 
 ## Predicted association (left) and effect (right)
 

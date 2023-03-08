@@ -194,3 +194,113 @@ Residual sum of squares}
 - Larches: Multiple R-Squared = 0.8836, i.e. 88.36\% of variability on tree length is explained by mineral composition of needles.
 
 \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
+
+
+## Comparing simple vs. complex model
+
+```{r, echo=FALSE, out.height="50%", fig.align='center'}
+set.seed(123)
+x <- seq(-5, 5, length.out = 20)
+y_weak <- 0.1 * x + 1 * rnorm(20)
+y_strong <- 0.7 * x + 1 * rnorm(20)
+m_weak <- lm(y_weak ~ x)
+m_strong <- lm(y_strong ~ x)
+
+par(mfrow=c(1, 2), cex=1.5)
+plot(x, y_weak, xlab = "", ylab = "", main = "Weak")
+abline(m_weak)
+abline(h = mean(y_weak), lty = "dashed")
+
+plot(x, y_strong, xlab = "", ylab = "", main = "Strong")
+abline(m_strong)
+abline(h = mean(y_strong), lty = "dashed")
+
+```
+
+Compare linear model (line) with model that just predicts the mean (dashed)
+
+- Left: linear model barely better than mean value.
+- Right: linear model **obviously better** than mean value.
+
+## Comparing simple vs. complex model: nested models
+
+Nested models:
+
+- Complex model: with many predictors.
+- Simple model: like complex, but some predictors have been removed.
+
+Example (larches):
+
+- Complex: $E(Y|X) = \alpha + \beta_N X_N+ \beta_P X_P + \beta_K X_K +\beta_r X_r$
+- Simple: $E(Y|X) = \alpha + \beta_P X_P$
+
+How do we quantify which model is better?
+
+- Single regression: hypothesis test for $\beta$.
+- Multiple regression: need to compare effect of **all coefficients at once**. 
+
+## Comparing simple vs. complex model: intuition
+
+Idea: compare residual variability (SSE) to assess model fit.
+
+- $SSE_\mathrm{complex}$ *always* lower than $SSE_\mathrm{simple}$.
+- If it is *much* lower, decide that complex model is better.
+
+Formalized via $F$-test:
+
+- Null hypothesis: simple and complex model fit data equally well.
+- Alternative hypothesis: complex model is better.
+- Test statistic:
+$$
+  f = \frac{\frac{SSE_\mathrm{simple}- SSE_\mathrm{complex}}{p_\mathrm{complex} - p_\mathrm{simple}}}{\frac{SSE_\mathrm{complex}}{n - p_\mathrm{complex} - 1}}
+  \sim F_{p_\mathrm{complex} - p_\mathrm{simple}, n - p_\mathrm{complex} - 1}.
+$$
+
+## Example: larches
+
+Residual sum of squares:
+
+- $SSE_\mathrm{simple} = 91404.49$
+- $SSE_\mathrm{complex} = 30121.92$
+
+Number of predictors:
+
+- $p_\mathrm{simple} = 1$
+- $p_\mathrm{complex} = 4$
+
+Hypothesis test:
+
+- Test statistic: $f = 14.24139$
+- $p$-value: $p = 0.00002744$.
+
+Conclusion: complex model is significantly better.
+
+## Example in \texttt{R}: larches
+
+\footnotesize
+```{r}
+model_l1 <- lm(length ~ phosphor)
+model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu)
+anova(model_l1, model_l2)
+```
+\normalsize
+
+## Comparing simple vs. complex model: \texttt{R} summary
+
+```{r, echo=TRUE, results="hide"}
+summary(model_l8)
+```
+
+\footnotesize
+\begin{verbatim}
+(...)
+Residual standard error: 35.55 on 21 degrees of freedom
+Multiple R-squared:  0.8836,	Adjusted R-squared:  0.8614 
+F-statistic: 39.85 on 4 and 21 DF,  p-value: 1.603e-09
+\end{verbatim}
+\normalsize
+
+Last line:
+
+- $F$-statistic: compares model to model with intercept only.
+- **"Is my complex model capturing something meaningful?"**

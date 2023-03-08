@@ -1,17 +1,20 @@
 ---
-title: "Chapter 7: Linear regression"
-subtitle: "Predictivity, collinearity, and diagnostics"
+title: "Chapter 1: Linear regression"
+subtitle: "Predictivity and variability"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
 
 ```{r include = FALSE}
@@ -60,14 +63,10 @@ To determine the accuracy of a prediction, we need to take into account the
 \begin{itemize}
 \item \alert{variability} of the observations \alert{around the regression line}
 \begin{exampleblock}{CWD basal area} 
-\begin{alltt}
 Residual standard error: 1.01 on 13 degrees of freedom
-\end{alltt}
 \end{exampleblock}
 \begin{exampleblock}{Larches} 
-\begin{alltt}
 Residual standard error: 35.55 on 21 degrees of freedom
-\end{alltt}
 Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance
 \[2\times 35.55=71.1\]
 of the mean
@@ -169,18 +168,14 @@ Residual sum of squares}
 ## Multiple correlation coefficient
 
 \begin{exampleblock}{CWD basal area}
-\begin{alltt}
 Multiple R-Squared: 0.7159     
-\end{alltt}
 \begin{itemize}
 \item 71.59\% of variability on CWD basal area is explained by tree density
 \end{itemize}
 \end{exampleblock}
 \hfill
 \begin{exampleblock}{Larches}
-\begin{alltt}
 Multiple R-Squared: 0.8836     
-\end{alltt}
 \begin{itemize}
 \item 88.36\% of variability on tree length is explained by mineral composition of needles
 \end{itemize}

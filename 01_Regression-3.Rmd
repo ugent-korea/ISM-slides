@@ -141,7 +141,7 @@ predict.lm(model_l8, newdata, interval = "prediction")
 
 ## Predictivity 
 
-Another way to gain insight on predictivity compares 
+Another way to gain insight in predictivity compares 
 \begin{itemize}
 \item variability \alert{around} regression line
 \item with variability \alert{on} the regression line, explained by the regression line
@@ -167,48 +167,30 @@ Another way to gain insight on predictivity compares
 
 ## Sum of squares
 
-\begin{itemize}
-\item Let $\hat{y}_i$ be the prediction for observation $i$, then
-\begin{eqnarray*}
-SS_{Total}&=&\sum_{i=1}^n (y_i-\bar y)^2
-\\&=&\sum_{i=1}^n
-(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n
-(y_i-\hat{y}_i)^2\\
-&=&\sum_{i=1}^n
-(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n e_i^2\\
-&=&SS_{Regression}+SS_{Residual}
-\end{eqnarray*}
-\item \alert{Total sum of squares = Regression sum of squares +
+- Let $\hat{y}_i$ be the prediction for observation $i$, then
+\begin{align*}
+SS_{Total} & = \sum_{i=1}^n (y_i-\bar y)^2 \\
+  & = \sum_{i=1}^n(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n (y_i-\hat{y}_i)^2\\
+  & = \sum_{i=1}^n (\hat{y}_i-\bar y)^2+ \sum_{i=1}^n e_i^2\\
+  & = SS_{Regression}+SS_{Residual}.
+\end{align*}
+- \alert{Total sum of squares = Regression sum of squares +
 Residual sum of squares}
-\end{itemize}
 
 ## Multiple correlation coefficient
 
-\begin{itemize}
-\item \alert{Multiple correlation coefficient} or coefficient of determination:
-\[R^2=\frac{SS_{Regression}}{SS_{Total}}\] 
-\item Expresses the proportion of variability on data is captured by their association with explanatory variable
-\item Measure for \alert{predictive value} of explanatory variable
-\item Always between 0 and 1
-\item Simple linear regression: the square of the correlation between $X$ and $Y$
-\end{itemize}
+- **Multiple correlation coefficient** or coefficient of determination:
+\[
+  R^2=\frac{SS_{Regression}}{SS_{Total}}
+\] 
+- Expresses the proportion of variability on data is captured by their association with explanatory variable
+- Measure for \alert{predictive value} of explanatory variable
+- Always between 0 and 1
+- Simple linear regression: the square of the correlation between $X$ and $Y$
 
 ## Multiple correlation coefficient
 
-\begin{exampleblock}{CWD basal area}
-Multiple R-Squared: 0.7159     
-\begin{itemize}
-\item 71.59\% of variability on CWD basal area is explained by tree density
-\end{itemize}
-\end{exampleblock}
-\hfill
-\begin{exampleblock}{Larches}
-Multiple R-Squared: 0.8836     
-\begin{itemize}
-\item 88.36\% of variability on tree length is explained by mineral composition of needles
-\end{itemize}
-\end{exampleblock}
-\hfill
-\begin{itemize}
-\item \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
-\end{itemize}
+- CWD basal area: Multiple R-Squared = 0.7159, i.e. 71.59\% of variability on CWD basal area is explained by tree density.
+- Larches: Multiple R-Squared = 0.8836, i.e. 88.36\% of variability on tree length is explained by mineral composition of needles.
+
+\alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$

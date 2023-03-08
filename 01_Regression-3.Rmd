@@ -8,6 +8,7 @@ header-includes:
   - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
   - \usepackage{graphicx}
+  - \usepackage{amsmath}
   - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
@@ -40,47 +41,74 @@ attach(body.fat)
 
 ## Prediction
 
-Use model to predict length of larch based on mineral composition of needles
+Use model to predict length of larch based on mineral composition of needles.
 
-\begin{exampleblock}{Example}
-Nitrogen, phosphorus, and potassium percentages 1.9, 0.2 and 0.7
-\end{exampleblock}
-\small
+\footnotesize
 ```{r echo=FALSE}
 coefs <- summary(model_l8)$coefficients
 coefs
 ```
 \normalsize
-$$
-160.66-76.5\times 1.9-1120.7\times 0.2+138.06\times 0.7 
-+724.38\times 1.9\times 0.2=163.1
-$$
 
+- Percentages: nitrogen = 1.9, phosphorus = 0.2, potassium = 0.7.
+- Predicted **average** length:
+\begin{multline*}
+160.66-76.5\times 1.9-1120.7\times 0.2+138.06\times 0.7 + \\
+724.38\times 1.9\times 0.2=163.1.
+\end{multline*}
 
 ## Accuracy of prediction
 
 To determine the accuracy of a prediction, we need to take into account the 
-\begin{itemize}
-\item \alert{variability} of the observations \alert{around the regression line}
-\begin{exampleblock}{CWD basal area} 
-Residual standard error: 1.01 on 13 degrees of freedom
-\end{exampleblock}
-\begin{exampleblock}{Larches} 
-Residual standard error: 35.55 on 21 degrees of freedom
+
+- **variability** of the observations around the regression line
+- **precision** of the estimated regression line.
+
+## Estimating variability via the residual standard error
+
+\alert{Residual standard error} (RSE):
+
+- CWD basal error: 1.01 on 13 degrees of freedom
+- Larches: 35.55 on 21 degrees of freedom.
+
 Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance
-\[2\times 35.55=71.1\]
-of the mean
-\end{exampleblock}
-\item \alert{precision of the estimated regression line}
-\end{itemize}
+\[
+  2\times 35.55=71.1
+\]
+of the mean.
+
+## Residual standard error in \texttt{R}
+
+\scriptsize
+```{r}
+summary(model_l8)
+```
+\normalsize
+
+## Residual standard error (by hand)
+
+RSE can be calculated as
+\[
+  RSE = \sqrt{\frac{SSE}{n - p - 1}}
+\]
+with SSE, the sum-squared of the residuals, given by
+\[
+  SSE = \sum_{i = 1}^n(y_i - \hat{y}_i)^2 = \sum_{i = 1}^n e_i^2.
+\]
+
+For example (larches):
+```{r}
+SSE <- sum(model_l8$residuals^2)
+MSE <- sqrt(SSE/(26 - 4 - 1))
+MSE
+```
 
 ## Prediction intervals 
 
-\begin{itemize}
-\item \alert{Prediction intervals} combine both inaccuracies
-\item Are designed to contain, with 95\% probability, a random observation (i.e., CWD basal area or tree length) for given predictor values (i.e., tree density or given proportions of nitrogen, phosphorus, and potassium)
-\item Can be seen as improved reference intervals
-\end{itemize}
+- **Prediction intervals** combine both inaccuracies
+  - Variability around the regression line
+  - Precision of the regression line
+- Designed to contain, with 95\% probability, a random observation (i.e., CWD basal area or tree length) for given predictor values (i.e., tree density or given proportions of nitrogen, phosphorus, and potassium)
 
 ## Prediction intervals in \texttt{R}: CWD basal area
 

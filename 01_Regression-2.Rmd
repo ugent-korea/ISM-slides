@@ -185,12 +185,12 @@ plot(model_l2)
 
 ## Interpretation
 
-\begin{eqnarray*}
-&&E(Y|X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
-&&=\alpha + \beta_N (x_N+1)+ \beta_P X_P+ \beta_{NP} (x_N+1)X_P\\
-&&\hspace*{1cm}-\alpha - \beta_N x_N- \beta_P X_P- \beta_{NP} x_N X_P\\
-&&=\beta_N+\beta_{NP}X_P.
-\end{eqnarray*}
+\begin{align*}
+E(Y| & X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
+ &=\alpha + \beta_N (x_N+1)+ \beta_P X_P+ \beta_{NP} (x_N+1)X_P\\
+ &\hspace*{1cm}-\alpha - \beta_N x_N- \beta_P X_P- \beta_{NP} x_N X_P\\
+ &=\beta_N+\beta_{NP}X_P.
+\end{align*}
 
 - $\beta_{NP}$ is difference in nitrogen \alert{effect} between trees that differ 1 percentage in phosphorus.
 - Decide whether nitrogen effect depends on quantity phosphorus can be done by testing if $\beta_{NP}=0$.

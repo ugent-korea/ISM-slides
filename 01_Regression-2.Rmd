@@ -216,7 +216,8 @@ summary(model_l3)
 
 ![](./images/01-linear-regression/needles-interaction.png)
 
-Interactive visualization at \url{https://jvkersch.shinyapps.io/multi-regression/}.
+Interactive visualization at 
+\url{https://fly.io/apps/shiny-stats/multi-regression/}.
 
 ## Predicted association (left) and effect (right)
 
@@ -277,9 +278,6 @@ summary(model_l4)
 \begin{center}
 \includegraphics[width=\textwidth]{./images/01-linear-regression/needles-no-interaction}
 \end{center}
-
-Interactive visualization at \url{https://jvkersch.shinyapps.io/multi-regression/}.
-
 
 ## Predicted association (left) and effect (right)
 

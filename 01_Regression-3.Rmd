@@ -105,12 +105,15 @@ MSE <- sqrt(SSE/(26 - 4 - 1))
 MSE
 ```
 
-## Prediction intervals 
+## Prediction/confidence intervals 
 
 - **Prediction intervals** combine both inaccuracies
   - Variability around the regression line
-  - Precision of the regression line
-- Designed to contain, with 95\% probability, a random observation (i.e., CWD basal area or tree length) for given predictor values (i.e., tree density or given proportions of nitrogen, phosphorus, and potassium)
+  - Precision of the regression line.
+- Designed to contain, with 95\% confidence, a random observation (e.g. CWD basal area or tree length) for given predictor values (e.g. tree density or given proportions of nitrogen, phosphorus, and potassium)
+
+- **Confidence intervals** incorporate only the precision of the regression line.
+- Designed to contain, with 95\% confidence, the **average** of random observations for given predictor values.
 
 ## Prediction intervals in \texttt{R}: CWD basal area
 
@@ -206,7 +209,7 @@ points(rep(1, length(y_pred)), y_pred - mean(y_pred), pch = 19, col = "red")
 axis(1, at = c(0, 1), labels = c("Residuals", "cPredictions"))
 ```
 
-Variability of residuals is much lower than variability of predictions.
+**High predictivity**: variability of residuals is much **lower** than variability of predictions.
 
 ## Low predictivity: small variability on line
 
@@ -234,40 +237,62 @@ points(rep(1, length(y_pred)), y_pred - mean(y_pred), pch = 19, col = "red")
 axis(1, at = c(0, 1), labels = c("Residuals", "cPredictions"))
 ```
 
-Variability of residuals is much higher than variability of predictions.
-
-
+**Low predictivity**: variability of residuals is much **higher** than variability of predictions.
 
 ## Sum of squares
 
 - Let $\hat{y}_i$ be the prediction for observation $i$, then
 \begin{align*}
-SS_{Total} & = \sum_{i=1}^n (y_i-\bar y)^2 \\
+SST & = \sum_{i=1}^n (y_i-\bar y)^2 \\
   & = \sum_{i=1}^n(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n (y_i-\hat{y}_i)^2\\
   & = \sum_{i=1}^n (\hat{y}_i-\bar y)^2+ \sum_{i=1}^n e_i^2\\
-  & = SS_{Regression}+SS_{Residual}.
+  & = SSR + SSE.
 \end{align*}
-- \alert{Total sum of squares = Regression sum of squares +
-Residual sum of squares}
+- Total sum of squares (SST) =  Regression sum of squares (SSR) +
+Residual sum of squares (SSE).
+- Total variability = Variability captured by regression + Variability in residuals.
 
 ## Multiple correlation coefficient
 
 - **Multiple correlation coefficient** or coefficient of determination:
 \[
-  R^2=\frac{SS_{Regression}}{SS_{Total}}
+  R^2 = \frac{SSR}{SST}.
 \] 
-- Expresses the proportion of variability on data is captured by their association with explanatory variable
-- Measure for \alert{predictive value} of explanatory variable
-- Always between 0 and 1
-- Simple linear regression: the square of the correlation between $X$ and $Y$
+- Expresses the proportion of variability in data is captured by their association with explanatory variable.
+- Measure for \alert{predictive value} of explanatory variable.
+- Always between 0 and 1.
+- Simple linear regression: the square of the correlation between $X$ and $Y$.
 
 ## Multiple correlation coefficient
 
-- CWD basal area: Multiple R-Squared = 0.7159, i.e. 71.59\% of variability on CWD basal area is explained by tree density.
-- Larches: Multiple R-Squared = 0.8836, i.e. 88.36\% of variability on tree length is explained by mineral composition of needles.
+Look at the R `summary` output:
+
+- CWD basal area:
+```{verbatim}
+Multiple R-squared:  0.7159,	Adjusted R-squared:  0.6722 
+```
+71.59\% of variability on CWD basal area is explained by tree density.
+
+- Larches: 
+```{verbatim}
+Multiple R-squared:  0.8836,	Adjusted R-squared:  0.8614 
+```
+88.36\% of variability on tree length is explained by mineral composition of needles.
 
 \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
 
+## Aside: adjusted multiple correlation coefficient
+
+- $R^2$ always increases (closer to 1) when model becomes more complex
+- To "punish" complexity, use adjusted $R^2$:
+\[
+  R^2_\mathrm{adj} = 1 - \frac{n-1}{n - p - 1}(1 - R^2).
+\]
+- Adjusted $R^2$ is always lower than $R^2$.
+- Larches: $n = 26$, $p = 4$, $R^2 = 0.8836$, so
+\[
+  R^2_\mathrm{adj} = 1 - \frac{25}{21}(1 - 0.8836) = 0.8614.
+\]
 
 # Comparing simple vs. complex models
 

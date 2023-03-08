@@ -222,7 +222,6 @@ Interactive visualization at
 ## Predicted association (left) and effect (right)
 
 ```{r, echo=FALSE, fig.height=6}
-#needles <- read.table("./datasets/needles.txt", header = T, sep = "\t", dec = ".")
 model <- lm(length ~ nitrogen*phosphor, data = needles)
 cs <- coef(model)
 
@@ -282,7 +281,6 @@ summary(model_l4)
 ## Predicted association (left) and effect (right)
 
 ```{r, echo=FALSE, fig.height=6}
-#needles <- read.table("./datasets/needles.txt", header = T, sep = "\t", dec = ".")
 model <- lm(length ~ nitrogen + phosphor, data = needles)
 cs <- coef(model)
 

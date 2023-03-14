@@ -1,0 +1,380 @@
+---
+title: "Chapter 7: Linear regression"
+subtitle: "Predictivity, collinearity, and diagnostics"
+author: "Joris Vankerschaver"
+header-includes:
+  - \usepackage{multicol}
+  - \usepackage{color}
+  - \usepackage{Ghent}
+  - \usepackage{alltt}
+output: 
+  beamer_presentation:
+    theme: "AnnArbor"
+    colortheme: "dolphin"
+    keep_tex: true
+---
+
+```{r include = FALSE}
+CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
+attach(CWD)
+
+model <- lm(CWD.BASA ~ RIP.DENS)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+summary(model)
+confint(model)
+
+needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
+attach(needles)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
+               + phosphor * residu)
+model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
+
+library(car)
+
+body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
+attach(body.fat)
+```
+
+## Prediction
+
+Use model to predict length of larch based on mineral composition of needles
+
+\begin{exampleblock}{Example}
+Nitrogen, phosphorus, and potassium percentages 1.9, 0.2 and 0.7
+\end{exampleblock}
+\small
+```{r echo=FALSE}
+coefs <- summary(model_l8)$coefficients
+coefs
+```
+\normalsize
+$$
+160.66-76.5\times 1.9-1120.7\times 0.2+138.06\times 0.7 
++724.38\times 1.9\times 0.2=163.1
+$$
+
+
+## Accuracy of prediction
+
+To determine the accuracy of a prediction, we need to take into account the 
+\begin{itemize}
+\item \alert{variability} of the observations \alert{around the regression line}
+\begin{exampleblock}{CWD basal area} 
+\begin{alltt}
+Residual standard error: 1.01 on 13 degrees of freedom
+\end{alltt}
+\end{exampleblock}
+\begin{exampleblock}{Larches} 
+\begin{alltt}
+Residual standard error: 35.55 on 21 degrees of freedom
+\end{alltt}
+Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance
+\[2\times 35.55=71.1\]
+of the mean
+\end{exampleblock}
+\item \alert{precision of the estimated regression line}
+\end{itemize}
+
+## Prediction intervals 
+
+\begin{itemize}
+\item \alert{Prediction intervals} combine both inaccuracies
+\item Are designed to contain, with 95\% probability, a random observation (i.e., CWD basal area or tree length) for given predictor values (i.e., tree density or given proportions of nitrogen, phosphorus, and potassium)
+\item Can be seen as improved reference intervals
+\end{itemize}
+
+## Prediction intervals in \texttt{R}: CWD basal area
+
+\small
+```{r}
+p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
+             interval = "confidence")
+```
+```{r echo=FALSE}
+p[1:3,]
+```
+```{r}
+p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
+             interval = "prediction")
+```
+```{r echo=FALSE}
+p[1:3,]
+```
+
+## Prediction intervals in \texttt{R}: Larches
+
+\small
+```{r}
+newdata <- data.frame(nitrogen = 1.9, phosphor = 0.2, 
+                      potassium = 0.7)
+newdata
+predict.lm(model_l8, newdata, interval = "confidence")
+predict.lm(model_l8, newdata, interval = "prediction")
+```
+
+## Predictivity 
+
+Another way to gain insight on predictivity compares 
+\begin{itemize}
+\item variability \alert{around} regression line
+\item with variability \alert{on} the regression line, explained by the regression line
+\end{itemize}
+
+## Total and residual variability
+
+\begin{center}
+\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie3.pdf}
+\end{center}
+
+## High predictivity: low variability around line 
+
+\begin{center}
+\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie4.pdf}
+\end{center}
+
+## Low predictivity: small variability on line
+
+\begin{center}
+\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie5.pdf}
+\end{center}
+
+## Sum of squares
+
+\begin{itemize}
+\item Let $\hat{y}_i$ be the prediction for observation $i$, then
+\begin{eqnarray*}
+SS_{Total}&=&\sum_{i=1}^n (y_i-\bar y)^2
+\\&=&\sum_{i=1}^n
+(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n
+(y_i-\hat{y}_i)^2\\
+&=&\sum_{i=1}^n
+(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n e_i^2\\
+&=&SS_{Regression}+SS_{Residual}
+\end{eqnarray*}
+\item \alert{Total sum of squares = Regression sum of squares +
+Residual sum of squares}
+\end{itemize}
+
+## Multiple correlation coefficient
+
+\begin{itemize}
+\item \alert{Multiple correlation coefficient} or coefficient of determination:
+\[R^2=\frac{SS_{Regression}}{SS_{Total}}\] 
+\item Expresses the proportion of variability on data is captured by their association with explanatory variable
+\item Measure for \alert{predictive value} of explanatory variable
+\item Always between 0 and 1
+\item Simple linear regression: the square of the correlation between $X$ and $Y$
+\end{itemize}
+
+## Multiple correlation coefficient
+
+\begin{exampleblock}{CWD basal area}
+\begin{alltt}
+Multiple R-Squared: 0.7159     
+\end{alltt}
+\begin{itemize}
+\item 71.59\% of variability on CWD basal area is explained by tree density
+\end{itemize}
+\end{exampleblock}
+\hfill
+\begin{exampleblock}{Larches}
+\begin{alltt}
+Multiple R-Squared: 0.8836     
+\end{alltt}
+\begin{itemize}
+\item 88.36\% of variability on tree length is explained by mineral composition of needles
+\end{itemize}
+\end{exampleblock}
+\hfill
+\begin{itemize}
+\item \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
+\end{itemize}
+
+## Multicollinearity 
+
+\begin{itemize}
+\item There is \alert{multicollinearity} when 2 or more predictors are correlated
+\item \alert{Can possibly cause problems}: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
+\begin{exampleblock}{Example} 
+If $X_1=X_2$, then 
+\[E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1\]
+\end{exampleblock}
+\end{itemize}
+\begin{exampleblock}{Consequences}
+\begin{itemize}
+\item Numerically instable estimates
+\item Estimates with large standard errors
+\item Difficult interpretation of coefficients
+\end{itemize}
+\end{exampleblock}
+
+## Diagnosing multicollinearity
+
+Multicollinearity can be recognized through:
+\begin{itemize}
+\item \alert{Instability}
+\begin{itemize}
+\item large changes in coefficients after adding a predictor
+\item very wide confidence intervals
+\item unexpected results 
+%unexpected sign or insiginificance
+\end{itemize}
+\item \alert{Strong correlation} between predictors
+\begin{itemize}
+\item \alert{Example}: usually strong correlation between $X_f$ and $X_fX_s$
+\item can sometimes be eliminated by \alert{centering}: 
+$$X \ \rightarrow \ X-\bar X$$
+\end{itemize}
+\end{itemize}
+
+## Impact of centering
+
+\centering
+```{r echo=FALSE}
+x <- rnorm(100, 5, 1)
+cx <- x - mean(x)
+y <- x^2
+cy <- cx^2
+r1 <- cor(x,y)
+r2 <- cor(cx,cy)
+par(mfrow=c(1,2))
+plot(x, y, pch = 20, main = paste("Correlation = ", round(r1,2)), xlab = "x", ylab = expression(x^2))
+abline(lm(y ~ x), col = "blue")
+plot(cx, cy, pch = 20, main = paste("Correlation = ", round(r2,2)), xlab = "cx", ylab = expression(cx^2))
+abline(lm(cy ~ cx), col = "blue")
+``` 
+
+## Scatterplot matrix - before centering
+
+\centering
+```{r echo=FALSE}
+nitrogenphospor <- nitrogen * phosphor 
+minerals <- cbind(nitrogen, phosphor, potassium, nitrogenphospor)
+colnames(minerals)[4] <- "nitrogen*phosphor"
+pairs(minerals)
+```
+
+## Scatterplot matrix - after centering
+
+\centering
+```{r echo=FALSE}
+cnitrogen <- nitrogen - mean(nitrogen)
+cphosphor <- phosphor - mean(phosphor)
+cpotassium <- potassium - mean(potassium)
+cresidu <- residu - mean(residu)
+cnitrogenphospor <- cnitrogen * cphosphor 
+minerals2 <- cbind(cnitrogen, cphosphor, cpotassium, cnitrogenphospor)
+colnames(minerals2)[4] <- "cnitrogen*cphosphor"
+pairs(minerals2)
+```
+
+## Diagnosing multicollinearity
+
+Previous diagnostics are \alert{limited}
+\begin{exampleblock}{Example} 
+\begin{itemize}
+\item Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity
+\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ en $X_3$
+\end{itemize}
+\end{exampleblock}
+\begin{block}{Variance inflation factor for $k^{th}$ coefficient}
+\[\textrm{VIF}_k=\left(1-R_k^2\right)^{-1}\]
+with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predictors
+\end{block}
+
+## Interpretation VIF
+
+\begin{itemize}
+\item $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor \alert{not} linearly associated with other predictors
+\item Expresses how much larger variance on $k^{th}$ coefficient is than when all predictors were independent
+\item Average quadratic distance between estimated and true coefficients is proportionate with average VIF
+\item Critical multicollinearity: maximum VIF of at least 10
+\end{itemize}
+
+## Variance inflation factors
+
+\centering
+```{r echo=FALSE}
+model_l8b <- lm(length ~ cnitrogen *  cphosphor + cpotassium)
+model_l5b <- lm(length ~ cnitrogen * cphosphor + cpotassium + cphosphor * cresidu)
+v1 <- vif(model_l5)
+v2 <- vif(model_l5b)
+par(mfrow=c(1,2))
+plot(v1, pch = 20, main = "Before centering", ylab = "VIF", xlab = "Parameter number")
+abline(h=10, lty = 2, col = "blue")
+z <- seq(1.4,2.8,0.2)
+plot(v2, pch = 20, main = "After centering", ylab = "VIF", xlab = "Parameter number", yaxp = c(1.4, 2.8, 7))
+```
+
+## Simpler interpretation of coefficients
+
+Coefficients (without centering)
+\small
+```{r echo=FALSE}
+summary(model_l8)$coefficients
+```
+\normalsize
+Coefficients (with centering)
+\small
+```{r echo=FALSE}
+summary(model_l8b)$coefficients
+```
+
+## Example: Prediction body fat
+
+\begin{exampleblock}{}
+\begin{itemize}
+\item Determining percentage body fat difficult and expensive
+\item Study investigates association between
+\begin{itemize}
+\item $Y$: body fat
+\item $X_1$: triceps skinfold thickness
+\item $X_2$: thigh circumference
+\item $X_3$: midarm circumference
+\end{itemize}
+\item 20 healthy women between 25 and 34 years old
+\end{itemize}
+\end{exampleblock}
+
+## Analysis in \texttt{R}
+
+\footnotesize
+```{r echo=FALSE}
+model_bf <- lm(bodyfat ~ triceps.skinfold.thickness 
+               + thigh.circumference + midarm.circumference)
+summary(model_bf)
+```
+
+## Scatterplot matrix
+
+\centering
+```{r echo=FALSE}
+pairs(body.fat[,-4])
+```
+
+## Variance inflation factors
+
+\small
+```{r echo=FALSE}
+vif_bodyfat <- vif(model_bf)
+as.data.frame(vif_bodyfat)
+```
+\normalsize
+\begin{itemize}
+\item VIF on average 460
+\item Large VIF for midarm circumference, although weakly correlated with other predictors
+\item \alert{How to correct for multicollinearity?}
+\begin{itemize}
+\item Centering variables only valid option when higher order terms are in play
+\item Combine predictors, e.g., through principal component regression
+\item Ridge regression: allow some bias in exchange for increased precision and lower risk of overfitting
+\end{itemize}
+\end{itemize}
+
+
+## Multicollinearity and confounding
+
+\begin{itemize}
+\item A lot of textbooks advise to remove predictors from model in case of multicollinearity
+\item However, multicollinearity can also indicate strong confounding!
+\end{itemize}

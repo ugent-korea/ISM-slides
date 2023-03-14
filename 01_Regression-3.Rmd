@@ -70,7 +70,7 @@ To determine the accuracy of a prediction, we need to take into account the
 
 \alert{Residual standard error} (RSE):
 
-- CWD basal error: 1.01 on 13 degrees of freedom
+- CWD basal area: 1.01 on 13 degrees of freedom
 - Larches: 35.55 on 21 degrees of freedom.
 
 Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance

@@ -1,28 +1,24 @@
 ---
-title: "Chapter 7: Linear regression"
-subtitle: "Predictivity, collinearity, and diagnostics"
+title: "Chapter 1: Linear regression"
+subtitle: "Multicollinearity"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \usepackage{amsmath}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
 
 ```{r include = FALSE}
-CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
-
-model <- lm(CWD.BASA ~ RIP.DENS)
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
-summary(model)
-confint(model)
-
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
 attach(needles)
 model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
@@ -34,161 +30,6 @@ library(car)
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
 attach(body.fat)
 ```
-
-## Prediction
-
-Use model to predict length of larch based on mineral composition of needles
-
-\begin{exampleblock}{Example}
-Nitrogen, phosphorus, and potassium percentages 1.9, 0.2 and 0.7
-\end{exampleblock}
-\small
-```{r echo=FALSE}
-coefs <- summary(model_l8)$coefficients
-coefs
-```
-\normalsize
-$$
-160.66-76.5\times 1.9-1120.7\times 0.2+138.06\times 0.7 
-+724.38\times 1.9\times 0.2=163.1
-$$
-
-
-## Accuracy of prediction
-
-To determine the accuracy of a prediction, we need to take into account the 
-\begin{itemize}
-\item \alert{variability} of the observations \alert{around the regression line}
-\begin{exampleblock}{CWD basal area} 
-\begin{alltt}
-Residual standard error: 1.01 on 13 degrees of freedom
-\end{alltt}
-\end{exampleblock}
-\begin{exampleblock}{Larches} 
-\begin{alltt}
-Residual standard error: 35.55 on 21 degrees of freedom
-\end{alltt}
-Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance
-\[2\times 35.55=71.1\]
-of the mean
-\end{exampleblock}
-\item \alert{precision of the estimated regression line}
-\end{itemize}
-
-## Prediction intervals 
-
-\begin{itemize}
-\item \alert{Prediction intervals} combine both inaccuracies
-\item Are designed to contain, with 95\% probability, a random observation (i.e., CWD basal area or tree length) for given predictor values (i.e., tree density or given proportions of nitrogen, phosphorus, and potassium)
-\item Can be seen as improved reference intervals
-\end{itemize}
-
-## Prediction intervals in \texttt{R}: CWD basal area
-
-\small
-```{r}
-p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
-             interval = "confidence")
-```
-```{r echo=FALSE}
-p[1:3,]
-```
-```{r}
-p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
-             interval = "prediction")
-```
-```{r echo=FALSE}
-p[1:3,]
-```
-
-## Prediction intervals in \texttt{R}: Larches
-
-\small
-```{r}
-newdata <- data.frame(nitrogen = 1.9, phosphor = 0.2, 
-                      potassium = 0.7)
-newdata
-predict.lm(model_l8, newdata, interval = "confidence")
-predict.lm(model_l8, newdata, interval = "prediction")
-```
-
-## Predictivity 
-
-Another way to gain insight on predictivity compares 
-\begin{itemize}
-\item variability \alert{around} regression line
-\item with variability \alert{on} the regression line, explained by the regression line
-\end{itemize}
-
-## Total and residual variability
-
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie3.pdf}
-\end{center}
-
-## High predictivity: low variability around line 
-
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie4.pdf}
-\end{center}
-
-## Low predictivity: small variability on line
-
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/PHregressie5.pdf}
-\end{center}
-
-## Sum of squares
-
-\begin{itemize}
-\item Let $\hat{y}_i$ be the prediction for observation $i$, then
-\begin{eqnarray*}
-SS_{Total}&=&\sum_{i=1}^n (y_i-\bar y)^2
-\\&=&\sum_{i=1}^n
-(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n
-(y_i-\hat{y}_i)^2\\
-&=&\sum_{i=1}^n
-(\hat{y}_i-\bar y)^2+ \sum_{i=1}^n e_i^2\\
-&=&SS_{Regression}+SS_{Residual}
-\end{eqnarray*}
-\item \alert{Total sum of squares = Regression sum of squares +
-Residual sum of squares}
-\end{itemize}
-
-## Multiple correlation coefficient
-
-\begin{itemize}
-\item \alert{Multiple correlation coefficient} or coefficient of determination:
-\[R^2=\frac{SS_{Regression}}{SS_{Total}}\] 
-\item Expresses the proportion of variability on data is captured by their association with explanatory variable
-\item Measure for \alert{predictive value} of explanatory variable
-\item Always between 0 and 1
-\item Simple linear regression: the square of the correlation between $X$ and $Y$
-\end{itemize}
-
-## Multiple correlation coefficient
-
-\begin{exampleblock}{CWD basal area}
-\begin{alltt}
-Multiple R-Squared: 0.7159     
-\end{alltt}
-\begin{itemize}
-\item 71.59\% of variability on CWD basal area is explained by tree density
-\end{itemize}
-\end{exampleblock}
-\hfill
-\begin{exampleblock}{Larches}
-\begin{alltt}
-Multiple R-Squared: 0.8836     
-\end{alltt}
-\begin{itemize}
-\item 88.36\% of variability on tree length is explained by mineral composition of needles
-\end{itemize}
-\end{exampleblock}
-\hfill
-\begin{itemize}
-\item \alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
-\end{itemize}
 
 ## Multicollinearity 
 

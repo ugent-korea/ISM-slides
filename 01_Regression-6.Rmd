@@ -25,8 +25,6 @@ model_l5 <- lm(length ~ nitrogen * phosphor + potassium
                + phosphor * residu)
 model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
 
-library(car)
-
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
 attach(body.fat)
 ```
@@ -131,7 +129,8 @@ with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predi
 ## Variance inflation factors
 
 \centering
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE}
+library(car)
 model_l8b <- lm(length ~ cnitrogen *  cphosphor + cpotassium)
 model_l5b <- lm(length ~ cnitrogen * cphosphor + cpotassium + cphosphor * cresidu)
 v1 <- vif(model_l5)
@@ -192,7 +191,8 @@ pairs(body.fat[,-4])
 ## Variance inflation factors
 
 \small
-```{r echo=FALSE}
+```{r echo=FALSE, warning=FALSE}
+library(car)
 vif_bodyfat <- vif(model_bf)
 as.data.frame(vif_bodyfat)
 ```

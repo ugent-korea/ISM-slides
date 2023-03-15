@@ -3,16 +3,21 @@ title: "Chapter 1: Linear regression"
 subtitle: "Outliers"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \usepackage{amsmath}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
+
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")

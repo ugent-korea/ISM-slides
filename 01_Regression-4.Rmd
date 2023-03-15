@@ -119,17 +119,41 @@ qqnorm(model_l5$resid)
 
 ## Multivariate outliers: $Y$ versus $X_1$ or $X_2$
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl7.pdf}
-\end{center}
+```{r, echo=FALSE, out.width="100%", out.height="100%"}
+set.seed(1234)
+n <- 30
+x1 <- 3*runif(n)
+x2 <- x1 + 0.5*rnorm(n)
+y <- 2*x1 + x2 + 5*rnorm(n)
+
+x1_outlier <- 2.5
+x2_outlier <- 0
+y_outlier <- 5
+
+range <- function(...) {
+  c(floor(min(...)), ceiling(max(...)))
+}
+
+x1_lim <- range(x1, x1_outlier)
+x2_lim <- range(x2, x2_outlier)
+y_lim <- range(y, y_outlier)
+
+par(cex = 1.5, mfrow=c(1, 2))
+plot(x1, y, xlim = x1_lim, ylim = y_lim)
+points(x1_outlier, y_outlier, pch = 15, col = "red")
+plot(x2, y, xlim = x2_lim, ylim = y_lim)
+points(x2_outlier, y_outlier, pch = 15, col = "red")
+```
+
 
 ## Multivariate outliers: $X_1$ versus $X_2$
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl8.pdf}
-\end{center}
+```{r, echo=FALSE}
+plot(x1, x2, xlim = x1_lim, ylim = x2_lim)
+points(x1_outlier, x2_outlier, pch = 15, col = "red")
 
-<!-- this observation has large leverage and Cook's distance -->
+```
+
 
 ## Leverage
 

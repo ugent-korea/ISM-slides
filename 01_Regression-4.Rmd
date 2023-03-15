@@ -49,39 +49,56 @@ attach(birnh)
 
 ## Influence of influential observations 
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl1.pdf}
-\end{center}
+```{r, echo=FALSE}
+set.seed(12345)  
+n <- 10
+X <- sort(3*runif(n))
+Y <- X + 0.3*rnorm(n)
 
-## Influence of influential observations
+par(cex = 1.5)
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl2.pdf}
-\end{center}
+plot_data_outliers <- function(outlier = NULL) {
+  X_outliers <- c(X, outlier[1])
+  Y_outliers <- c(Y, outlier[2])
+  
+  m_regular <- lm(Y ~ X)
+  m_outliers <- lm(Y_outliers ~ X_outliers)
+  
+  plot(X, Y, xlim = c(-1, 4), ylim = c(-2, 5), pch = 19,
+       xlab = "", ylab = "")
+  if (!is.null(outlier)) {
+    # Draw the outlier
+    points(outlier[1], outlier[2], pch = 19, col = "red")
+    # Draw the regression line without the outlier
+    abline(m_regular, lty = "dashed")
+  }
+  abline(m_outliers)
+}
 
-## Influence of influential observations
+plot_data_outliers(c(0,0))
+```
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl3.pdf}
-\end{center}
+## Influence of influential observations 
 
-## Influence of influential observations
+```{r, echo=FALSE}
+par(cex = 1.5)
+plot_data_outliers(c(3, 4))
+```
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl4.pdf}
-\end{center}
 
-## Influence of influential observations
+## Influence of influential observations 
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl5.pdf}
-\end{center}
+```{r, echo=FALSE}
+par(cex = 1.5)
+plot_data_outliers(c(0, 4))
+```
 
-## Influence of influential observations
+## Influence of influential observations 
 
-\begin{center}
-\includegraphics[height = 7.5 cm , width = 10cm]{images/temp/infl6.pdf}
-\end{center}
+```{r, echo=FALSE}
+par(cex = 1.5)
+plot_data_outliers(c(4, -2))
+```
 
 ## Tracking influential observations
 

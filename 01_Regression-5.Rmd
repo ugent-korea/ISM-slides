@@ -1,18 +1,24 @@
 ---
-title: "Chapter 7: Linear regression"
+title: "Chapter 1: Linear regression"
 subtitle: "Categorical variables"
 author: "Joris Vankerschaver"
 header-includes:
-  - \usepackage{multicol}
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
   - \usepackage{color}
-  - \usepackage{Ghent}
-  - \usepackage{alltt}
+  - \usepackage{graphicx}
+  - \usepackage{amsmath}
+  - \graphicspath{{./images/01-linear-regression}}
 output: 
   beamer_presentation:
-    theme: "AnnArbor"
-    colortheme: "dolphin"
+    theme: "default"
     keep_tex: true
+    includes:
+      in_header: columns.tex
 ---
+
+
 
 ```{r include = FALSE}
 birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep = "\t", dec = ".")
@@ -20,19 +26,15 @@ attach(birnh)
 ```
 ## Example: BIRNH study
 
-\begin{itemize}
-\item Epidemiological follow-up study in the mid 80s where nutritional and health data in Belgium were measured ($n=5,815$)
-\item \alert{Goal}: effect of smoking on cholesterol
-\item Since people from different provinces might have a different smoking and dietary behaviour, we want to correct for province
-\item Possible values of this variable:
-\begin{itemize}
-\item 1: West Flanders
-\item 2: East Flanders
-\item 3: Flemish Brabant
-\item 7: Antwerp
-\item 8: Limburg
-\end{itemize}
-\end{itemize}
+- Epidemiological follow-up study in the mid 80s where nutritional and health data in Belgium were measured ($n=5,815$)
+- **Goal**: effect of smoking on cholesterol
+- Since people from different provinces might have a different smoking and dietary behaviour, we want to correct for province
+- Possible values of this variable:
+  - 1: West Flanders
+  - 2: East Flanders
+  - 3: Flemish Brabant
+  - 7: Antwerp
+  - 8: Limburg
 
 ## A first analysis ...
 
@@ -42,50 +44,50 @@ model_birnh <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX + PROVINCE)
 summary(model_birnh)$coefficients
 ```
 \normalsize
+
 Model implicitly assumes that mean difference in cholesterol 
-\begin{itemize}
-\item between Limburg and West-Flanders is 7 times as large as 
-\item the one between East- and West-Flanders
-\end{itemize}
+
+- between Limburg and West-Flanders is 7 times as large as 
+- the one between East- and West-Flanders
+
 
 ## Dummy variables
 
-\begin{itemize}
-\item Create 4 \alert{dummy variables}
-\begin{eqnarray*}
-P_2 & = & \left\{\begin{array}{ll}
+
+- Create 4 **dummy variables**
+
+\begin{align*}
+P_2 & =  \left\{\begin{array}{ll}
 1 & \textrm{East Flanders}\\
 0 & \textrm{other}
 \end{array}\right.\\
-P_3 & = &\left\{\begin{array}{ll}
+P_3 & = \left\{\begin{array}{ll}
 1 & \textrm{Flemish Brabant}\\
 0 & \textrm{other}
 \end{array}\right.\\
-P_7 & = & \left\{\begin{array}{ll}
+P_7 & =  \left\{\begin{array}{ll}
 1 & \textrm{Antwerp}\\
 0 & \textrm{other}
 \end{array}\right.\\
-P_8 & = & \left\{\begin{array}{ll}
+P_8 & =  \left\{\begin{array}{ll}
 1 & \textrm{Limburg}\\
 0 & \textrm{other}
 \end{array}\right.\\
-\end{eqnarray*}
-\end{itemize}
+\end{align*}
+
 
 ## Dummy variables
 
-\begin{itemize}
-\item These 4 dummy variables carry same information as variable PROVINCE:
-\begin{itemize}
-\item in West Flanders: $(P_2,P_3,P_7,P_8)=(0,0,0,0)$
-\item in East Flanders: $(P_2,P_3,P_7,P_8)=(1,0,0,0)$
-\item in Flemish Brabant: $(P_2,P_3,P_7,P_8)=(0,1,0,0)$
-\item in Antwerp: $(P_2,P_3,P_7,P_8)=(0,0,1,0)$
-\item in Limburg: $(P_2,P_3,P_7,P_8)=(0,0,0,1)$
-\end{itemize}
-\item Each categorical variable with $k$ levels can be transformed into $k-1$ dummy variables by choosing 1 level as \alert{reference}
-\item In \texttt{R}:
-\end{itemize}
+- These 4 dummy variables carry same information as variable PROVINCE:
+  - In West Flanders: $(P_2,P_3,P_7,P_8)=(0,0,0,0)$
+  - In East Flanders: $(P_2,P_3,P_7,P_8)=(1,0,0,0)$
+  - In Flemish Brabant: $(P_2,P_3,P_7,P_8)=(0,1,0,0)$
+  - In Antwerp: $(P_2,P_3,P_7,P_8)=(0,0,1,0)$
+  - In Limburg: $(P_2,P_3,P_7,P_8)=(0,0,0,1)$
+
+- Each categorical variable with $k$ levels can be transformed into $k-1$ dummy variables by choosing 1 level as **reference**:
+- In \texttt{R}:
+
 ```{r eval=FALSE}
 m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
         + SEX + factor(PROVINCE))
@@ -116,24 +118,29 @@ Necessity to test if multiple coefficients are zero
 ## Partial F-test
 
 Assume we want to compare \alert{2 nested models}:
-\begin{itemize}
-\item \alert{Complete model (C)} with $p_C$ parameters; e.g., $p_C=10$ and
-\[E(Y|X,P)=\beta_0+\beta_1X+\beta_2P\]
-\item \alert{Reduced model (R)} with $p_R$ parameters; e.g., $p_R=6$ and
-\[E(Y|X,P)=\beta^*_0+\beta^*_1X\]
-\item Testing $H_0:\beta_2=0$ is equivalent to testing if complete and reduced model are equal
-\end{itemize}
+
+- **Complete model (C)** with $p_C$ parameters; e.g., $p_C=10$ and
+\[
+  E(Y|X,P)=\beta_0+\beta_1X+\beta_2P
+\]
+- **Reduced model (R)** with $p_R$ parameters; e.g., $p_R=6$ and
+\[
+  E(Y|X,P)=\beta^*_0+\beta^*_1X
+\]
+- Testing $H_0:\beta_2=0$ is equivalent to testing if complete and reduced model are equal.
 
 ## Partial F-test
 
-\begin{itemize}
-\item Under null hypothesis, residual sums of squares of both models will be approximately same
-\item \alert{Test statistic}:
-\[RSS(R)-RSS(C)\]
-\item {What is distribution under null hypothesis?}
-\[\frac{RSS(R)-RSS(C)}{p_C-p_R}\div \frac{RSS(C)}{n-p_C}\sim F_{p_C-p_R,n-p_C}\]
+- Under null hypothesis, residual sums of squares of both models will be approximately same.
+- **Test statistic**:
+\[
+  SSE(R) - SSE(C).
+\]
+- What is distribution under null hypothesis?
+\[
+  \frac{SSE(R) - SSE(C)}{p_C-p_R}\div \frac{SSE(C)}{n-p_C}\sim F_{p_C-p_R,n-p_C}.
+\]
 under null hypothesis
-\end{itemize}
 
 ## Partial F-test in \texttt{R}
 

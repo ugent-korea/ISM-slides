@@ -44,10 +44,8 @@ attach(birnh)
 
 ## Outliers / Influential observations 
 
-\begin{itemize}
-\item Dataset often contrains extreme values for outcome $Y$ and/or predictors $X$
-\item These can influence regression line strongly
-\end{itemize}
+- Dataset often contains extreme values for outcome $Y$ and/or predictors $X$
+- These can influence regression line strongly
 
 ## Influence of influential observations 
 
@@ -87,10 +85,8 @@ attach(birnh)
 
 ## Tracking influential observations
 
-\begin{itemize}
-\item \alert{Residuals}: indicate how far outcome deviates from regression line
-\item Hence, can be used to identify extreme outcomes
-\end{itemize}
+- **Residuals**: indicate how far outcome deviates from regression line
+- Hence, can be used to identify extreme outcomes
 
 ## Exteme outcomes in analysis larches?
 
@@ -101,11 +97,8 @@ qqnorm(model_l5$resid)
 
 ## Tracking influential observations
 
-\begin{itemize}
-\item \alert{Scatterplots} of outcome in function of predictors can be used to identify extreme outcomes and predictors
-\item When multiple predictors, these plots have serious shortcomings
-\end{itemize}
-
+- **Scatterplots** of outcome in function of predictors can be used to identify extreme outcomes and predictors
+- When multiple predictors, these plots have serious shortcomings
 
 ## Multivariate outliers: $Y$ versus $X_1$ or $X_2$
 
@@ -138,15 +131,12 @@ The larger the leverage for $i^{th}$ observation, the closer $i^{th}$ prediction
 
 ## Interpretation of leverage
 
-\begin{itemize}
-\item If leverage for $i^{th}$ observation large, then
-\begin{itemize}
-\item it has predictor values that deviate strongly from the mean
-\item it \alert{possibly} has large influence on regression coefficients and predictions
-\end{itemize}
-\item Leverage is on average $p/n$ with $p$ number of unknown parameters
-\item \alert{Extreme leverage}: larger than $2p/n$
-\end{itemize}
+- If leverage for $i^{th}$ observation large, then
+  - it has predictor values that deviate strongly from the mean
+  - it \alert{possibly} has large influence on regression coefficients and predictions
+
+- Leverage is on average $p/n$ with $p$ number of unknown parameters
+- \alert{Extreme leverage}: larger than $2p/n$
 
 ## Leverage in analysis of larches
 
@@ -163,20 +153,18 @@ text(4.3, 0.59, 4)
 
 ## Cook's distance
 
-\begin{block}{Cook's distance} 
-\begin{itemize}
-\item Diagnostic measure for influence of $i^{th}$ observation on all predictions
-\item Equivalent, for influence of $i^{th}$ observation on all estimated coefficients
-\item Cook's distance for $i^{th}$ observation is obtained by comparing each prediction $\hat{Y}_j$ with prediction $\hat{Y}_{j(i)}$ that would be obtained \alert{if $i^{th}$ observation was deleted}
-\[D_i=\frac{\sum_{j=1}^n(\hat{Y}_j-\hat{Y}_{j(i)})^2}{p\textrm{MSE}}\] 
-\end{itemize}
-\end{block}
+- Diagnostic measure for influence of $i^{th}$ observation on all predictions
+- Equivalent, for influence of $i^{th}$ observation on all estimated coefficients
+- Cook's distance for $i^{th}$ observation is obtained by comparing each prediction $\hat{Y}_j$ with prediction $\hat{Y}_{j(i)}$ that would be obtained \alert{if $i^{th}$ observation was deleted}
+\[
+  D_i=\frac{\sum_{j=1}^n(\hat{Y}_j-\hat{Y}_{j(i)})^2}{p\textrm{MSE}}
+\] 
 
 ## Interpretation Cook's distance
 
-\begin{itemize}
-\item If Cook's distance $D_i$ large, then $i^{th}$ observation has large influence on predictions and coefficients
-\item \alert{Extreme Cook's distance}: exceeds  50\% percentile of $F_{p,n-p}$-distribution
+- If Cook's distance $D_i$ large, then $i^{th}$ observation has large influence on predictions and coefficients
+- \alert{Extreme Cook's distance}: exceeds  50\% percentile of $F_{p,n-p}$-distribution
+
 \begin{exampleblock}{Example} 
 \begin{itemize}
 \item In analysis of larches is $p=7, n=26$ and the 50\% percentile of $F_{p,n-p}$-distribution 0.94
@@ -184,7 +172,7 @@ text(4.3, 0.59, 4)
 \item Conclusion: first observation has large influence on estimated regression coefficients 
 \end{itemize}
 \end{exampleblock}
-\end{itemize}
+
 
 ## Cook's distance in analysis of larches
 
@@ -218,10 +206,8 @@ On what coefficient(s) will first observation have large influence?
 
 ## Interpretation DFBETAS
 
-\begin{itemize}
-\item Sign indicates if deleting observation $i$ causes an increase (DFBETAS$<0$) or decrease (DFBETAS$>0$) in each coefficient
-\item \alert{Extreme DFBETAS}: exceeds 1 in small to moderate datasets, and $2/\sqrt{n}$ in large datasets
-\end{itemize}
+- Sign indicates if deleting observation $i$ causes an increase (DFBETAS$<0$) or decrease (DFBETAS$>0$) in each coefficient
+- \alert{Extreme DFBETAS}: exceeds 1 in small to moderate datasets, and $2/\sqrt{n}$ in large datasets
 
 ## DFBETAS in analysis of larches
 
@@ -233,12 +219,14 @@ plot(dfb5, pch = 20, ylab = "DFBETAS", xlab = "Parameter number")
 ## DFBETAS in analysis of larches
 
 First observation has \alert{large influence on interaction between phosphorus and residual ash}:
-\begin{itemize}
-\item current coefficient is -598.08 (SE 290.02);
-\item DFBETAS is 2.17;
-\item after deletion of first observation, interaction between phosphorus and residual ash will be around
-\[-598.08-2.17\times 290.02=-1227.42\]
-\end{itemize}
+
+- current coefficient is -598.08 (SE 290.02);
+- DFBETAS is 2.17;
+- after deletion of first observation, interaction between phosphorus and residual ash will be around
+\[
+  -598.08-2.17\times 290.02=-1227.42
+\]
+
 
 ## Histogram and QQ-plot of interaction
 

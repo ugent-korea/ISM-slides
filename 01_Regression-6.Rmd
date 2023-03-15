@@ -33,14 +33,13 @@ attach(body.fat)
 
 ## Multicollinearity 
 
-\begin{itemize}
-\item There is \alert{multicollinearity} when 2 or more predictors are correlated
-\item \alert{Can possibly cause problems}: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
+- There is **multicollinearity** when 2 or more predictors are correlated
+- \alert{Can possibly cause problems}: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
 \begin{exampleblock}{Example} 
 If $X_1=X_2$, then 
 \[E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1\]
 \end{exampleblock}
-\end{itemize}
+
 \begin{exampleblock}{Consequences}
 \begin{itemize}
 \item Numerically instable estimates
@@ -52,21 +51,19 @@ If $X_1=X_2$, then
 ## Diagnosing multicollinearity
 
 Multicollinearity can be recognized through:
-\begin{itemize}
-\item \alert{Instability}
-\begin{itemize}
-\item large changes in coefficients after adding a predictor
-\item very wide confidence intervals
-\item unexpected results 
-%unexpected sign or insiginificance
-\end{itemize}
-\item \alert{Strong correlation} between predictors
-\begin{itemize}
-\item \alert{Example}: usually strong correlation between $X_f$ and $X_fX_s$
-\item can sometimes be eliminated by \alert{centering}: 
-$$X \ \rightarrow \ X-\bar X$$
-\end{itemize}
-\end{itemize}
+
+
+- **Instability**:
+  - Large changes in coefficients after adding a predictor
+  - Very wide confidence intervals
+  - Unexpected results 
+- **Strong correlation** between predictors:
+  - Example: usually strong correlation between $X_f$ and $X_fX_s$
+  - Can sometimes be eliminated by **centering** (subtracting the mean): 
+\[
+  X \to X-\bar X.
+\]
+
 
 ## Impact of centering
 
@@ -111,26 +108,25 @@ pairs(minerals2)
 
 ## Diagnosing multicollinearity
 
-Previous diagnostics are \alert{limited}
+Previous diagnostics are \alert{limited}:
 \begin{exampleblock}{Example} 
 \begin{itemize}
-\item Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity
-\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ en $X_3$
+\item Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity.
+\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ en $X_3$.
 \end{itemize}
 \end{exampleblock}
 \begin{block}{Variance inflation factor for $k^{th}$ coefficient}
 \[\textrm{VIF}_k=\left(1-R_k^2\right)^{-1}\]
-with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predictors
+with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predictors.
 \end{block}
 
 ## Interpretation VIF
 
-\begin{itemize}
-\item $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor \alert{not} linearly associated with other predictors
-\item Expresses how much larger variance on $k^{th}$ coefficient is than when all predictors were independent
-\item Average quadratic distance between estimated and true coefficients is proportionate with average VIF
-\item Critical multicollinearity: maximum VIF of at least 10
-\end{itemize}
+- $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor \alert{not} linearly associated with other predictors.
+- Expresses how much larger variance on $k^{th}$ coefficient is than when all predictors were independent.
+- Average quadratic distance between estimated and true coefficients is proportionate with average VIF.
+- Critical multicollinearity: maximum VIF of at least 10.
+
 
 ## Variance inflation factors
 
@@ -201,21 +197,15 @@ vif_bodyfat <- vif(model_bf)
 as.data.frame(vif_bodyfat)
 ```
 \normalsize
-\begin{itemize}
-\item VIF on average 460
-\item Large VIF for midarm circumference, although weakly correlated with other predictors
-\item \alert{How to correct for multicollinearity?}
-\begin{itemize}
-\item Centering variables only valid option when higher order terms are in play
-\item Combine predictors, e.g., through principal component regression
-\item Ridge regression: allow some bias in exchange for increased precision and lower risk of overfitting
-\end{itemize}
-\end{itemize}
 
+- VIF on average 460.
+- Large VIF for midarm circumference, although weakly correlated with other predictors.
+- **How to correct for multicollinearity?**
+  - Centering variables only valid option when higher order terms are in play.
+  - Combine predictors, e.g., through principal component regression.
+  - Ridge regression: allow some bias in exchange for increased precision and lower risk of overfitting.
 
 ## Multicollinearity and confounding
 
-\begin{itemize}
-\item A lot of textbooks advise to remove predictors from model in case of multicollinearity
-\item However, multicollinearity can also indicate strong confounding!
-\end{itemize}
+- A lot of textbooks advise to remove predictors from model in case of multicollinearity
+- However, multicollinearity can also indicate strong confounding!

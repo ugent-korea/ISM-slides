@@ -76,5 +76,14 @@ Bodyfat dataset:
 \centering
 ![](./images/02-pca/max-variance-projection.png){height=50%}
 
+## Other dimensionality reduction methods
 
+t-SNE, UMAP:
 
+- Useful for highly nonlinear relations between features.
+- "Deforms" data so that local structure is maintained.
+- Frequently used in single-cell RNA sequencing analysis.
+
+![](./images/02-pca/tsne-cells.png)
+
+From: \url{https://www.cancer.gov/ccg/blog/2020/interview-t-sne}

@@ -66,3 +66,15 @@ Bodyfat dataset:
 
 \centering
 ![](./images/02-pca/imagenet-cats.jpeg)
+
+## Principal component analysis
+
+- Covered in this course.
+- Works by finding directions in which **variance is maximized**.
+- Good first choice, not so good if patterns are highly nonlinear.
+
+\centering
+![](./images/02-pca/max-variance-projection.png){height=50%}
+
+
+

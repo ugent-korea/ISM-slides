@@ -38,7 +38,7 @@ source("scripts/03a-parameter-estimation/residuals.R", local = knitr::knit_globa
 
 ## Objective function
 
-_Minimise_ total distance
+_Minimize_ total distance
 
 - Recall linear regression: sum of distances is not good
 - Use squared distances
@@ -61,32 +61,6 @@ $$J(\theta) = \sum_{i=1}^N (y_{1,i}-\hat{y}_{1,i}(\theta))^2 + \sum_{i=1}^N (y_{
 
 $$J(\theta) = \frac{1}{\sigma_1^2}\sum_{i=1}^N (y_{1,i}-\hat{y}_{1,i}(\theta))^2 + \frac{1}{\sigma_2^2}\sum_{i=1}^N (y_{2,i}-\hat{y}_{2,i}(\theta))^2 + \dots$$
 
-## Objective function
-
-In _matrix notation_ this becomes
-
-$$J(\theta) = \sum_{i=1}^N(y_i-\hat{y}_i(\theta))^T \ Q_i \ (y_i-\hat{y}_i(\theta))$$
-
-where
-
-$$(y_i-\hat{y}_i(\theta)) = \left( \begin{array}{c} 
-                                        y_{1,i}-\hat{y}_{1,i}(\theta) \\
-                                        y_{2,i}-\hat{y}_{2,i}(\theta) \\
-                                        \vdots \\
-                                        y_{k,i}-\hat{y}_{k,i}(\theta) 
-                                    \end{array}
-                                \right)
-            \qquad \qquad
-                          Q_i = \left( \begin{array}{cccc} 
-                                        \frac{1}{\sigma_1^2} & 0 & \ldots & 0 \\
-                                        0 & \frac{1}{\sigma_2^2} & & \vdots \\
-                                        0 & & \ddots & 0 \\
-                                        0 & \ldots & 0 & \frac{1}{\sigma_k^2} 
-                                      \end{array}
-                                \right) $$
-                                
-with $N$ the number of data points, $k$ the number of outputs, and $\sigma_i$ the measurement error on $y_i$
-                                
 ## Preparatory steps: Splitting the data set
 
 - Two subsets
@@ -326,31 +300,9 @@ $$\frac{\partial J(\theta)}{\partial\theta_i} = 0 \qquad i=1,\ldots, N_{par}$$
 - Linear parameters: explicit solution in 1 step
 - Nonlinear parameters: implicit solution, iterative method 
 
-## Linear parameter estimation
-
-- Linear model in matrix notation
-$$\hat{y} = \Phi\theta$$
-with $\hat{y}$ vector of model predictions, $\Phi$ matrix of independent variables, $\theta$ vector of parameters
-- Substitute in objective function:
-$$J(\theta) = \sum_{i=1}^N (y_i-\hat{y}_i(\theta))^2=(y-\Phi\theta)^T(y-\Phi\theta)$$
-with
-    - $y_i$ measurements/observations of $y$ given certain values of $\Phi$
-    - $\hat{y}_i$ model predictions of $y$ given same values of $\Phi$ and certain choice of $\theta$
-    - Remark: $\Phi$ is fixed by choice of experiments (experimental design)
-
-## Linear parameter estimation
-
-- Minimisation $J(\theta)$
-    - $\frac{\partial J(\theta)}{\partial \theta} = -2\Phi^T(y-\Phi\theta)=0$
-    - Solve system to find optimal solution
-    $$\hat{\theta} = \left( \Phi^T \Phi \right)^{-1} \Phi^T y$$
-- Matrix equation!
-- RHS known: measurements of $y$ for certain choice of $\Phi$
-- Explicit solution!
-
 ## Nonlinear parameter estimation
 
-\begin{exampleblock}{Example: $y=x^\theta$}
+Example: $y=x^\theta$
 \begin{itemize}
 \item Objective function
 $$J(\theta) = \sum_{i=1}^N (y_i-\hat{y}_i(\theta))^2 = \sum_{i=1}^N (y_i-x_i^\theta)^2$$
@@ -359,7 +311,7 @@ $$\frac{\partial J(\theta)}{\partial \theta} = -2\sum_{i=1}^N (y_i-x_i^\theta)\l
 or
 $$\sum_{i=1}^N y_i\ln(x_i)x_i^\theta = \sum_{i=1}^N \ln(x_i)x_i^{2\theta} $$
 \end{itemize}
-\end{exampleblock}
+
 
 ## Nonlinear parameter estimation
 
@@ -771,20 +723,3 @@ built from:
     - Measurements vs predictions at same $t$ (eliminate $t$)
     - Good model: scatter plot almost first bisector
 
-## Validation: Nash-Sutcliffe criterium
-
-- Often used in hydrology, based on model efficiency $E$
-$$E=1-\frac{\sum_{i=1}^n (\hat{y}_i-y_i)^2}{\sum_{i=1}^n (\hat{y}_i-\bar{y})^2}$$
--$E$ varies between $[-\infty,1]$:
-    - $E=1$: perfect correspondance between data and model predictions
-    - $0<E<1$: model predictions perform better than observed mean of data
-    - $E=0$: model predictions are as accurate as observed mean of data
-    - $E<0$: Observed mean is better estimate than model 
-    
-## Validation: Independent data set
-
-- Probably most common way of model validation
-- If 2 data sets are available (split large data set before calibration)
-- Model calibrated on 1 data set
-- Calibrated model is tested on independently measured data set
-- Remark: validation data set cannot contain `new' information on the system

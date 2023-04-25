@@ -126,9 +126,21 @@ abline(h = 0, lty = "dashed")
 :::
 ::::::
 
+## Exact confidence intervals
 
+Confidence interval: all $\theta$ such that
+\[
+  J(\theta) \le \left(1 + \frac{p}{N-p}F_{p,N-p,1-\alpha} \right) \times J(\theta_\text{best}),
+\]
+where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is significance level.
+
+- Reasonably exact for models that are not too nonlinear.
+- Easy to calculate numerically
+- **Hard to describe or use explicitly**
 
 ## Exact confidence intervals
+
+![](./images/03a-parameter-estimation/level-sets-ci.png){fig-align='center'}
 
 ## Approximate confidence intervals
 

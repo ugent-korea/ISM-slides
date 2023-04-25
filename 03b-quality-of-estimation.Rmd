@@ -38,10 +38,74 @@ surf3D(x, y, z2, colkey = FALSE)
 
 ```
 
+## Synthetic data
+
+Model: logistic curve
+\[
+  y = \frac{A}{1 + \exp(k(x_\text{mid} - x))} + \epsilon,
+\]
+where $\epsilon \sim N(0, \sigma^2)$. 
+
+- Parameters: $A = 5.6$, $k = 1.4$, $x_\text{mid} = 2.5$.
+- Measurement noise: $\sigma = 0.2$ (the measure).
+
+We take $n = 20$ data points from this model:
+
+```{r, echo=FALSE, out.height='33%', fig.align='center'}
+set.seed(1234)
+thetas <- c(5.6, 1.4, 2.5)
+measurement_sd <- 0.2
+
+model <- function(xdata, thetas) {
+  thetas[[1]] / (1 + exp(thetas[[2]] * (thetas[[3]] - xdata)))
+}
+
+n <- 20
+xdata <- seq(-3, 9, length.out = n) + rnorm(n, sd = 0.5)
+ydata <- model(xdata, thetas) + rnorm(n, sd = measurement_sd)
+
+par(cex = 2)
+plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
+
+```
+
+
 
 ## Measurement variance
 
-We assume that our model has been fitted and the residuals are normally distributed with (unknown) variance $\sigma^2$.
+- Typically measurement variance is not known.
+- If model well-fitted: estimate from residuals:
+\[
+  \sigma^2 \approx \frac{J(\theta_\text{best})}{N - p}.
+\]
+- Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
+
+\vspace*{0.5cm}
+```{r, echo=FALSE, out.height='50%', fig.align='center'}
+J <- function(thetas, xdata, ydata) {
+  resids <- ydata - model(xdata, thetas)
+  return(sum(resids^2))
+}
+
+fit <- optim(c(5, 1, 2), J, method = "L-BFGS",
+             xdata = xdata, ydata = ydata)
+thetas_optim <- fit$par
+
+par(mfrow=c(1, 2))
+xplot <- seq(min(xdata), max(xdata), length.out = 50)
+yplot_optim <- model(xplot, thetas_optim)
+
+par(cex = 1.5)
+plot(xdata, ydata, pch = 19, xlab = "X", ylab = "Y")
+lines(xplot, yplot_optim, lty = 1)
+
+par(cex = 1.5)
+resids <- ydata - model(xdata, thetas_optim)
+plot(ydata, resids, pch = 19, xlab = "Y", ylab = "Residuals")
+abline(h = 0, lty = "dashed")
+```
+
+
 
 ## The loss surface
 

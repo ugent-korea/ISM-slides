@@ -1,0 +1,35 @@
+---
+title: "Modeling and simulation of biosystems"
+subtitle: "Quality of parameter estimates"
+author: "Joris Vankerschaver"
+header-includes:
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
+  - \usepackage{color}
+  - \usepackage{graphicx}
+output: 
+  beamer_presentation:
+    theme: "default"
+    keep_tex: true
+    includes:
+      in_header: columns.tex
+---
+
+## Quality of estimation
+
+Apart from obtaining a parameter estimate, ...
+
+## Measurement variance
+
+We assume that our model has been fitted and the residuals are normally distributed with (unknown) variance $\sigma^2$.
+
+## The loss surface
+
+Question to self, appropriate name?
+
+## Exact confidence intervals
+
+## Approximate confidence intervals
+
+## Bootstrap confidence intervals

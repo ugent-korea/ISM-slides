@@ -105,11 +105,28 @@ plot(ydata, resids, pch = 19, xlab = "Y", ylab = "Residuals")
 abline(h = 0, lty = "dashed")
 ```
 
-
-
 ## The loss surface
 
-Question to self, appropriate name?
+- Surface obtained by plotting $J(\theta)$ for all $\theta$ in some range.
+- Optimal parameters are minima on this surface.
+- When more than 2 parameters: focus on subset of parameters.
+- **For visualization only.** (Higher dimensions: calculus)
+
+:::::: {.cols data-latex=""}
+::: {.col data-latex="{0.48\textwidth}"}
+![](./images/03a-parameter-estimation/loss-surface-3d.png)
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+:::
+
+::: {.col data-latex="{0.48\textwidth}"}
+![](./images/03a-parameter-estimation/loss-surface-2d.png)
+:::
+::::::
+
+
 
 ## Exact confidence intervals
 

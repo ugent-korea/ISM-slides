@@ -69,6 +69,30 @@ plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
 
 ```
 
+## Model fit
+
+- From now on, we "forget" the true parameters, and we will work with the data only. 
+- Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
+
+\vspace*{0.5cm}
+```{r, echo=FALSE, out.height="50%", fig.align='center'}
+J <- function(thetas, xdata, ydata) {
+  resids <- ydata - model(xdata, thetas)
+  return(sum(resids^2))
+}
+
+fit <- optim(c(5, 1, 2), J, method = "L-BFGS",
+             xdata = xdata, ydata = ydata)
+thetas_optim <- fit$par
+
+xplot <- seq(min(xdata), max(xdata), length.out = 50)
+yplot_optim <- model(xplot, thetas_optim)
+
+par(cex = 1.5)
+plot(xdata, ydata, pch = 19, xlab = "X", ylab = "Y")
+lines(xplot, yplot_optim, lty = 1)
+
+```
 
 
 ## Measurement variance
@@ -82,27 +106,16 @@ plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
 
 \vspace*{0.5cm}
 ```{r, echo=FALSE, out.height='50%', fig.align='center'}
-J <- function(thetas, xdata, ydata) {
-  resids <- ydata - model(xdata, thetas)
-  return(sum(resids^2))
-}
-
-fit <- optim(c(5, 1, 2), J, method = "L-BFGS",
-             xdata = xdata, ydata = ydata)
-thetas_optim <- fit$par
 
 par(mfrow=c(1, 2))
-xplot <- seq(min(xdata), max(xdata), length.out = 50)
-yplot_optim <- model(xplot, thetas_optim)
-
-par(cex = 1.5)
-plot(xdata, ydata, pch = 19, xlab = "X", ylab = "Y")
-lines(xplot, yplot_optim, lty = 1)
 
 par(cex = 1.5)
 resids <- ydata - model(xdata, thetas_optim)
 plot(ydata, resids, pch = 19, xlab = "Y", ylab = "Residuals")
 abline(h = 0, lty = "dashed")
+
+qqnorm(resids)
+qqline(resids)
 ```
 
 ## The loss surface
@@ -212,10 +225,54 @@ with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
   C \ge \mathcal{I}^{-1}.
 \]
 - **This is not an obvious result.**
-
+- In practice, we just take $\mathcal{I}^{-1}$ as an estimate for $C$.
 - Approximate confidence interval for parameter $\theta_i$:
 \[
   (\theta_\text{best})_i \pm t_{N-p, 1-\alpha/2} \sqrt{C_{ii}}.
 \]
 
-## Bootstrap confidence intervals
+## Worked-out example: logistic model
+
+To compute the FIM:
+
+- Measurement noise: $\sigma^2 \approx 0.031$ (see earlier).
+- Sensitivity functions: 
+\[
+  \frac{\partial y}{\partial A} = \frac{1}{1 + \exp(k(x_\text{mid} - x))}, \quad
+  \frac{\partial y}{\partial k} = \ldots, \quad
+    \frac{\partial y}{\partial x_\text{mid}} = \ldots
+\]
+  Often these functions have to be computed **numerically** (see next chapter).
+
+
+## Logistic model with synthetic data
+
+- The inverse of the FIM is given by
+\[
+  \mathcal{I}^{-1} = \begin{bmatrix}
+  0.0057 & -0.0034 & 0.0020 \\
+ -0.0034 & 0.0169 & -0.0015 \\ 
+  0.0020 & -0.0015  & 0.0040 \\
+  \end{bmatrix}.
+\]
+
+- Parameter estimates: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
+
+- 95% confidence intervals (low, high):
+
+| Parameter | Estimate | Low | High |
+|-----------|----------|-----|------|
+| $A$       | 5.36 | 5.20 | 5.52 |
+| $k$       | 1.60 | 1.32 | 1.87 |
+| $x_\text{mid}$ | 2.45 | 2.32 | 2.58 |
+
+- Correlation between $A$ and $k$: $R = -0.0034/\sqrt{0.057 \times 0.0169} = -0.110$.
+
+## Key takeaways
+
+- Quality of parameter estimates depends on **model** and **data**, encoded by the FIM.
+- The FIM provides a way of drawing elliptical confidence regions in parameter space.
+- The FIM gives a lower bound for the error-covariance matrix.
+
+# Bootstrap confidence intervals
+

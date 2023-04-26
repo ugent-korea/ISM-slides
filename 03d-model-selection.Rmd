@@ -16,9 +16,6 @@ output:
       in_header: columns.tex
 ---
 
-
-
-
 # Model Selection
 
 ## Model selection
@@ -91,7 +88,7 @@ Goal model selection: select model with smallest total error = compromise betwee
 - Same data as before
 - Polynomial model $y \sim 1 + x + x^2 + \cdots + x^d$
 
-\vspace*{-1.5cm}
+
 ```{r, echo=FALSE, fig.height=4, fig.width=6}
 source("scripts/03a-parameter-estimation/bias-variance-curves.R", local = knitr::knit_global())
 ```
@@ -109,7 +106,6 @@ Measure the oxygen uptake rate (OUR) during oxidation of biodegradable waste pro
 
 1.5 data points per minute, acquired using dissolved oxygen (DO) sensor.
 
-\vspace*{-1cm}
 ```{r, echo=FALSE, fig.height=5, fig.width=7}
 our.data <- read.csv("datasets/03-parameter-estimation/vanrolleghem_our.csv")
 plot(our.data[,1], our.data[,2], 
@@ -123,7 +119,7 @@ plot(our.data[,1], our.data[,2],
 
 - Oxygen uptake rate
 \[
-r_{O_2} = \sum_{i=1}^k (1-Y_i)r_{S_i}
+OUR = \sum_{i=1}^k (1-Y_i)r_{S_i}
 \]
 where $Y_i$ the yield, i.e., fraction of substrate $S_i$ that is not oxidated but transformed in biomass $X$, and $r_{S_i}$ the degradation rate of $S_i$.
 
@@ -134,7 +130,7 @@ where $Y_i$ the yield, i.e., fraction of substrate $S_i$ that is not oxidated bu
 __Candidate model 1__: degradation of one pollutant according to first-order kinetics. Gives _exponentially_ decreasing OUR-curve.
 \begin{align*}
   r_{S_1} & = \dfrac{k_{max1}X}{Y_1}S_1 \\
-  r_{O_2} & = (1-Y_1)r_{S_1}
+  OUR & = (1-Y_1)r_{S_1}
 \end{align*}
 
 ## Case study: candidate models
@@ -142,7 +138,7 @@ __Candidate model 1__: degradation of one pollutant according to first-order kin
 __Candidate model 2__: degradation of one pollutant according to Monod kinetics. 
 \begin{align*}
   r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
-  r_{O_2} & = (1-Y_1)r_{S_1}
+  OUR & = (1-Y_1)r_{S_1}
 \end{align*}
 
 ## Case study: candidate models
@@ -151,14 +147,13 @@ __Candidate model 3__: simultaneous degradation of two pollutants according to M
 \begin{align*}
   r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
   r_{S_2} & = \dfrac{\mu_{max2}X}{Y_1}\dfrac{S_2}{K_{S_2}+S_2} \\
-  r_{O_2} & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
+  OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
 \end{align*}
 
 ## Case study: parameter estimation
 
 Dataset (dots) and best fits (i.e., calibrated candidate models based on an SSE-based objective function) of the different models
 
-\vspace*{-1cm}
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 ```
@@ -303,19 +298,7 @@ plot.residuals()
 - Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
 - Correlations for double Monod decay much quicker than the other two models.
 
-\vspace*{-1cm}
+
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 plot.acf()
 ```
-
-## Runs test
-
-- 'Run' = series of residuals with same sign
-- Runs test = count number of runs in residuals
-- For random sequence, expected value is $N/2$
-- Test statistic
-$$\dfrac{R-N/2}{\sqrt{N/2}}$$
-- Compare with critical value from $N(0,1)$ at chosen significance level
-- Choose
-    - Simplest non-significant model
-    - Model with test statistic closest to zero

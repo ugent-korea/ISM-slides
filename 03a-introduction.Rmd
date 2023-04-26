@@ -1,0 +1,187 @@
+---
+title: "Modeling and simulation of biosystems"
+subtitle: "Introduction"
+author: "Joris Vankerschaver"
+header-includes:
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
+  - \usepackage{color}
+  - \usepackage{graphicx}
+output: 
+  beamer_presentation:
+    theme: "default"
+    keep_tex: true
+    includes:
+      in_header: columns.tex
+---
+
+
+
+# Overview
+
+---
+
+__Modeling__
+
+- Translate (bio)system to (set of) mathematical equation(s)
+- __Model__: approximation of reality
+    - Parameters!
+- What is best approximation?
+
+__Simulation__
+
+- Experiment with model
+    - Virtually (manual or computer)
+- Calculations 
+    - Analytical method
+    - (Combination of) numerical method(s)
+
+## Simulation of system
+
+\center Model based _analysis_ of bioprocesses
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{images/temp/001.pdf}
+\end{figure}
+
+## Simulation of system
+
+\center Model based _optimisation_ of bioprocesses
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{images/temp/002.pdf}
+\end{figure}
+
+## Simulation of system
+
+\center Model based _optimisation_ of bioprocesses
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{images/temp/003.pdf}
+\end{figure}
+
+## Purpose of modeling
+
+- Understand and analyse properties of system
+- Predict behaviour of system under unknown circumstances
+- __Find conditions for optimal performance__
+    - E.g., least production cost, maximal output, ...
+- Modify system to obtain desired behaviour (process control)
+
+--> Use computer power
+
+## Constituents of mathematical model
+
+\begin{itemize}
+\item Variables
+    \begin{itemize}
+    \item Inputs
+    \item Outputs
+    \item State variables: time and space coordinates
+    \end{itemize}
+\item Constants
+\item \textbf{Parameters}: quantity whose value can change dependent on application
+    \begin{exampleblock}{Examples}
+    \begin{itemize}
+    \item slope and intercept of linear model
+    \item quantities that depend on environmental conditions of system such as temperature, pressure, ...
+    \item decay rates
+    \end{itemize}
+    \end{exampleblock}
+\end{itemize}
+
+## Data types
+
+- *Deterministic*
+    - Exactly known, no uncertainty
+    - Associated with 1 value
+    - Simple calculations
+- *Stochastic*
+    - Associated with probability density function (PDF)
+    - Uncertainty in data, described by PDF(s)
+    - PDF: triangular, uniform, normal, ...
+- *Fuzzy*
+    - No exact knowledge on value
+    - Membership functions
+    - Can belong to multiple membership functions
+    
+## Model types
+
+- *Deterministic*
+    - Precise (exact) knowledge of all parameters, measurements, expected inputs and disturbances
+    - No uncertainty in model behaviour
+    - Makes analysis and simulation simple
+    
+    __Future behaviour model clear__
+    
+- *Stochastic*
+    - Uncertainty about parameters, measurements, expected inputs or disturbances
+    - At least some system parameters and variables stochastic
+    - Uncertainty in prediction of model also described by PDFs
+    
+    __Future behaviour model in certain band/range__
+
+## Model building
+
+\includegraphics[width=0.8\textwidth]{images/temp/004.pdf}
+
+## Model building: Goal
+
+- Determine **main purpose** of model *before* model building
+- Important, partially responsible for model complexity
+- Often forgotten or not clearly defined
+    - Worthless models (too simple or too complex)
+    - Loss of time and money
+    
+## Model building: Model selection
+
+- Candidate models based on
+    - Experimental data
+    - Knowledge
+    - Creativity
+- **Choose** which model is **best suited** for goal
+    - Goodness-of-fit
+    - Model complexity
+- If necessary model reduction
+    - Variables: fast vs. slow
+    - Equations
+    - **Parameters**: eliminate those with least effect on system (smallest variation)
+
+## Model building: Parameter estimation
+
+Also called: model calibration
+
+- Use experimental data to determine unique set of parameters that `_best fit_' the data
+- Minimisation _objective function_
+    - One-step
+    - Iterative
+        - Initial parameters: literature or data
+        - Simulate model and evaluate objective function
+        - Quantify difference between experimental output and simulated output
+        - Refine parameters to reduce difference
+        - Stopping criterion
+
+## Model building: Validation
+
+- Confront model with independent data set and for different conditions of input
+- If OK, __validated__ model
+- If not OK
+    - Return to previous steps
+    - Improve data or model
+
+Iterative process until good validation obtained
+
+## Part 2: Simulation of biosystems
+
+Use model in combination with tools for system optimisation
+
+1. Compare with experimental data
+    - Model prediction close by experimental observations by choosing good parameters (_parameter estimation_)
+2. Simulate model a number of times under different settings
+    - Perturbation of a parameter (_local sensitivity_)
+    - Deterministic vs stochastic (_global sensitivity_)
+3. Different candidate models
+    - Choose between candidates (_model selection_)
+4. Combine all techniques
+    - _Optimal experimental design_ for parameter estimation and/or model selection

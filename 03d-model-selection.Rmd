@@ -1,0 +1,321 @@
+---
+title: "Modeling and simulation of biosystems"
+subtitle: "Model selection"
+author: "Joris Vankerschaver"
+header-includes:
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
+  - \usepackage{color}
+  - \usepackage{graphicx}
+output: 
+  beamer_presentation:
+    theme: "default"
+    keep_tex: true
+    includes:
+      in_header: columns.tex
+---
+
+
+
+
+# Model Selection
+
+## Model selection
+
+- Also called _structure characterisation_
+- Problem: "perfect" model and "true" parameters are unknown.
+- Goal:  __Select best model structure from set of candidate models, based on experimental data__
+
+## Which model fits the data the best?
+
+```{r, echo=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation/bias-variance-trials.R", local = knitr::knit_global())
+```
+
+## Two sources of error
+
+:::::: {.cols data-latex=""}
+
+::: {.col data-latex="{0.55\textwidth}"}
+
+\begin{exampleblock}{Bias error}
+\emph{How well does the model fit the data?}
+\begin{itemize}
+\item Error due to non-modeled phenomena.
+\item Decreases as model gets more complex.
+\end{itemize}
+\end{exampleblock}
+
+\begin{exampleblock}{Variance error}
+\emph{How well does the model do on new, unseen data?}
+\begin{itemize}
+\item Decreases with more data.
+\item Increases as model gets more complex.
+\end{itemize}
+\end{exampleblock}
+
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\ 
+:::
+
+::: {.col data-latex="{0.40\textwidth}"}
+
+\includegraphics{images/03a-parameter-estimation/bullseye_75}
+
+:::
+
+::::::
+
+\scriptsize Figure adapted from \url{http://scott.fortmann-roe.com/docs/BiasVariance.html}
+
+## Bias and variance are complementary
+
+For a model $M_D(x)$ on a dataset $D$, the error decomposes as
+\[
+   \mathrm{Error}[M_D(x)] = 
+   \mathrm{Bias}[M_D(x)]^2 + \mathrm{Var}[M_D(x)] + \mathrm{Noise}.
+\]
+Goal model selection: select model with smallest total error = compromise between bias error and variance error
+
+\begin{center}
+\includegraphics{images/03a-parameter-estimation/biasvariance_30}
+\end{center}
+
+\scriptsize Figure adapted from \url{http://scott.fortmann-roe.com/docs/BiasVariance.html}
+
+## Model selection for linear models
+
+- Same data as before
+- Polynomial model $y \sim 1 + x + x^2 + \cdots + x^d$
+
+\vspace*{-1.5cm}
+```{r, echo=FALSE, fig.height=4, fig.width=6}
+source("scripts/03a-parameter-estimation/bias-variance-curves.R", local = knitr::knit_global())
+```
+    
+## Case study: biodegradation test
+
+\begin{exampleblock}{Problem setting: waste treatment}
+Measure the oxygen uptake rate (OUR) during oxidation of biodegradable waste products by activated sludge.
+\end{exampleblock}
+    
+- Shape respirogram depends on degradation kinetics and quantity added products
+- Not known a priori $\rightarrow$ measure and test several models
+    
+## Case study: biodegradation data
+
+1.5 data points per minute, acquired using dissolved oxygen (DO) sensor.
+
+\vspace*{-1cm}
+```{r, echo=FALSE, fig.height=5, fig.width=7}
+our.data <- read.csv("datasets/03-parameter-estimation/vanrolleghem_our.csv")
+plot(our.data[,1], our.data[,2], 
+     ylim = c(0, 1), pch = 20, cex = 0.5,
+     xlab = "Time", ylab = "OUR")
+```
+
+## Case study: general model
+
+- $k$ pollutants $S_1, \ldots, S_k$.
+
+- Oxygen uptake rate
+\[
+r_{O_2} = \sum_{i=1}^k (1-Y_i)r_{S_i}
+\]
+where $Y_i$ the yield, i.e., fraction of substrate $S_i$ that is not oxidated but transformed in biomass $X$, and $r_{S_i}$ the degradation rate of $S_i$.
+
+- Candidate models differ in number of pollutants $k$ and choice of degradation rates $r_{S_i}$.
+
+## Case study: candidate models
+
+__Candidate model 1__: degradation of one pollutant according to first-order kinetics. Gives _exponentially_ decreasing OUR-curve.
+\begin{align*}
+  r_{S_1} & = \dfrac{k_{max1}X}{Y_1}S_1 \\
+  r_{O_2} & = (1-Y_1)r_{S_1}
+\end{align*}
+
+## Case study: candidate models
+
+__Candidate model 2__: degradation of one pollutant according to Monod kinetics. 
+\begin{align*}
+  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
+  r_{O_2} & = (1-Y_1)r_{S_1}
+\end{align*}
+
+## Case study: candidate models
+
+__Candidate model 3__: simultaneous degradation of two pollutants according to Monod kinetics (double Monod) without interaction. 
+\begin{align*}
+  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
+  r_{S_2} & = \dfrac{\mu_{max2}X}{Y_1}\dfrac{S_2}{K_{S_2}+S_2} \\
+  r_{O_2} & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
+\end{align*}
+
+## Case study: parameter estimation
+
+Dataset (dots) and best fits (i.e., calibrated candidate models based on an SSE-based objective function) of the different models
+
+\vspace*{-1cm}
+```{r, echo=FALSE, fig.width=7, fig.height=4}
+source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
+```
+
+# Methods for model selection
+
+## Methods for model selection
+
+- _A priori_ model selection: before parameter estimation
+    - Reduces number of parameter estimations necessary = time gain
+    - Techniques not easy to determine: ad hoc methods
+- _A posteriori_ model selection: after parameter estimation
+    - General methods available 
+    - Need parameter estimation for all candidate models = increase in calculation times
+
+## A priori model selection
+
+- Restrict set of model candidates based on properties of data that are independent of parameters.
+- Biodegradation example: inflection points.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4}
+source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit_global())
+```
+
+##  A posteriori model selection
+
+- Compose set of candidate models
+- Collect experimental dataset(s)
+- Perform parameter estimation for all models
+- Rank candidate models and select best
+\ \newline
+- Often applied
+- If lot of candidate models: laborious
+- Possibly `preselection' based on a priori methods
+\ \newline
+- Methods
+    - Goodness-of-fit and complexity penalization
+    - Evaluation of undermodelling
+    - Statistical hypothesis test
+    - Residual analysis
+    
+## Goodness-of-fit and complexity penalization
+
+- Select least complex model that describes data (sufficiently) well
+- Two basic forms:
+$$
+\left\{
+\begin{array}{l}
+\dfrac{SSR}{N}[1+\beta(N,p)] \\
+N\log\left( \dfrac{SSR}{N} \right) + \gamma(N,p)
+\end{array}
+\right.
+$$
+with $SSR$ sum of squared residuals, measure for fit of candidate model to data, $N$ number of observations, and $p$ number of parameters
+- First term decreases with increase in parameters (increasing model complexity)
+- Second term penalizes too complex (overparametrisized) models
+
+## Goodness-of-fit and complexity penalization
+
+- Select model with lowest value of criterion
+- Different formulations
+    - _Final prediction error_ (FPE)
+    $$\beta(N,p)=\dfrac{2p}{N-p}$$
+    - _Akaike's information criterion_ (AIC)
+    $$\gamma(N,p)=2p$$
+- These mentioned criteria are not consistent, i.e., they do not guarantee that probability to select incorrect model converges to 0 for $N\to\infty$
+- But, FPE and AIC possess properties that allow to select a good model when true model is not in set of candidates
+
+## Goodness-of-fit and complexity penalization
+
+- Consistent criteria
+    - _Bayesian information criterion_ (BIC), also called Schwartz information criterion (SIC)
+    $$\gamma(N,p)=p\log(N)$$
+    - _Khinchin's law of iterated logarithm_ (LILC)
+    $$\gamma(N,p)=p\log(\log(N))$$
+    
+## Goodness-of-fit: illustration
+
+\begin{exampleblock}{Problem statement}
+Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for the dataset below.
+\end{exampleblock}
+
+```{r, echo=FALSE, fig.height=5}
+source("scripts/03a-parameter-estimation/selection.R", local = knitr::knit_global())
+plot.data()
+```
+    
+## Goodness-of-fit: illustration
+
+- RSS \alert{always decreases} when number of parameters increases
+- Penalty terms cause goodness-of-fit to increase at a certain point
+
+```{r, echo=FALSE, fig.height=4}
+plot.gof()
+```
+
+## Goodness-of-fit: illustration
+
+Optimal linear model (according to AIC/BIC) has 7 parameters.
+
+```{r, echo=FALSE, fig.height=5}
+plot.optim()
+```
+
+## Statistical hypothesis test
+
+- Choice between 2 models: simple and more complex
+- Is complex model statistically speaking better?
+- Verify using F-test:
+\[
+F = \dfrac{\left( \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}} \right)}{\left( \dfrac{SSR_{complex}}{N-p_{complex}} \right)}
+\]
+- Compare test criterion with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
+- If value larger, complex model better (and vice versa)
+
+## Residual analysis
+
+- Hypothesis: model is appropriate if properties of residuals are same as properties of measurement errors
+- Two popular techniques for evaluation independence of residuals
+    - Autocorrelation test (see Parameter Estimation)
+    - Runs test (nonparametric test)
+
+## Autocorrelation test: Respirometric case study
+
+```{r, echo=FALSE, fig.width=7, fig.height=4}
+source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
+```
+
+## Autocorrelation test: Residuals as a function of time
+
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation/monod-residuals.R", local = knitr::knit_global())
+```
+
+```{r, echo=FALSE, fig.width=7, fig.height=4}
+plot.residuals()
+```
+
+## Autocorrelation test
+
+- Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
+- Correlations for double Monod decay much quicker than the other two models.
+
+\vspace*{-1cm}
+```{r, echo=FALSE, fig.width=7, fig.height=4}
+plot.acf()
+```
+
+## Runs test
+
+- 'Run' = series of residuals with same sign
+- Runs test = count number of runs in residuals
+- For random sequence, expected value is $N/2$
+- Test statistic
+$$\dfrac{R-N/2}{\sqrt{N/2}}$$
+- Compare with critical value from $N(0,1)$ at chosen significance level
+- Choose
+    - Simplest non-significant model
+    - Model with test statistic closest to zero

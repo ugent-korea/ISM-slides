@@ -147,8 +147,10 @@ where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is signif
 Taylor expansion to second order:
 \begin{multline*}
   J(\theta) \approx 
-    J(\theta_\text{best}) + \underbrace{\nabla J(\theta_\text{best})}_{= 0} \cdot (\theta - \theta_\text{best}) \\
-    + \frac{1}{2} (\theta - \theta_\text{best})^T \cdot \nabla^2 J(\theta_\text{best}) \cdot (\theta - \theta_\text{best}).
+    J(\theta_\text{best}) + 
+    \sum_{i = 1}^N \underbrace{\frac{\partial J}{\partial \theta_i}(\theta_\text{best})}_{= 0}(\theta - \theta_\text{best})_i + \\
+    \frac{1}{2} \sum_{i,j=1}^N \frac{\partial^2 J}{\partial \theta_i \partial \theta_j}
+      (\theta - \theta_\text{best})_i(\theta - \theta_\text{best})_j.
 \end{multline*}
 
 Confidence region becomes
@@ -157,9 +159,23 @@ Confidence region becomes
 \]
 with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
 \[
-  \mathcal{I} = \frac{1}{\sigma^2} \sum_{i = 1}^N [\nabla f(x_i, \theta_\text{best})] \cdot [\nabla f(x_i, \theta_\text{best})]^T.
+  \mathcal{I}_{ij} = 
+    \frac{1}{\sigma^2} \sum_{k = 1}^N \left(
+    \frac{\partial y}{\partial \theta_i}(x_k, \theta_\text{best})
+    \frac{\partial y}{\partial \theta_j}(x_k, \theta_\text{best}) \right).
 \]
 
+## Interpretation of the FIM
+
+- The FIM tells us how much information the data give us about the model parameters.
+
+- Alternatively, the FIM contains two ingredients:
+  - The **sensitivity functions**, given by
+  \[
+    s_i(x, \theta) = \frac{\partial y}{\partial \theta_i}.
+  \]
+  Variables that are sensitive to perturbations in a parameter contain a lot of information about that parameter, and will contribute a lot to the FIM (and vice versa).
+  - The **measurement noise** $\sigma^2$. Measurements with lots of noise contain less information about the parameters.
 
 ## Approximate confidence region
 

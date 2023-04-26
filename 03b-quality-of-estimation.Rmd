@@ -160,10 +160,46 @@ with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
   \mathcal{I} = \frac{1}{\sigma^2} \sum_{i = 1}^N [\nabla f(x_i, \theta_\text{best})] \cdot [\nabla f(x_i, \theta_\text{best})]^T.
 \]
 
+
 ## Approximate confidence region
 
-Level sets of quadratic approximation are ellipsoids:
+- Level sets of quadratic approximation are ellipsoids.
+- Good approximation to exact confidence region close to optimum.
 
 ![](./images/03a-parameter-estimation/level-sets-ci-quadratic.png){fig-align='center'}
+
+
+## Variance/covariance of parameters
+
+- Often, we want to know variance of individual parameters and covariance between parameters.
+- Encoded in the error covariance matrix:
+\[
+  C = \begin{bmatrix}
+      \sigma^2_{\theta_1} & \text{cov}(\theta_1,\theta_2) & \cdots & \text{cov}(\theta_1,\theta_p) \\
+      \text{cov}(\theta_2,\theta_1) & \sigma^2_{\theta_2} & \cdots & \text{cov}(\theta_2,\theta_p) \\
+      \vdots & \vdots & \ddots & \vdots \\
+      \text{cov}(\theta_p,\theta_1) & \text{cov}(\theta_p,\theta_2) & \cdots & \sigma^2_{\theta_p}
+  \end{bmatrix}.
+\]
+
+- Diagonal: variances, off-diagonal: covariances
+- Can be used to construct correlations between between parameters:
+\[
+  R_{ij} = \frac{\text{cov}(\theta_i, \theta_j)}{\sigma_{\theta_i} \sigma_{\theta_j}}.
+\]
+
+
+## Computing the error covariance matrix
+
+- The inverse of the FIM $\mathcal{I}$ is a lower bound for $C$:
+\[
+  C \ge \mathcal{I}^{-1}.
+\]
+- **This is not an obvious result.**
+
+- Approximate confidence interval for parameter $\theta_i$:
+\[
+  (\theta_\text{best})_i \pm t_{N-p, 1-\alpha/2} \sqrt{C_{ii}}.
+\]
 
 ## Bootstrap confidence intervals

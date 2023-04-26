@@ -126,9 +126,9 @@ abline(h = 0, lty = "dashed")
 :::
 ::::::
 
-## Exact confidence intervals
+## Exact confidence region
 
-Confidence interval: all $\theta$ such that
+Confidence region: all $\theta$ such that
 \[
   J(\theta) \le \left(1 + \frac{p}{N-p}F_{p,N-p,1-\alpha} \right) \times J(\theta_\text{best}),
 \]
@@ -138,10 +138,32 @@ where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is signif
 - Easy to calculate numerically
 - **Hard to describe or use explicitly**
 
-## Exact confidence intervals
+## Exact confidence region
 
 ![](./images/03a-parameter-estimation/level-sets-ci.png){fig-align='center'}
 
-## Approximate confidence intervals
+## Approximate confidence region
+
+Taylor expansion to second order:
+\begin{multline*}
+  J(\theta) \approx 
+    J(\theta_\text{best}) + \underbrace{\nabla J(\theta_\text{best})}_{= 0} \cdot (\theta - \theta_\text{best}) \\
+    + \frac{1}{2} (\theta - \theta_\text{best})^T \cdot \nabla^2 J(\theta_\text{best}) \cdot (\theta - \theta_\text{best}).
+\end{multline*}
+
+Confidence region becomes
+\[
+  (\theta - \theta_\text{best})^T \mathcal{I} (\theta - \theta_\text{best}) \le p F_{p, N-p, 1-\alpha}.
+\]
+with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
+\[
+  \mathcal{I} = \frac{1}{\sigma^2} \sum_{i = 1}^N [\nabla f(x_i, \theta_\text{best})] \cdot [\nabla f(x_i, \theta_\text{best})]^T.
+\]
+
+## Approximate confidence region
+
+Level sets of quadratic approximation are ellipsoids:
+
+![](./images/03a-parameter-estimation/level-sets-ci-quadratic.png){fig-align='center'}
 
 ## Bootstrap confidence intervals

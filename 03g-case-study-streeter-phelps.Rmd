@@ -1,0 +1,249 @@
+---
+title: "Modeling and simulation of biosystems"
+subtitle: "Case study: river discharge"
+author: "Joris Vankerschaver"
+header-includes:
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
+  - \usepackage{color}
+  - \usepackage{graphicx}
+  - \usepackage{siunitx}
+  - \usepackage{numprint}
+output: 
+  beamer_presentation:
+    theme: "default"
+    keep_tex: true
+    includes:
+      in_header: columns.tex
+---
+
+
+  
+# Model overview
+  
+---
+  
+## Setting
+
+\begin{exampleblock}{Streeter-Phelps model}
+Use water pollution as water quality monitoring tool. Describes how dissolved oxygen decreases in a river along a certain distance by degradation of biological oxygen demand.
+\end{exampleblock}
+
+- Aerobic bacteria gradually remove organic pollution downstream of pollution source
+- Reactions
+  - Aerobic removal of biochemical oxygen demand
+  - Oxygen transfer between atmosphere and water
+- Assumption: plug-flow stream
+- Simple dynamical model (nonlinear)
+
+## Setting
+
+Typical values for rivers
+
+- Biochemical oxygen demand (BOD)
+  - Not polluted: BOD < 1mg/l
+  - Mildly polluted: 2mg/l < BOD < 8mg/l
+- Dissolved oxygen (DO)
+  - Maximal saturation: DO = 12.9mg/l
+  - Typical value in freshwater stream: DO $\approx$ 9mg/l
+  - Threat to aquatic life: DO < 5mg/l
+
+## Model
+
+\newcommand{\BOD}{\mathsf{BOD}}
+\newcommand{\DO}{\mathsf{DO}}
+
+Constant flow rate: location doesn't matter, dynamic model \alert{in time}
+
+\begin{align*}
+  \frac{d \BOD}{dt} & = \BOD_{in} - k_1 \BOD \\
+  \frac{d \DO}{dt} & = k_2(\DO_{sat} - \DO) - k_1 \BOD
+\end{align*}
+
+where
+
+- $\BOD_{in}$: $\BOD$ flux of waste discharge (mg $\cdot$ l$^{-1}$ $\cdot$ min$^{-1}$)
+- $\DO_{sat}$: dissolved oxygen concentration at saturation
+- $k_1$: deoxygenation rate (min$^{-1}$)
+- $k_2$: reaeration rate, rate at which oxygen can be absorbed from the atmosphere (min$^{-1}$)
+
+## Model inputs
+
+- Initial conditions:
+  - $\BOD_{t=0} = 7.33$mg/l
+  - $\DO_{t=0} = 8.5$mg/l
+- Initial model inputs:
+  - $\BOD_{in} = 1$mg$\cdot$l$^{-1}$ $\cdot$min$^{-1}$
+  - $\DO_{sat} = 8.5$mg$\cdot$l$^{-1}$
+  - $k_1 = 0.3$min$^{-1}$ (\alert{unknown})
+  - $k_2 = 0.4$min$^{-1}$ (\alert{unknown})
+
+## Model trajectories
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation/SP-simulate.R", local = knitr::knit_global())
+```
+
+```{r, echo=FALSE, fig.height=6}
+plot.exact.trajectories()
+```
+
+# Parameter estimation
+
+
+## Parameter estimation - simplex method
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation/SP-estimate.R", local = knitr::knit_global())
+```
+
+```{r, echo=FALSE, message=FALSE, fig.height=5}
+plot.trajectory("Nelder-Mead")
+```
+
+## Parameter estimation - BFGS
+
+```{r, echo=FALSE, message=FALSE, fig.height=5}
+plot.trajectory("L-BFGS-B")
+```
+
+## Optimal parameter result
+
+```{r, echo=FALSE, message=FALSE, fig.height=6}
+plot.fitted.trajectory()
+```
+
+# Sensitivity analysis
+
+## Absolute sensitivity functions
+
+Absolute sensitivity of $\DO$ with respect to $k_1$ and $k_2$.
+
+```{r, echo=FALSE, message=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation/SP-sensitivity-absolute.R", local = knitr::knit_global())
+```
+
+## Difference exact approximate
+
+```{r, echo=FALSE, message=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation/SP-sensitivity.R", local = knitr::knit_global())
+```
+
+## Relative sensitivity functions
+
+
+```{r, echo=FALSE, message=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation/SP-sensitivity-relative.R", local = knitr::knit_global())
+```
+
+## Conclusions
+
+- Note difference in values with absolute sensitivities
+- $\DO$ seems more sensitive to $k_2$ than to $k_1$
+- Extrema at slightly different time points: information concerning correlation between both parameters
+  - Maximal sensitivity at same time point: parameters strongly correlated (impact of change in parameters similar)
+- Studying sensitivity very valuable: sensitivity used in many techniques for model analysis  
+
+## Aside: quality of estimation
+
+- DO measurements at different times: measurement error (obtained manually) is 0.05 mg$\cdot$l$^{-1}$
+- Estimate simultaneously $k_1$ and $k_2$ (assume all other parameters and initial conditions constant)
+- Gives $k_1 = 0.353$min$^{-1}$, $k_2 = 0.389$
+
+## Quality of estimation: FIM
+
+```{r, echo=FALSE, message=FALSE}
+source("scripts/03a-parameter-estimation/SP-fisher.R", local = knitr::knit_global())
+```
+
+Fisher information matrix:
+\[
+  \mathsf{FIM} = \sum_{i=1}^N 
+    \left(\frac{\partial y}{\partial \theta}(t_i)\right)^T Q_i 
+    \left(\frac{\partial y}{\partial \theta}(t_i)\right)
+\]
+
+- Measurement noise $\sigma_{DO} = 0.05 \si{mg.l^{-1}}$
+- Weight "matrix" in the objective function $Q = \sigma_{DO}^{-2}$.
+
+Gives: 
+\[
+  \mathsf{FIM} = \left[\begin{matrix}
+    \phantom{-} 3.91 \cdot 10^{4} & -2.96 \cdot 10^{4} \\
+    -2.96 \cdot 10^{4} & \phantom{-} 4.56 \cdot 10^{5}
+  \end{matrix}\right]
+\]
+
+## Quality of estimation: confidence intervals
+
+Error covariance matrix:
+\[
+  \mathsf{C} = \mathsf{FIM}^{-1} = \left[
+    \begin{matrix}
+      2.69 \cdot 10^{-5} & 1.75 \cdot 10^{-6} \\
+      1.75 \cdot 10^{-6} & 2.31 \cdot 10^{-6}
+    \end{matrix}
+  \right]
+\]
+
+95% confidence intervals and covariance:
+
+\begin{align*}
+  k_1 & :  0.353 \pm 0.011\\
+  k_2 & :  0.389 \pm 0.003\\
+  \mathsf{cor}(k_1, k_2) & = 0.22
+\end{align*}
+
+## Quantitative analysis
+
+- Calculate $\delta_{rmsq}$ for $\DO$ and different parameters
+- Illustration: different measuring schemes for $\DO$:
+  - Scheme 1: $t_k = 0 : 0.1 : 2$
+  - Scheme 2: $t_k = 0 : 2 : 20$
+  - Scheme 3: $t_k = 0 : 2 : 10$
+  - Scheme 4: $t_k = 10 : 2 : 20$
+
+
+```{r, echo=FALSE, message=FALSE}
+source("scripts/03a-parameter-estimation/SP-delta-rmsq.R", local = knitr::knit_global())
+
+f <- function(v) {
+  round(v, 2)
+}
+```
+
+\begin{center}
+\scriptsize
+\begin{tabular}{c|c|c|c|c}
+ & \textsf{Scheme 1} & \textsf{Scheme 2} & \textsf{Scheme 3} & \textsf{Scheme 4} \\
+\hline
+$k_1$ & `r round(d1_k1, 2)` & `r f(d2_k1)` & `r f(d3_k1)` & `r f(d4_k1)` \\
+$k_2$ & `r round(d1_k2, 2)` & `r f(d2_k2)` & `r f(d3_k2)` & `r f(d4_k2)` \\
+\scriptsize $\DO_{sat}$ & `r round(d1_sat, 2)` & `r f(d2_sat)` & `r f(d3_sat)` & `r f(d4_sat)` \\
+\hline
+ & $k_2 < k_1 < \DO_{sat}$ & $k_1 < k_2 < \DO_{sat}$ & $k_1 < k_2 < \DO_{sat}$ & $k_1 < k_2 < \DO_{sat}$ \\
+\end{tabular}
+\normalsize
+\end{center}
+
+## GSA: Morris screening: parameter ranges
+
+- Global sensitivity for 6 parameters and initial conditions in designated ranges:
+
+\begin{gather*}
+k_1: [0.1; 0.6] \quad k_2: [0.1; 0.6] \quad \DO_{sat} : [10; 12] \\
+\BOD_{in} : [0.1; 2] \quad \DO_{t=0}: [6; 10] \quad \BOD_{t=0}: [6; 10]
+\end{gather*}
+
+
+## GSA: Morris screening
+
+```{r, echo=FALSE, message=FALSE, fig.height=4}
+source("scripts/03a-parameter-estimation/SP-morris.R", local = knitr::knit_global())
+```
+
+Among the selected parameters:
+
+- At time 0, $\DO$ is only sensitive to $\DO_0$
+- At time 25, $\DO$ is sensitive to $k_2$ and $\DO_{sat}$.

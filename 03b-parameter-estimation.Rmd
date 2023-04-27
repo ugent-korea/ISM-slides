@@ -1,0 +1,630 @@
+---
+title: "Modeling and simulation of biosystems"
+subtitle: "Parameter estimation"
+author: "Joris Vankerschaver"
+header-includes:
+  - \useinnertheme[shadow=true]{rounded}
+  - \usecolortheme{rose}
+  - \setbeamertemplate{footline}[frame number]
+  - \usepackage{color}
+  - \usepackage{graphicx}
+output: 
+  beamer_presentation:
+    theme: "default"
+    keep_tex: true
+    includes:
+      in_header: columns.tex
+---
+
+# Parameter Estimation
+
+## Definition
+
+\begin{block}{Parameter estimation}
+Determining the \textbf{optimal values for the parameters} using the experimental data, assuming that the structure of the model, or in other words, the relations between the variables and the parameters, are known.
+\end{block}
+
+## Objective function
+
+\begin{block}{Objective function}
+A \textbf{measure} for the \textbf{distance between model prediction and experimental data}
+\end{block}
+
+Easiest: use Euclidean distance 
+
+```{r, echo=FALSE, fig.height=4}
+source("scripts/03a-parameter-estimation/residuals.R", local = knitr::knit_global())
+```
+
+## Objective function
+
+_Minimize_ total distance
+
+- Recall linear regression: sum of distances is not good
+- Use squared distances
+
+$$J(\theta) = \sum_{i=1}^N (y_i-\hat{y}_i(\theta))^2$$
+
+where $y_i$ observations ($N$ in total), $\hat{y}_i(\theta)$ model predictions for given parameter set $\theta$
+
+\begin{block}{}
+\alert{Minimise total distance by minimising $J(\theta)$ over $\theta$}
+\end{block}
+
+## Objective function
+
+- Extension to **multiple variables**
+
+$$J(\theta) = \sum_{i=1}^N (y_{1,i}-\hat{y}_{1,i}(\theta))^2 + \sum_{i=1}^N (y_{2,i}-\hat{y}_{2,i}(\theta))^2 + \dots$$
+
+- Multiple variables with **different measurement errors** (i.e., different variances) 
+
+$$J(\theta) = \frac{1}{\sigma_1^2}\sum_{i=1}^N (y_{1,i}-\hat{y}_{1,i}(\theta))^2 + \frac{1}{\sigma_2^2}\sum_{i=1}^N (y_{2,i}-\hat{y}_{2,i}(\theta))^2 + \dots$$
+
+## Preparatory steps: Splitting the data set
+
+- Two subsets
+    - For calibration (parameter estimation): test set
+    - For validation: validation set
+- __Independent__ subsets important for reliable validation
+- Test set needs to 
+    - Contain sufficient information (quantity)
+    - Cover a sufficient range of experimental conditions (quality)
+- Validation set needs to be sufficiently large for reliable validation
+
+## Preparatory steps: Select parameters to estimate
+
+- Parameters
+    - True parameters
+    - Initial and boundary conditions can often be seen as parameters (steady state model)
+- **Too many** parameters to estimate can cause problems
+    - \alert{More parameters = more degrees of freedom} (parameter space with more dimensions), so less certainty and \alert{wider range} for the \alert{output variables}
+    - Some parameters can be \alert{correlated}, then no unique solution or \alert{no identifiability}
+    
+## Preparatory steps: Selection of parameters
+
+- Investigate **relative importance** (based on sensitivity analysis)
+- See if important parameters can be **determined experimentally**, **fix these** at measured value and do not estimate them
+- If measurement impossible, choose parameter for which output is **most sensitive** (link to sensitivity analysis) and choose realistic value (instead of estimating)
+- Choice of parameters to estimate is **subjective** and **expert driven**
+- _Rule of thumb_: estimate as little parameters as possible to avoid identifiability problems
+
+## Preparatory steps: Initial estimation of parameters
+
+- Often parameter estimation is iterative process
+- Start in a certain point in parameter space and search for optimal point (use objective function)
+- How to select initial point?
+- Important: bad choice can lead to
+    - __Slow convergence__, i.e., long searching time
+    - Failure of optimisation procedure
+- Practically: 
+    - Simulate model once and verify if prediction of outcomes is close to observed data
+    - Do not simple start optimisation without verification of initial parameter choice!
+
+## Preparatory steps: Boundaries for parameter values
+
+- **Constrained** optimisation problem
+- Usually realistic parameters values lie in certain interval
+    - Unrealistic to search outside this range
+- Solution: **delimit** parameter space
+    - Simplifies search for optimal point 
+    
+How?
+
+- Penalty function
+- Parameter transformation
+    
+## Penalty function
+
+\begin{itemize}
+\item Modifies definition of objective function: unconstrained to constrained
+  \begin{itemize}
+    \item Unchanged in sensible region
+    \item Drastically \textbf{increased} in unrealistic region (after all, we want to minimise objective function)
+  \end{itemize}
+\end{itemize}
+\[
+   J_{constrained}(\theta) = J_{unconstrained}(\theta) + \sum_j J_{penalty,j}(\theta)
+\]
+
+\begin{exampleblock}{Examples}
+\begin{itemize}
+\item $J_{penalty,j}(\theta)$ \emph{discontinuous} function:
+\[
+J_{penalty,j}(\theta) = 10^{20} \qquad \qquad \text{if } \theta_j>\theta_{j,max}
+\]
+\item $J_{penalty,j}(\theta)$ \emph{continuous} function: $J_{penalty,j}(\theta) = \frac{\alpha_j}{g_j(\theta)}$.
+\end{itemize}
+\end{exampleblock}
+
+## Transformation parameters
+
+- Transform \emph{constrained} problem into equivalent \emph{unconstrained} problem
+    - $\theta>0$: $\theta=\Phi^2$ or $\theta=\exp\Phi$, $\Phi \in (-\infty,+\infty)$
+    - $\theta_{min}<\theta<\theta_{max}$: $\Phi=\tan\left( \frac{\pi}{2} \frac{2\theta-\theta_{max}-\theta_{min}}{\theta{max}-\theta_{min}} \right)$, $\Phi \in (-\infty,+\infty)$
+- Once solution found, inverse transformation
+    - $\theta = \frac{1}{2}(\theta_{max}+\theta_{min}) + (\theta_{max}-\theta_{min})\frac{\tan^{-1}\Phi}{\pi}$
+
+## Identifiability
+
+- Depends on 
+    1. Model structure: how appear parameters in model
+    2. Choice of parameters: identifiability can vary with choice of parameters to estimate
+    3. Available data: what variables and what quality/quantity
+- If we can we give **unique** value to each selected parameter based on perfect data (meaning 3. is OK), then **structural identifiability**
+- Not identifiable: 
+    - Different combinations of parameter values give same model output, often caused by correlation (see sensitivity analysis)
+    - If we still simultaneously estimate parameters: low quality estimators (i.e., large confidence intervals)
+    
+## Identifiability
+
+- Perfect data do not exist (white noise on measurements, ...)
+- If data quality unsufficient, structurally identifiable model can become unidentifiable
+    - **practical identifiability**
+- Can be verified using identifiability analysis (not in scope of course)
+
+## Identifiability
+
+$$\text{Model 1}: y=ax_1+bx_2$$
+
+- if $y$, $x_1$ and $x_2$ are measured (and sufficiently informative), then $a$ and $b$ both (structurally) identifiable
+- partial derivatives of $y$ imply that $a$ and $b$ can be determined independently 
+- if $x_1=\alpha x_2$ with $\alpha$ constant, then data not sufficiently informative
+    - $a$ and $b$ cannot be uniquely determined
+    - model not practically identifiable
+    
+## Identifiability
+
+$$\text{Model 2}: y=ax_1+bx_2+c(x_1+x_2)$$
+
+- $a$, $b$, and $c$ no longer (structurally) identifiable
+- after all: $\partial y / \partial x_1 = a+c$ and $\partial y / \partial x_2 = b+c$
+- if 1 of parameters known (so not to be estimated), problem disappears
+
+## Residuals: Assumptions
+
+- Properties are function of 
+    - Model structure
+    - Experimental data
+- Assumption: model is correct
+    - Residuals due to measurement errors
+- Selection criteria model sometimes based on residual analysis
+
+## Residuals: Assumptions
+
+- State variable(s) (usually time)
+    - No errors or not significant w.r.t. those of dependent variable
+    - If not: `error-in-variables' problem
+- Measurement errors dependent variable $y$
+    - Normally distributed
+    - Mean 0 (random)
+    - Constant variance (homoscedasticity)
+    - Independent
+    
+## Residuals: Homoscedasticity vs. heteroscedasticity
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation//autocorrelation.R", local = knitr::knit_global())
+```
+
+**Residual plot**:
+
+- Residuals as a function of time
+- No trend
+
+\vspace*{1cm}
+
+```{r, echo=FALSE, fig.height=3}
+grid.arrange(p1, p2, ncol = 2)
+```
+    
+## Residuals: Independence
+
+Study **autocorrelation** with _lag_ $\tau$
+
+- To what extent does a residual depend on a previous residual
+- Is there correlation between residuals in time
+
+$$r_\varepsilon(\tau) = \frac{1}{r_\varepsilon(0)}\sum_{k=1}^{N-\tau} \frac{\varepsilon(t_k) \cdot \varepsilon(t_k+\tau)}{N-\tau}$$
+
+where $r_\varepsilon(0)=\sum_{k=1}^{N} \frac{\varepsilon^2(t_k)}{N}$
+
+## Residuals: Independence
+
+```{r, echo=FALSE, warning=FALSE, fig.height=6}
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+```
+
+## Residuals: Independence
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3}
+grid.arrange(p2, p4, ncol = 2)
+```
+
+Evaluation: 
+
+- Compare all calculated autocorrelations (different lags $\tau$) with critical value $\frac{\mathcal{N}(0,1)}{\sqrt{N}}$ (for a given confidence level)
+
+## Residuals: Independence
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3}
+grid.arrange(p2, p4, ncol = 2)
+```
+
+- Confidence level 95% $\rightarrow$ 1.96
+- Max 5% of autocorrelations can be larger than $\frac{1.96}{\sqrt{N}}$
+- Here: 4 out of 17 = 24% $\rightarrow$ not independent
+
+## Residuals: Independence
+
+- Solution: subsampling
+- Rule of thumb: 4 signicant lags, keep 1 out of 5 data points
+- \alert{Disadvantage: severe loss of data}
+
+\vspace*{1cm}
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3}
+grid.arrange(p5, p6, ncol = 2)
+```
+
+## Autocorrelation for data analysis
+
+\begin{exampleblock}{Residential/commercial energy consumption in Korea (2017-2019)}
+\begin{itemize}
+\item Highly correlated over 12-month basis
+\item Anticorrelated over 6-month basis
+\end{itemize}
+\end{exampleblock}
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation//energy.R", local = knitr::knit_global())
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3}
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Source: Korea Energy Economics Institute.
+
+## Minimisation target function
+
+$$J(\theta) = \sum_{i=1}^N (y_i-\hat{y}_i(\theta))^2$$
+
+- Minimise
+$$\hat{\theta} = \arg \min_{\theta \in \Omega} J(\theta)$$
+where $\Omega$ represents the parameter space ((un)constrained)
+
+- Solutions: solve system of equations
+$$\frac{\partial J(\theta)}{\partial\theta_i} = 0 \qquad i=1,\ldots, N_{par}$$
+
+- Linear parameters: explicit solution in 1 step
+- Nonlinear parameters: implicit solution, iterative method 
+
+## Nonlinear parameter estimation
+
+Example: $y=x^\theta$
+\begin{itemize}
+\item Objective function
+$$J(\theta) = \sum_{i=1}^N (y_i-\hat{y}_i(\theta))^2 = \sum_{i=1}^N (y_i-x_i^\theta)^2$$
+\item Minimisation
+$$\frac{\partial J(\theta)}{\partial \theta} = -2\sum_{i=1}^N (y_i-x_i^\theta)\ln(x_i)x_i^\theta=0$$
+or
+$$\sum_{i=1}^N y_i\ln(x_i)x_i^\theta = \sum_{i=1}^N \ln(x_i)x_i^{2\theta} $$
+\end{itemize}
+
+
+## Nonlinear parameter estimation
+
+- Impossible to write explicitly in $\theta$
+- So previous method does not work if $y=f(\theta)$ nonlinear model
+
+_Parameter estimation algorithms_: iterative methods
+
+- Initial estimation $\theta_0$
+- Simulate model
+- Calculate objective function
+- Propose new parameter set $\theta$
+- Simulate model
+- Calculate objective function
+- Propose new parameter set $\theta$
+- ...
+    
+## Nonlinear parameter estimation
+
+- Problem of _local minima_
+\begin{figure}
+\includegraphics[width=.8\textwidth]{images/temp/009.pdf}
+\end{figure}
+
+## Nonlinear parameter estimation
+
+Cross section nonlinear problem
+\begin{figure}
+\includegraphics[width=.8\textwidth]{images/temp/010.pdf}
+\end{figure}
+
+## Minimisation algorithms
+
+- Looks for optimum, starting from initial estimation
+- General principle:
+    - Determine direction $s_k$ in parameter space
+    - Minimise objective function in _this direction_, giving a new parameter set
+    $$\theta^{k+1} = \theta^k + \alpha_k s_k$$
+    with $\alpha_k$ step size
+    - Repeat until optimum is found
+- Needed:
+    - Initial estimation
+    - Stopping criterion (when converging)
+
+## Minimisation algorithms
+
+- Different algorithms
+    - Way in which direction $s_k$ is determined
+    - _Can_ be based on _gradient of objective function_
+- Gradient based methods
+    - Steepest descent
+    - Newton
+    - Gauss-Newton
+    - Levenberg-Marquardt
+- Not gradient based methods
+    - Direction set (Powell, Brent)
+    - Simplex
+    - Global minimisation
+    
+## Method of steepest descent: Intuition
+
+
+
+:::::: {.cols data-latex=""}
+
+::: {.col data-latex="{0.60\textwidth}"}
+
+Imagine you are on top of a mountain, surrounded by fog. You want to go down the mountain into the valley as efficiently as possible. The fog prevents you from seeing more than a few meters in every direction. How do you proceed?
+
+\vspace*{1cm}
+
+\alert{Solution:}
+Walk in the direction of **steepest descent**
+
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\ 
+:::
+
+::: {.col data-latex="{0.35\textwidth}"}
+\includegraphics{images/03a-parameter-estimation/cdf-wanderer}
+:::
+
+::::::
+
+    
+## Method of steepest descent: level sets    
+    
+Direction of steepest descent: **Gradient**
+\begin{eqnarray*}
+s_k & = & -\nabla J(\theta^k) \\
+& = & -\left[ \begin{array}{c}
+                \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
+                \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
+                \vdots \\
+                \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
+            \end{array}\right].
+\end{eqnarray*}
+    
+The gradient is perpendicular to the level set at $\theta^k$.    
+    
+    
+## Method of steepest descent: characteristics
+
+\begin{exampleblock}{Algorithm}
+\begin{itemize}
+\item Compute gradient $\nabla J(\theta^k)$ at current value $\theta^k$.
+\item Follow negative gradient to update $\theta^k$:
+\[
+  \theta^{k+1} = \theta^k - \alpha_k \nabla J(\theta^k),
+\]
+with $\alpha_k$ the step size.
+\item Repeat until convergence
+\end{itemize}
+\end{exampleblock}
+
+
+Step size $\alpha_k$ can be 
+\begin{itemize}
+\item Fixed: $\alpha_k = \alpha$ for a small fixed $\alpha$ (e.g. $\alpha = 0.01$).
+\item Adaptive: determine the best $\alpha_k$ at each step.
+\end{itemize}
+
+## Method of steepest descent: variable step size
+
+```{r, echo=FALSE}
+source("scripts/03a-parameter-estimation//quadratic-function.R", local = knitr::knit_global())
+```
+
+
+## Method of steepest descent: disadvantages
+
+```{r, echo=FALSE, fig.height=4.5}
+source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_global())
+```
+    
+- Converge can be slow (e.g for minimum hidden inside narrow "valley") 
+- Steepest descent path will zigzag towards minimum, making little progress at each iteration.
+    
+## Method of Newton: 1D case
+
+Find a minimum of $J(x)$ by solving $J'(x) = 0$. 
+
+:::::: {.cols data-latex=""}
+
+::: {.col data-latex="{0.60\textwidth}"}
+
+- For a starting point $x_k$, look for a search direction $s_k$ such that $J'(x_k + s_k) \approx 0$.
+
+- Taylor: $J'(x_k + s_k)$ is approximately
+\[
+  J'(x_k + s_k) \approx J'(x_k) + s_k J''(x_k).
+\]
+
+- Search direction:
+\[
+  s_k = -\frac{J'(x_k)}{J''(x_k)}
+\]
+:::
+
+::: {.col data-latex="{0.10\textwidth}"}
+\ 
+:::
+
+::: {.col data-latex="{0.40\textwidth}"}
+\includegraphics{images/03a-parameter-estimation/newton2.jpeg}
+:::
+::::::
+
+Uses information from **first** and **second** derivatives.
+
+
+## Method of Newton: properties
+
+For a quadratic function $J(x) = Ax^2 + Bx + C$, Newton's method finds the minimum in **one step**.
+
+
+\begin{exampleblock}{Geometric interpretation}
+\begin{itemize}
+\item Approximate $J(x)$ around $x_k$ by best-fitting parabola.
+\item Jump to bottom of parabola to find $x_{k+1}$.
+\item Repeat!
+\end{itemize}
+\end{exampleblock}
+
+```{r, echo=FALSE, fig.height=3}
+source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::knit_global())
+```
+
+## Method of Newton: higher dimensions
+
+- Search direction uses gradient and **Hessian**
+\[
+  s_k = -\left[ H(\theta^k)\right]^{-1} \nabla J(\theta^k)
+\]
+where
+\[
+H(\theta^k) = \nabla^2 J(\theta^k) =
+          \left[ \begin{array}{cccc}
+                \frac{\partial^2 J(\theta)}{\partial \theta_1^2} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_n} |_{\theta^k} \\
+                \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_2^2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_n} |_{\theta^k} \\
+                \vdots & \vdots & \ddots & \vdots \\
+                \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_n^2} |_{\theta^k}
+            \end{array}\right]
+\]
+
+## Method of Newton: advantages and disadvantages
+
+- Less iterations needed
+- Choice direction more efficient: descent and curvature
+
+Disadvantages:
+
+- More sensitive to local extrema
+- First **and** second order differentials
+- Step size $\alpha=1$. If initial vector too far from minimum, method will often not converge to minimum.
+
+## Method of Newton: convergence
+
+```{r, echo=FALSE, fig.height=4.5}
+source("scripts/03a-parameter-estimation//rosenbrock-newton.R", local = knitr::knit_global())
+```
+
+- Very fast convergence for Rosenbrock function (3 iterations)
+- In general: **quadratic convergence**
+
+## Many advanced gradient-based methods exist
+
+- Broyden-Fletcher-Goldfarb-Shanno (BFGS): approximation of Hessian
+- Levenberg-Marquardt: very popular, combines 
+    - Steepest descent: robust but slow
+    - Method of Newton: fast, but often not convergent
+- Powell/Brent: search along set of directions
+
+\begin{exampleblock}{Optimization in R}
+\begin{itemize}
+\item Use \texttt{optim(par, fn)}, with \texttt{par} the initial guess and \texttt{fn} the function to optimize.
+\item Set \texttt{method} to the method to use: "Nelder-Mead" (the default), "BFGS", "Brent", \dots
+\end{itemize}
+
+\end{exampleblock}
+
+## Simplex algorithm
+
+\begin{exampleblock}{Simplex algorithm (Nelder-Mead 1965)}
+Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...)
+\begin{itemize}
+\item Start with random simplex.
+\item Adjust worst corner of simplex by using different "actions".
+\item Repeat until convergence.
+\end{itemize}
+\end{exampleblock}
+
+\begin{center}
+\includegraphics{images/03a-parameter-estimation/nelder-mead-actions.pdf}
+\end{center}
+
+## Simplex algorithm
+
+\includegraphics{images/03a-parameter-estimation/nelder-mead.pdf}
+
+## Simplex algorithm: advantages and disadvantages
+
+- Does not require gradient, Hessian, ... information
+- Robust: often finds a minimum where other optimizers cannot.
+- Can find a rough approximation of a minimum in just a few updates ...
+- ... but may take a long time to converge completely.
+
+## Global minimisation
+
+- Disadvantage local techniques: local minima can never be completely excluded 
+- Global techniques insensitive to this problem
+- Disadvantage: needs a lot of evaluations of $J$
+- Types:
+    - Gridding
+    - Random methods
+    
+## Global minimisation: Gridding
+
+- Evaluate $J$ for a grid of parameter values $\theta$
+- Select minimum among grid values
+
+```{r, echo=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation//gridding.R", local = knitr::knit_global())
+```
+
+## Global minimisation: Gridding
+
+- The finer the grid
+    - the more likely to find the optimum, 
+    - BUT the more calculations needed
+- Iterative
+    - Start with a coarse-grained grid
+    - Refine parameter domain and repeat
+- Brute force, inefficient
+
+## Global minimisation: Random methods
+
+- Evaluate $J$ for random parameter sets
+    - Choose PDF for each parameter
+    - Random sampling; Latin hypercube sampling
+- Retain
+    - Optimal set (with $J_{min}$)
+    - Some sets below certain critical value ($J_{crit}$)
+
+\begin{exampleblock}{Examples:}
+\begin{itemize}
+    \item Genetic algorithms
+    \item Shuffled complex evolution
+    \item Ant colony optimization
+    \item Particle swarm optimization
+    \item Simulated annealing
+    \item \ldots
+\end{itemize}
+\end{exampleblock}

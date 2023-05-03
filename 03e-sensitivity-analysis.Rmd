@@ -16,63 +16,6 @@ output:
       in_header: columns.tex
 ---
 
-
-
-# Monte Carlo Simulation
-
-## Monte Carlo simulation technique
-
-- Computational algorithm, based on 
-    - large number of simulations (thousands)
-    - repeated random sampling from distributions
-- Used for
-    - Stochastic modeling
-    - Global sensitivity analysis
-    - Uncertainty analysis
-    
-- Principle of MC:
-    1. Determine which model constituents have stochastic character, and on what interval
-    2. Random generation of chosen number (sample size) deterministic sets of these model constituents using PDFs
-    3. Execute deterministic simulation (_shot_)
-    4. Statistical analysis of simulation results
-    
-## Monte Carlo simulation technique
-
-\begin{figure}
-\includegraphics[width=\textwidth]{images/temp/038.pdf}
-\end{figure}
-
-##
-
-## Monte Carlo simulation technique
-
-Practical problems:
-
-1. Determining PDF for all stochastic components
-    - Repeated measures
-    - CI of estimated parameter
-    - Literature
-    - Expert knowledge
-2. Requires large number of simulations, computationally intensive (especially if model complex)
-
-## Monte Carlo simulation technique
-
-- Sampling: Random sampling
-
-\begin{figure}
-\includegraphics[width=\textwidth]{images/temp/039.pdf}
-\end{figure}
-
-##
-
-## Monte Carlo simulation technique
-
-- Sampling: Latin Hypercube sampling
-
-\begin{figure}
-\includegraphics[width=.75\textwidth]{images/temp/040.pdf}
-\end{figure}
-
 # Sensitivity Analysis
 
 ## Why sensitivity analysis?
@@ -118,6 +61,8 @@ Practical problems:
 - Each technique gives different type of information
     - Local analysis is not better or worse than global analysis
     
+# Local sensitivity analysis    
+
 ## Local sensitivity analysis
 
 - How sensitive is model output ($y$) to changes of model parameter ($\theta$) at one single point in parameter space
@@ -269,6 +214,44 @@ plot(as, y2, type="l", xlab = "a", ylab = "y")
 ```
 
 - Local sensivity is slope of tangent line
+
+
+
+# Monte Carlo Simulation
+
+## Monte Carlo simulation technique
+
+- Computational algorithm, based on 
+    - large number of simulations (thousands)
+    - repeated random sampling from distributions
+- Used for
+    - Stochastic modeling
+    - Global sensitivity analysis
+    - Uncertainty analysis
+    
+- Principle of MC:
+    1. Determine which model constituents have stochastic character, and on what interval
+    2. Random generation of chosen number (sample size) deterministic sets of these model constituents using PDFs
+    3. Execute deterministic simulation (_shot_)
+    4. Statistical analysis of simulation results
+    
+## Monte Carlo simulation technique
+
+##
+
+## Monte Carlo simulation technique
+
+Practical problems:
+
+1. Determining PDF for all stochastic components
+    - Repeated measures
+    - CI of estimated parameter
+    - Literature
+    - Expert knowledge
+2. Requires large number of simulations, computationally intensive (especially if model complex)
+
+
+# Global sensitivity analysis (GSA)
 
 ## Global sensitivity analysis (GSA)
 

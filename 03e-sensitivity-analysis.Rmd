@@ -20,46 +20,66 @@ output:
 
 ## Why sensitivity analysis?
 
-- Verify what _sources of uncertainty_ contribute most to variance (uncertainty) of model output \newline
+- Verify what _sources of uncertainty_ contribute most to variance (uncertainty) of model output.
 - Sources of uncertainty in model can be
     - Model parameters, initial conditions, inputs
-    - Model structure \newline
+    - Model structure
 - Better understand changes in model predictions due to the above
 
 ## Why sensitivity analysis?
 
 - Detect what _model parameters_ contribute most to model output uncertainty 
-\newline
 - Want to reduce model uncertainty, so best to focus on most influential parameters 
-\newline
 - Gives idea of correlation between parameters 
-\newline
 - Helps in choice of what parameters to estimate (in parameter estimation)
 
 ## Why sensitivity analysis?
 
 - Gives information about interesting location, time, ... to collect experimental data
-\newline
-- Basis for experimental design (maybe later)
-\newline
-- Gives information on unsensitive model parameters
-\newline
-- Useful in model reduction of overparametrised models
+- Basis for experimental design
+- Gives information on insensitive model parameters
+- Useful in model reduction of overparametrized models
 
 ## Local vs global
 
 1. Local sensitivity analysis
-    - Determine sensitivity at __one certain point__ in parameter space
+    - Determine sensitivity at **one certain point** in parameter space
     - Not very computationally intensive
     \newline
 2. Global sensitivity analysis
-    - Determine sensitivity in __delimited area__ of parameter space
+    - Determine sensitivity in **delimited area** of parameter space
     - Usually gives a mean sensitivity
     - Can become extremely computationally intensive
 
 - Each technique has advantages and disadvantages
 - Each technique gives different type of information
-    - Local analysis is not better or worse than global analysis
+    
+## Examples of sensitivity analysis: water quality model
+
+::::::: {.cols data-latex=""}
+::: {.col data-latex="{0.55\textwidth}"}
+
+- Hundreds of parameters
+- Each model simulation takes days to run
+- Identifying highly sensitive parameters is critical
+
+![](./images/03e-sensitivity/wqm-model.png){width=75% align="center"}
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+:::
+::: {.col data-latex="{0.55\textwidth}"}
+
+![](./images/03e-sensitivity/wqm-river.png){width=75%}
+![](./images/03e-sensitivity/wqm-parameters.png){width=75%}
+
+:::
+::::::
+
+\scriptsize
+Source: *Developing a cloud-based toolbox for sensitivity analysis of a water quality model* (S. Kim et al, Environmental Modeling and Software, 2021)
+
     
 # Local sensitivity analysis    
 

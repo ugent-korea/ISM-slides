@@ -286,24 +286,6 @@ $$
     - choice of time points is arbitrary: this can lead to different set of parameters that are best estimated using dataset (see also identifiability)
 - Modifications can be defined based on application/goal
 
-## Local sensitivity analysis: Local character
-
-Impact of choice nominal value of parameter
-
-- Principle demonstrated with example: linear function in $a$: $y=ax+b$ and nonlinear function in $a$: $y=a^2x+b$ (assume $x=1$ and $b=1$)
-```{r, echo=FALSE, message=FALSE, fig.height=4}
-as <- seq(0, 10, length.out = 50)
-y1 <- as + 1
-y2 <- as^2 + 1
-
-par(mfrow=c(1, 2))
-plot(as, y1, type="l", xlab = "a", ylab = "y")
-plot(as, y2, type="l", xlab = "a", ylab = "y")
-```
-
-- Local sensivity is slope of tangent line
-
-
 
 # Monte Carlo Simulation
 

@@ -80,6 +80,74 @@ output:
 \scriptsize
 Source: *Developing a cloud-based toolbox for sensitivity analysis of a water quality model* (S. Kim et al, Environmental Modeling and Software, 2021)
 
+
+## Examples of sensitivity analysis: cell signaling
+
+Toll-like signaling pathway:
+
+- Cellular response to external stimuli (e.g. infection)
+- Central role for NF-$\kappa$B transcription factor
+- Shuttles back and forth between cytoplasm and nucleus
+
+\centering
+![](./images/03e-sensitivity/nf-kappa-b-model.png){width=60%}
+
+\scriptsize    
+Source: Images from _Fundamentals of Systems Biology_, M. Covert, CRC Press, 2014.
+
+
+## Examples of sensitivity analysis: cell signaling
+
+Hoffmann-Levchenko (2005): Computational model for NF-$\kappa$B
+
+::::::: {.cols data-latex=""}
+::: {.col data-latex="{0.48\textwidth}"}
+
+- 25 ODEs, 36 parameters
+- Models protein production, degradation, transport
+- Important role for **parameter estimation** and **sensitivity analysis**
+
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+:::
+
+::: {.col data-latex="{0.48\textwidth}"}
+![](./images/03e-sensitivity/nf-kappa-b-equations.png)
+:::
+::::::
+
+\scriptsize    
+Source: Images from _Fundamentals of Systems Biology_, M. Covert, CRC Press, 2014.
+
+
+## Examples of sensitivity analysis: cell signaling
+
+Sensitivity analysis: which parameters affect the model the most?
+
+- Transcription rate: affects output a lot (**sensitive**)
+- Degradation rate: relatively **insensitive**
+
+Gives rough idea, needs to be corroborated with full model.
+
+::::::: {.cols data-latex=""}
+::: {.col data-latex="{0.48\textwidth}"}
+![](./images/03e-sensitivity/nf-kappa-b-oscillations.png){width=90%}
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+:::
+
+::: {.col data-latex="{0.48\textwidth}"}
+![](./images/03e-sensitivity/nf-kappa-b-sensitivity.png)
+:::
+::::::
+
+\scriptsize    
+Source: Images from _Fundamentals of Systems Biology_, M. Covert, CRC Press, 2014.
+
     
 # Local sensitivity analysis    
 

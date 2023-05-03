@@ -287,7 +287,7 @@ $$
 - Modifications can be defined based on application/goal
 
 
-# Monte Carlo Simulation
+# Side track: Monte Carlo simulation
 
 ## Monte Carlo simulation technique
 
@@ -305,9 +305,27 @@ $$
     3. Execute deterministic simulation (_shot_)
     4. Statistical analysis of simulation results
     
-## Monte Carlo simulation technique
+## Example: computing $\pi$
 
-##
+- Drop points uniformly at random in the square $[-1, 1] \times [-1, 1]$
+- Count fraction for which $x^2 + y^2 < 1$
+- As $N \to \infty$, gives approximation for $\pi/4$.
+
+::::::: {.cols data-latex=""}
+::: {.col data-latex="{0.38\textwidth}"}
+![](./images/03e-sensitivity/mc-circle.png)
+:::
+
+::: {.col data-latex="{0.05\textwidth}"}
+\mbox{}
+:::
+
+::: {.col data-latex="{0.58\textwidth}"}
+![](./images/03e-sensitivity/mc-pi-over-4.png)
+:::
+::::::
+
+App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.fly.dev/monte-carlo/).
 
 ## Monte Carlo simulation technique
 

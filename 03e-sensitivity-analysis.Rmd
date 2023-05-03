@@ -319,6 +319,24 @@ $$
 :::
 ::::::
     
+## Principles behind Monte Carlo
+
+Algorithm:
+
+1. Draw random parameter samples
+2. For each sample, run simulation
+3. Aggregate results of simulations into quantity of interest (e.g. mean)
+    
+Advantages:
+
+- Easy to implement/understand
+- Applicable to wide range of problems (model-agnostic)
+
+Disadvantages:
+
+- Relatively slow convergence (many simulations needed)
+- Requires information about parameter distributions
+    
 ## Example: computing $\pi$
 
 - Drop points uniformly at random in the square $[-1, 1] \times [-1, 1]$
@@ -340,18 +358,6 @@ $$
 ::::::
 
 App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.fly.dev/monte-carlo/).
-
-## Monte Carlo simulation technique
-
-Practical problems:
-
-1. Determining PDF for all stochastic components
-    - Repeated measures
-    - CI of estimated parameter
-    - Literature
-    - Expert knowledge
-2. Requires large number of simulations, computationally intensive (especially if model complex)
-
 
 # Global sensitivity analysis (GSA)
 

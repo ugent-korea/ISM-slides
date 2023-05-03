@@ -363,10 +363,8 @@ App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.
 
 ## Global sensitivity analysis (GSA)
 
-- Measure for sensitivity on delimited area in parameter space
+- Measure for sensitivity in delimited area in parameter space
 - PDFs for parameters need to be chosen/found (same as for uncertainty analysis)
-
-\ \newline
 
 3 techniques will be discussed:
 
@@ -379,9 +377,16 @@ App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.
 - Linear regression of Monte Carlo simulations
 - Each line is simulation of variable $y$ for different parameter set $\Theta$, i.e., other point in parameter space
 
-\begin{figure}
-\includegraphics[width=.6\textwidth]{images/temp/051.pdf}
-\end{figure}
+```{r, include=FALSE}
+source("./scripts/03a-parameter-estimation/SP-GSA.R")
+```
+
+```{r, echo=FALSE, out.height="50%", fig.align='center'}
+plot_mc_do +
+  theme(text = element_text(size = 20))
+```
+
+- Figure: 100 simulations of dissolved oxygen, with $k_1, k_2$ sampled uniformly between $0.1$ and $0.8$.
 
 ## GSA: Standardized regression coefficients
 
@@ -405,7 +410,10 @@ b_0 \\ b_1 \\ \vdots \\ b_p
 \end{array} \right]
 $$
 
-- Solve to $b_i$ by minimizing $E^2=(Y-\Theta\cdot B)^2$
+- Solve for $b_i$ by minimizing $E^2=(Y-\Theta\cdot B)^2$:
+\[
+  B = (\Theta^T \Theta)^{-1} \Theta^T Y.
+\]
 - $b_i$ gives respective contribution of parameter $\theta_i$ in explaining variance of $y$
 
 ## GSA: Standardized regression coefficients

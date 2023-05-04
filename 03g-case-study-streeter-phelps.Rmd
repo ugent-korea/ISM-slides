@@ -247,3 +247,56 @@ Among the selected parameters:
 
 - At time 0, $\DO$ is only sensitive to $\DO_0$
 - At time 25, $\DO$ is sensitive to $k_2$ and $\DO_{sat}$.
+
+## GSA: Monte Carlo
+
+- Monte Carlo: 100 simulations with varying $k_1$ and $k_2$
+- Parameter ranges: $k_1, k_2$ uniformly sampled from $[0.1, 0.8]$
+- Interested in parameter effect at $t = 2$ and $t = 15$
+
+```{r, include=FALSE}
+source("./scripts/03a-parameter-estimation/SP-GSA.R")
+```
+
+```{r, echo=FALSE, out.height="50%", fig.align='center'}
+scale_plot <- function(plot) {
+  plot + theme(text = element_text(size = 20))
+}
+grid.arrange(
+  scale_plot(plot_mc_bod), 
+  scale_plot(plot_mc_do), ncol = 1)
+
+```
+
+## GSA: Monte Carlo
+
+```{r, echo=FALSE}
+grid.arrange(
+  scale_plot(p_k1_bod), 
+  scale_plot(p_k2_bod), 
+  scale_plot(p_k1_do), 
+  scale_plot(p_k2_do), 
+  ncol = 2)
+```
+
+## GSA: Standardized regression coefficients
+
+Previous plots show:
+
+- $BOD$ is sensitive to $k_1$ at $t = 2, 15$
+- $DO$ is sensitive to $k_2$ at $t = 15$ (and somewhat at $t = 2$)
+
+Regression coefficients for $DO$ at $t = 15$:
+\[
+  \begin{bmatrix}
+    b_1 \\ b_2 
+  \end{bmatrix} = 
+    \begin{bmatrix}
+      -0.342 \\ 6.374
+    \end{bmatrix}.
+\]
+
+Standardized regression coefficients (using $\sigma_{k_1} = 0.211$ and $\sigma_{DO} = 1.887$):
+\[
+  SRC_{k_1} = -0.038, \quad \text{and} \quad SRC_{k_2} = 0.713.
+\]

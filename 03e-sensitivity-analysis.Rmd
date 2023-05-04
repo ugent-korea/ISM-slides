@@ -390,42 +390,37 @@ plot_mc_do +
 
 ## GSA: Standardized regression coefficients
 
-- Linear regression at certain time point gives
-$$Y = \Theta \cdot B + E$$
-$$
-\left[ \begin{array}{c}
-y_1 \\ y_2 \\ \vdots \\ y_n
-\end{array} \right] = 
-\left[ \begin{array}{ccccc}
-1 & \theta_{11} & \theta_{12} & \ldots & \theta_{1p} \\ 
-1 & \theta_{21} & \theta_{22} & \ldots & \theta_{2p} \\ 
-\vdots & \vdots & \vdots & & \vdots \\
-1 & \theta_{n1} & \theta_{n2} & \ldots & \theta_{np} 
-\end{array} \right] \
-\left[ \begin{array}{c}
-b_0 \\ b_1 \\ \vdots \\ b_p
-\end{array} \right] +
-\left[ \begin{array}{c}
-\epsilon_1 \\ \epsilon_2 \\ \vdots \\ \epsilon_n
-\end{array} \right]
-$$
+Idea: 
 
-- Solve for $b_i$ by minimizing $E^2=(Y-\Theta\cdot B)^2$:
+- Consider outcomes at fixed time $T$
+- Quantify effect of parameters $\theta_1, \ldots \theta_p$ through linear model
 \[
-  B = (\Theta^T \Theta)^{-1} \Theta^T Y.
+  y_{t = T} = b_1 \theta_1 + \cdots + b_p \theta_p + \epsilon
 \]
-- $b_i$ gives respective contribution of parameter $\theta_i$ in explaining variance of $y$
+- Regression coefficient $b_i$ gives contribution of parameter $\theta_i$ in explaining variance of $y_{t = T}$
+
+```{r, echo=FALSE, out.height="50%", fig.align='center'}
+p1 <- ggplot(curves_t15, aes(x = k1, y = DO)) + 
+  geom_point() +
+  theme(text = element_text(size = 20))
+p2 <- ggplot(curves_t15, aes(x = k2, y = DO)) + 
+  geom_point() +
+  theme(text = element_text(size = 20))
+grid.arrange(p1, p2, ncol = 2)
+```
+
 
 ## GSA: Standardized regression coefficients
 
 - Correct for spread on both parameter and output
-- Recalculate elements of $B$ to $SRC$s
+- Recalculate coefficients $b_i$ to $SRC$s
 $$
 SRC_{\theta_i} = b_i \cdot \dfrac{\sigma_{\theta_i}}{\sigma_y}
 $$
-- Standard deviations from 
-    - vector $Y$ for output
-    - resp. $2^{nd}$ to $(p+1)^{st}$ column of matrix $\Theta$ for different parameters
+- Sample standard deviations from 
+  - vector $y_{t = T}$ for output
+  - parameter samples for parameter $\theta_i$.
+
 
 ## GSA: Standardized regression coefficients
 

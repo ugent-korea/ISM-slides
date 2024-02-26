@@ -107,8 +107,9 @@ with unknown \alert{intercept} $\alpha$ and \alert{slope} $\beta$.
 \]
 - Estimates for $\beta$ and $\alpha$:
 \[
-  \hat{\beta} = \mbox{Cor}(x,y) \frac{S_y}{S_x} \quad \text{and} \quad \hat{\alpha}=\bar Y - \hat{\beta} \bar X.
+  \hat{\beta} = \mathrm{Cor}(x,y) \frac{S_y}{S_x} \quad \text{and} \quad \hat{\alpha}=\bar Y - \hat{\beta} \bar X.
 \]
+with $\mathrm{Cor}(x, y)$ the sample correlation between $x$ and $y$ and $S_x$, $S_y$ the sample standard deviation.
 
 ## Residuals plot
 

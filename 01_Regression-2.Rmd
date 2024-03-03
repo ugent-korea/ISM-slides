@@ -217,7 +217,7 @@ summary(model_l3)
 ![](./images/01-linear-regression/needles-interaction.png)
 
 Interactive visualization at 
-\url{https://fly.io/apps/shiny-stats/multi-regression/}.
+\url{https://shiny-stats.fly.dev/multi-regression/}
 
 ## Predicted association (left) and effect (right)
 

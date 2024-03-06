@@ -91,18 +91,19 @@ summary(model_l8)
 
 RSE can be calculated as
 \[
-  RSE = \sqrt{\frac{SSE}{n - p - 1}}
+  RSE = \sqrt{\frac{SSE}{n - p}} = \sqrt{MSE}
 \]
 with SSE, the sum-squared of the residuals, given by
 \[
   SSE = \sum_{i = 1}^n(y_i - \hat{y}_i)^2 = \sum_{i = 1}^n e_i^2.
 \]
+and $p$ the number of parameters in the model.
 
-For example (larches):
+For example (larches, $p = 5$):
 ```{r}
 SSE <- sum(model_l8$residuals^2)
-MSE <- sqrt(SSE/(26 - 4 - 1))
-MSE
+RSE <- sqrt(SSE/(26 - 5))
+RSE
 ```
 
 ## Prediction/confidence intervals 
@@ -286,12 +287,12 @@ Multiple R-squared:  0.8836,	Adjusted R-squared:  0.8614
 - $R^2$ always increases (gets closer to 1) when model becomes more complex
 - To "punish" complexity, use adjusted $R^2$:
 \[
-  R^2_\mathrm{adj} = 1 - \frac{n-1}{n - p - 1}(1 - R^2).
+  R^2_\mathrm{adj} = 1 - \frac{n-1}{n - p}(1 - R^2).
 \]
 - Adjusted $R^2$ is always lower than $R^2$.
 - Interpretation not so straightforward, used mainly for **model comparison**.
 
-Larches: $n = 26$, $p = 4$, $R^2 = 0.8836$, so
+Larches: $n = 26$, $p = 5$, $R^2 = 0.8836$, so
 \[
   R^2_\mathrm{adj} = 1 - \frac{25}{21}(1 - 0.8836) = 0.8614.
 \]
@@ -354,8 +355,8 @@ Formalized via $F$-test:
 - Alternative hypothesis: complex model is better.
 - Test statistic:
 $$
-  f = \frac{\frac{SSE_\mathrm{simple}- SSE_\mathrm{complex}}{p_\mathrm{complex} - p_\mathrm{simple}}}{\frac{SSE_\mathrm{complex}}{n - p_\mathrm{complex} - 1}}
-  \sim F_{p_\mathrm{complex} - p_\mathrm{simple}, n - p_\mathrm{complex} - 1}.
+  f = \frac{\frac{SSE_\mathrm{simple}- SSE_\mathrm{complex}}{p_\mathrm{complex} - p_\mathrm{simple}}}{\frac{SSE_\mathrm{complex}}{n - p_\mathrm{complex} }}
+  \sim F_{p_\mathrm{complex} - p_\mathrm{simple}, n - p_\mathrm{complex}}.
 $$
 
 ## Example: larches
@@ -365,10 +366,10 @@ Residual sum of squares:
 - $SSE_\mathrm{simple} = 91404.49$
 - $SSE_\mathrm{complex} = 30121.92$
 
-Number of predictors:
+Number of parameters:
 
-- $p_\mathrm{simple} = 1$
-- $p_\mathrm{complex} = 4$
+- $p_\mathrm{simple} = 2$
+- $p_\mathrm{complex} = 5$
 
 Hypothesis test:
 

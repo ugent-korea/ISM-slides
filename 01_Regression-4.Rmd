@@ -199,7 +199,7 @@ Note: larches model has $p = 7$, so $2p/n = 0.54$.
 - Equivalent, for influence of $i^{th}$ observation on all estimated coefficients
 - Cook's distance for $i^{th}$ observation is obtained by comparing each prediction $\hat{Y}_j$ with prediction $\hat{Y}_{j(i)}$ that would be obtained \alert{if $i^{th}$ observation was deleted}
 \[
-  D_i=\frac{\sum_{j=1}^n(\hat{Y}_j-\hat{Y}_{j(i)})^2}{p\textrm{MSE}}
+  D_i=\frac{\sum_{j=1}^n(\hat{Y}_j-\hat{Y}_{j(i)})^2}{p \cdot\mathrm{MSE}}
 \] 
 
 ## Interpretation Cook's distance

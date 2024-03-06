@@ -91,7 +91,7 @@ summary(model_l8)
 
 RSE can be calculated as
 \[
-  RSE = \sqrt{\frac{SSE}{n - p}}
+  RSE = \sqrt{\frac{SSE}{n - p}} = \sqrt{MSE}
 \]
 with SSE, the sum-squared of the residuals, given by
 \[
@@ -102,8 +102,8 @@ and $p$ the number of parameters in the model.
 For example (larches, $p = 5$):
 ```{r}
 SSE <- sum(model_l8$residuals^2)
-MSE <- sqrt(SSE/(26 - 5))
-MSE
+RSE <- sqrt(SSE/(26 - 5))
+RSE
 ```
 
 ## Prediction/confidence intervals 

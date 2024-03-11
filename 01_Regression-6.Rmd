@@ -110,7 +110,7 @@ Previous diagnostics are \alert{limited}:
 \begin{exampleblock}{Example} 
 \begin{itemize}
 \item Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity.
-\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ en $X_3$.
+\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ and $X_3$.
 \end{itemize}
 \end{exampleblock}
 \begin{block}{Variance inflation factor for $k^{th}$ coefficient}

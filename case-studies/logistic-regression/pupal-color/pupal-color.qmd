@@ -1,0 +1,113 @@
+---
+title: "Determinants of pupal color"
+format: html
+---
+
+Based on Mayekar and Kodandaramaiah (2017), as discussed in Quinn and Keogh, p. 261.
+
+
+# EDA
+
+```{r}
+library(tidyverse)
+```
+
+
+Explanation of the variables:
+
+- `PC`: Pupal colour
+- `H`: Relative humidity
+- `SU`: Pupation substrate
+- `T`: Time to pupation
+- `S`: Sex
+- `W`: Pupal weight	
+
+```{r}
+pupal <- read.csv("pone.0171482.s005.csv", header = TRUE)
+head(pupal)
+```
+
+```{r}
+glimpse(pupal)
+```
+
+## Color against humidity
+
+```{r}
+xtabs(~ PC + H, data = pupal)
+```
+
+```{r}
+pupal_low_humidity <- pupal |>
+  filter(H == "low")
+```
+
+## Effect of time to gestation on pupal color
+
+```{r}
+ggplot(pupal_low_humidity, aes(x = T, y = PC, color = PC)) +
+  geom_jitter()
+```
+
+
+
+
+
+# Multi-predictor model
+
+```{r}
+m <- glm(factor(PC) ~ T + W + S, data = pupal_low_humidity, family = "binomial")
+summary(m)
+```
+
+# Model building
+
+This is "analysis 2" in the paper.
+
+```{r}
+m_interaction <- glm(factor(PC) ~ T + W + S + T:W + T:S + W:S + T:W:S, data = pupal_low_humidity, family = "binomial")
+summary(m_interaction)
+```
+
+```{r}
+library(faraway)
+vif(m_interaction)
+```
+```{r}
+cpupal <- pupal_low_humidity |>
+  mutate(cT = T - mean(T), cW = W - mean(W)) |>
+  select(PC, cT, cW, S)
+```
+
+```{r}
+m_centered <- glm(factor(PC) ~ cT * cW * S, data = cpupal, family = "binomial")
+summary(m_centered)
+```
+
+```{r}
+m_final <- step(m_centered)
+```
+
+
+```{r}
+summary(m_final)
+```
+
+Comparison of AIC:
+```{r}
+AIC(m_final)
+AIC(m)
+```
+
+Note that we could further simplify the model by removing `W` and `S`
+
+```{r}
+m_simple <-  glm(factor(PC) ~ T, data = pupal_low_humidity, family = "binomial")
+summary(m_simple)
+```
+
+```{r}
+AIC(m_simple)
+```
+
+

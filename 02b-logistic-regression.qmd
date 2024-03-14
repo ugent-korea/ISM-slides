@@ -1,0 +1,124 @@
+---
+title: "Logistic Regression"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+classoption: t
+---
+
+## Classification
+
+Quantitative output unlike regression
+
+Eye color blue, brown, green
+Classify mutations as deleteriuos or not
+
+## Simple dummy example to illustrate goal of classification
+
+One $x$, one or two $y$
+
+Remake figure 4.1 from intro to stat learning. show distribution of predictors, show scatter plot colored by outcome. Decision boundary.
+
+## Case study
+
+Find a good bio case study. Iris?
+
+Needs to be binary
+
+## Logistic regression
+
+Models $p(X) = P(Y = 1 | X)$
+
+First guess: $P(X) = \alpha + \beta X$. Show issues with this
+
+## Logistic regression
+
+Introduce logistic transformation
+
+Convert to log odds
+
+Interpretation of $\beta$ as unit increase in log-odds
+
+## Estimating the regression coefficients
+
+Maximum likelihood
+
+## In R
+
+## Making predictions
+
+## Multiple logistic regression
+
+## More than two response classes
+
+## Linear discriminant analysis (LDA)
+
+Why another classification technique?
+
+- More stable when classes are well separated
+- More stable for small $n$
+- Easy to use when more than two response classes
+
+Results often surprisingly similar. No method will outperform all the others all the time.
+
+Other classifiers:
+- $k$-nearest neighbors
+- Neural networks
+- Support vector machines (SVM)
+
+## Reminder: Bayes
+
+$$
+  P(Y = k | X = x) = \frac{P(X = x | Y = k) P(Y = k)}{\sum P(X = x | Y = k) P(Y = k)}
+$$
+
+Need to model:
+- Prior probabilities $\pi_k$
+- Class functions $f_k(x)$
+
+We get: posterior probabilities $p_k(X)$
+
+## Gaussian assumption
+
+$f_k(x)$ are Gaussians with **same variance**
+
+Derive discriminant functions
+
+
+## Estimating the LDA parameters
+
+## Worked out example
+
+Simulated data, well separated, linear decision boundary is line orthogonal to centers (if noise is isotropic)
+
+## In R
+
+
+## More than two predictors
+
+## Comparison logistic and linear regression
+
+
+## References
+
+- 
+
+## Note to self
+
+- Find compelling case studies
+- Make sure decision boundary is clearly introduced
+- 
+
+## Case studies
+
+- Iris, for multiple classes
+- Zuur et al (modeling ecological data): S. Solea vs salinity. 61 observations
+- VGSM: WCGS dataset (large, multiple predictors)
+- Le et al: Prostate cancer dataset. Multiple predictors, small-ish

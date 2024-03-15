@@ -20,6 +20,18 @@ ggplot(prostate, aes(x = Acid, y = Nodes, color = Nodes)) +
   geom_jitter(height = 0.10)
 ```
 
+
+```{r}
+ggplot(prostate, aes(x = Acid, y = Nodes, fill = Nodes)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(prostate, aes(x = Acid, y = Age, color = Nodes)) +
+  geom_jitter()
+```
+
+
 # Simple model with online linear term
 
 ```{r}

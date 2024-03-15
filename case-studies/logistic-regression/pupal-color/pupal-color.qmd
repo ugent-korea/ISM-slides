@@ -49,7 +49,19 @@ ggplot(pupal_low_humidity, aes(x = T, y = PC, color = PC)) +
   geom_jitter()
 ```
 
+```{r}
+ggplot(pupal_low_humidity, aes(x = T, y = PC, fill = PC)) +
+  geom_boxplot()
+```
 
+```{r}
+wilcox.test(T ~ PC, data = pupal_low_humidity)
+```
+
+```{r}
+ggplot(pupal_low_humidity, aes(x = T, y = W, color = PC)) +
+  geom_jitter()
+```
 
 
 

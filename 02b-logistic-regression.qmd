@@ -1,5 +1,5 @@
 ---
-title: "Logistic Regression"
+title: "Logistic Regression and Classification"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
 format:
@@ -10,15 +10,18 @@ format:
     header-includes: |
       \setbeamertemplate{frametitle}[default][left]
       \setbeamertemplate{footline}[frame number]
-classoption: t
 ---
 
-## Classification
+## Logistic regression
 
-Quantitative output unlike regression
+In many regression problems, the outcome is a **categorical** variable:
 
-Eye color blue, brown, green
-Classify mutations as deleteriuos or not
+- Figure out whether mutation is deleterious (yes/no), based on DNA sequencing data.
+- Predict a person's eye color (blue/brown/green)
+- Cancer yes/no
+
+## Dataset that we will use
+
 
 ## Simple dummy example to illustrate goal of classification
 
@@ -44,7 +47,7 @@ Introduce logistic transformation
 
 Convert to log odds
 
-Interpretation of $\beta$ as unit increase in log-odds
+Interpretation of $\beta$ as unit increase in log-odds. Could be its own slide.
 
 ## Estimating the regression coefficients
 
@@ -55,6 +58,9 @@ Maximum likelihood
 ## Making predictions
 
 ## Multiple logistic regression
+
+## Model fit
+
 
 ## More than two response classes
 
@@ -118,7 +124,9 @@ Simulated data, well separated, linear decision boundary is line orthogonal to c
 
 ## Case studies
 
+- Synthetic data
 - Iris, for multiple classes
 - Zuur et al (modeling ecological data): S. Solea vs salinity. 61 observations
 - VGSM: WCGS dataset (large, multiple predictors)
 - Le et al: Prostate cancer dataset. Multiple predictors, small-ish
+- Pupal color.

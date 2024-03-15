@@ -1,0 +1,59 @@
+---
+title: "Prostate cancer"
+format: html
+---
+
+# EDA
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+prostate <- read_delim("prostatecancer.dat", delim = " & ") |>
+  mutate(Nodes = as.factor(Nodes))
+glimpse(prostate)
+```
+
+```{r}
+ggplot(prostate, aes(x = Acid, y = Nodes, color = Nodes)) +
+  geom_jitter(height = 0.10)
+```
+
+# Simple model with online linear term
+
+```{r}
+m_simple <- glm(Nodes ~ Acid, data = prostate, family = "binomial")
+summary(m_simple)
+```
+
+```{r}
+ggplot(prostate, aes(x = Acid, y = Nodes, color = Nodes)) +
+  geom_jitter(height = 0.10) +
+  stat_smooth(method="glm", color="green", se=FALSE,
+              formula = Nodes ~ Acid,
+              method.args = list(family="binomial"))
+```
+
+
+
+# Simple model with quadratic term
+
+```{r}
+m_simple_quad <- glm(Nodes ~ Acid + I(Acid^2), data = prostate, family = "binomial")
+summary(m_simple_quad)
+```
+
+```{r}
+preds <- with(prostate, tibble(
+  Acid = Acid, Nodes = predict(m_simple_quad, type = "response")))
+
+ggplot(prostate) +
+  geom_line(data = preds, aes(x = Acid, y = Nodes)) #+ 
+  #geom_jitter(aes(x = Acid, y = as.numeric(Nodes), color = Nodes), height = 0.10)
+
+```
+
+
+
+# Multiple regression model

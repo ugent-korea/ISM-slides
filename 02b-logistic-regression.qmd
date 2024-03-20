@@ -19,7 +19,8 @@ In many regression problems, the outcome is a **categorical** variable:
 
 - Figure out whether mutation is deleterious (yes/no), based on DNA sequencing data.
 - Predict a person's eye color (blue/brown/green)
-- Cancer yes/no
+- Predict the outcome of surgery (success/failure) for patients with ovarian cancer, based on patient characteristics
+- Classify iris (flower) variety given dimensions of leaves
 
 ## Datasets
 
@@ -93,30 +94,39 @@ p_box_texture <- ggplot(train,
 grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 1))
 ```
 
-## Reminder: odds and  odds-ratios
+## Reminder: odds
 
-- If $p$ is the probability of having a malignant tumor, then the **odds** are 
+- If $\pi$ is the probability of having a malignant tumor, then the **odds** are defined as
 $$
-  \mathrm{Odds} = \frac{p}{1 - p}.
+  \text{Odds} = \frac{\pi}{1 - \pi}.
 $$
-For example: if $p = 0.9$ then $\mathrm{Odds} = 9$.
+For example: if $\pi = 0.8$ then $\text{Odds} = 4$, meaning that for every benign tumor there are 4 malignant ones (on average).
 
 - Odds range from 0 (impossible event) to $+\infty$ (almost certain).
 
-- **Odds ratio**: 
+## Reminder: odds ratio
+
+- **Odds ratio** (OR): indicates by how much the odds change between two treatments. For example: suppose in the treatment group the probability of a malignant tumor drops to $\pi_T = 0.75$ (compared to $\pi_C = 0.8$ in the untreated group). Then
+$$
+  \text{OR} = \frac{\text{Odds}(T)}{\text{Odds}(C)} = \frac{3}{4} = 0.75
+$$
+- If $\text{OR} < 1$, then the odds for treatment 1 decrease compared to treatment 2. If $\text{OR} > 1$, the odds increase.
+
 
 ## Log-odds (logits)
 
 Often it makes sense to work with the logarithm of the odds (**logits**):
 $$
-  \mathrm{logit} = \log \left( \frac{p}{1 - p} \right).
+  \text{logit}(\pi) = 
+    \ln \text{Odds} = 
+    \ln \left( \frac{\pi}{1 - \pi} \right).
 $$
-To convert back to probabilities, use the sigmoid or **logistic** function:
+To convert back to probabilities, use the **logistic** function:
 $$
-  p = \frac{1}{1 + e^{-\mathrm{logit}}}.
+  \pi = \frac{1}{1 + e^{-\text{logit}}}.
 $$
 
-Logits are unbounded: $\mathrm{logit} \to \pm\infty$ for $p \to 0, 1$
+Logits are unbounded: $\text{logit} \to \pm\infty$ for $p \to 0, 1$
 
 ```{r}
 #| fig-height: 3
@@ -128,17 +138,23 @@ ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
 
 ## Regression for classification
 
-- Notation:
-  - $Y = 0, 1$: categorical outcome
-  - $X_1, \ldots, X_p$: predictors (can be continuous or discrete)
+- Given data $(X_1, Y_1), \ldots, (X_n, Y_n)$ where:
+  - Outcomes $Y_i$ are categorical (0 or 1)
+  - Predictors $X_i$ can be continuous or discrete
 
-- Idea: model $p(x) = P(Y = 1 | X = x)$
+- We will model $Y_i$ as a Bernoulli random variable ($0$ or $1$) with probability $\pi(X_i)$:
+\begin{align*}
+  Y_i & = 0 \quad \text{with probability $\pi(X_i)$} \\
+  Y_i & = 1 \quad \text{with probability $1 - \pi(X_i)$}
+\end{align*}
+
+- Now we need to determine how $\pi(X)$ depends on $X$.
 
 
-## Why does linear regression not work?
+## Idea 1: linear regression (bad)
 
-- One predictor $X = \mathtt{radius\_mean}$, outcome $Y = 0, 1$.
-- Assume $p(x) = \alpha + \beta x$ and determine $\alpha, \beta$ through linear regression.
+- One predictor $X = \mathtt{radius\_mean}$, outcome $Y = 0$ (benign) or $Y = 1$ (malignant).
+- Assume $\pi(X) = \alpha + \beta X$ and determine $\alpha, \beta$ through linear regression.
 
 ```{r}
 #| out-width: 2in
@@ -156,29 +172,32 @@ Problems:
 - Fitted probabilities can take on values outside $[0, 1]$.
 - Does not easily generalize to more than two classes.
 
-## Logistic regression
+## Idea 2: logistic regression (better)
 
-- The outcome $Y$ is a binomial variable with probability $p(X)$
-- The probability $p(X)$ depends on $X$ through the logistic function
+- Let $\pi(X)$ depend on $X$ through the logistic function
 $$
-  p(X) = \frac{1}{1 + \exp(-(\alpha + \beta X))}.
+  \pi(X) = \frac{1}{1 + \exp(-(\alpha + \beta X))}.
 $$
 - **Nonlinear** model in parameters $\alpha$, $\beta$
-
+- Alternatively, apply the logit transformation
+$$
+  \text{logit}(\pi) = \alpha + \beta X.
+$$
+- Linear in the logits.
 
 ## Determining the regression parameters: MLE
 
-- Likelihood function $\mathcal{L}$: probability of observing the data given the parameters $\alpha$, $\beta$:
+- **Likelihood function** $\mathcal{L}$: probability of observing the data given the parameters $\alpha$, $\beta$:
 $$
-  \mathcal{L}(\alpha, \beta) = \prod_{i = 1}^n P(Y = y_i | X = x_i),
+  \mathcal{L}(\alpha, \beta) = \prod_{i = 1}^n P(Y = Y_i | X = X_i),
 $$
 where 
 $$
-  P(Y = y_i | X = x_i) = p(x_i)^{y_i}(1 - p(x_i))^{1- {y_i}}.
+  P(Y = Y_i | X = X_i) = \pi(X_i)^{Y_i}(1 - \pi(X_i))^{1 - {Y_i}}.
 $$
-is the probability of observing one data point $(x_i, y_i)$.
+is the probability of observing one data point $(X_i, Y_i)$.
 
-- In practice, the log of the likelihood is often used:
+- In practice, often better to use the log of the likelihood:
 $$
   \ell(\alpha, \beta) = \ln \mathcal{L}(\alpha, \beta).
 $$
@@ -191,10 +210,42 @@ $$
   \frac{\partial \ell}{\partial \alpha} = 0, \quad
   \frac{\partial \ell}{\partial \beta} = 0.
 $$
-- Complicated equations, maximum cannot be found analytically (unlike least squares)
-- Done in R using the `glm` function
+- Complicated equations, usually maximum cannot be found analytically (unlike least squares)
+- Use numerical methods to find maximum (R does this automatically with the `glm` command)
 
-## In R
+## Simplified example: MLE for binomial variable
+
+- Suppose there are *no* predictors. We just have a bunch of categorical outcomes $Y_i = 0, 1$, e.g.
+$$
+  Y = (0, 0, 1, 0, 1, 0, \ldots, 1, 1, 0, 0, 1)
+$$
+
+- In semester 1 we saw that a good estimate for the probability $\pi = P(Y = 1)$ is given by the proportion of 1s in the data:
+$$
+  \hat{\pi} = \frac{1}{N} \sum_{i = 1}^N Y_i = \bar{Y}.
+$$
+
+- We'll use MLE to re-derive this result.
+
+## Simplified example: MLE for binomial variable
+
+- Likelihood
+\begin{align*}
+  \mathcal{L}(\pi) 
+    & = \Pi_{i = 1}^n P(Y = Y_i) \\
+    & = \pi^{n\bar{Y}} (1 - \pi)^{n(1 - \bar{Y})}
+\end{align*}
+
+- Log likelihood: $\ell(\pi) = n \bar{Y} \ln \pi + n(1-\bar{Y})\ln(1 - \pi)$.
+
+- Maximum occurs when first derivative vanishes:
+$$
+  \frac{d \ell}{d \pi} = \frac{n \bar{Y}}{\pi} - \frac{n(1 - \bar{Y})}{1 - \pi} = 0.
+$$
+- Simplifies to $\hat{\pi} = \bar{Y}$.
+
+
+## MLE for logistic regression in R
 
 \scriptsize
 ```{r}
@@ -203,7 +254,7 @@ m_simple <- glm(diagnosis ~ radius_mean, data = train, family = "binomial")
 summary(m_simple)
 ```
 
-## The (log of the) likelihood function
+## The log likelihood
 
 ```{r}
 log_lh <- function(x, y, alpha, beta) {
@@ -239,13 +290,15 @@ filled.contour(alpha, beta, llh,
 
 ```
 
+- Value of log likelihood at MLE: $\ell = -128.2701$.
+- R reports (residual) deviance: $D = -2 \times \ell = 256.54$
 
 ## Multiple logistic regression
 
 - Like in linear regression, often the outcome $Y$ is influenced by several predictors $X_1, X_2, \ldots, X_p$.
 - For example: `diagnosis` depends on `radius_mean` and `texture_mean`:
 \begin{multline*}
-  \mathrm{logit}(\mathtt{diagnosis}) = \\
+  \mathrm{logit}(\pi) =
   \alpha +
   \beta_1 \cdot \mathtt{radius\_mean} +
   \beta_2 \cdot \mathtt{texture\_mean}.
@@ -263,89 +316,16 @@ summary(m_multi)
 ```
 
 
-
-
-## Quantifying the strength of an association
-
-Write the logistic regression model in terms of odds as
-$$
-  \log \mathrm{Odds}(x) = \alpha + \beta x.
-$$
-After some algebra:
-$$
-  e^\beta = \frac{\mathrm{Odds}(x + 1)}{\mathrm{Odds(x)}}.
-$$
-In other words: $e^\beta$ is the odds ratio (OR) associated to a 1-unit increase in $x$.
-
-::: {.callout-note}
-## Breast cancer dataset
-Here $\beta = 1.0662$, so $OR = \exp(1.0662) = 2.90$. An increase in 1 mm in tumor radius is associated with odds 
-that are 2.90 times higher.
-:::
-
-## Testing an association
-
-- Is the model with $x$ "better"? XXX rephrase
-- $H_0: \beta = 0$ and $H_A: \beta \ne 0$.
-
-Several ways of testing:
-
-- Wald test: reported by R
-- Likelihood ratio test: preferred if you can do it
-- Score test (not covered)
-
-## Testing an association: Wald test
-
-To test $H_0: \beta = 0$ against $H_A: \beta \ne 0$, compute the test statistic 
-$$
-  z = \frac{\hat{\beta}}{SE(\beta)} \sim N(0, 1)
-  \quad \text{under $H_0$}.
-$$
-
-This is reported in the R regression output:
-```{r}
-summary(m_simple)$coefficients
-```
-
-::: {.callout-warning}
-## Warning
-
-Suffers from ...
-:::
-
-
-## Testing an association: Likelihood ratio test
-
-Recall:
-
-- $\ell(\alpha, \beta)$: likelihood function
-- $\hat{\alpha}$, $\hat{\beta}$: maximum-likelihood estimates of parameters
-
-**Likelihood ratio** test: compute the **deviance**
-$$
-  D = -2 \ln \frac{
-    \ell(H_0)}{\ell(\hat{\alpha}, \hat{\beta})}
-  \sim \chi^2_1 \quad \text{under $H_0$}
-$$
-
-... this would be better off after multiple regression ...
-
-## Worked out example
-
-
-
-
-
-## Confidence intervals for regression parameters
-
 ## Making predictions
 
 What is the probability of a tumor being malignant if the radius is 13 mm?
 
 - By hand: 
-  $$
-    p(x = 13) = \frac{1}{1 + \exp(15.8086 - 1.0662 \times 13)} = 0.1247716
-  $$
+  \begin{align*}
+    \pi(\mathtt{radius\_mean} = 13) 
+      & = \frac{1}{1 + \exp(15.8086 - 1.0662 \times 13)} \\
+      & = 0.1247716
+  \end{align*}
 - Using R:
 
 ```{r}
@@ -362,12 +342,163 @@ predict(m_simple,
 ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
   geom_vline(xintercept = 13, linetype = "dashed", color = "gray60") +
   geom_hline(yintercept = 0.1247961, linetype = "dashed", color = "gray60") +
-  geom_jitter(aes(color = diagnosis), height = 0.10) +
+  geom_point(aes(color = diagnosis)) +
   stat_smooth(method="glm", se=FALSE, color = "gray40",
               method.args = list(family=binomial))
 ```
 
 
+
+## Quantifying the strength of an association
+
+Write the logistic regression model in terms of odds as
+$$
+  \text{logit}(\pi) = \ln \text{Odds} = 
+  \alpha + \beta X.
+$$
+After some algebra:
+$$
+  e^\beta = \frac{\text{Odds}(X + 1)}{\text{Odds(X)}}.
+$$
+In other words: $e^\beta$ is the odds ratio (OR) associated to a 1-unit increase in $X$.
+
+::: {.callout-note}
+## Breast cancer dataset
+Here $\beta = 1.0662$, so $\text{OR} = \exp(1.0662) = 2.90$. An increase in 1 mm in tumor radius is associated with odds 
+that are 2.90 times higher (risk increase).
+:::
+
+## Testing an association
+
+- Often, we want to test whether a model coefficient $\beta$ is significant.
+- Related: check if complex and simple nested models are equivalent (recall $F$-test from linear regression).
+
+Several ways of testing:
+
+- Wald test (reported in `summary`): can be conservative
+- Likelihood ratio test (via `anova` command): more power, preferred
+- Score test (not covered)
+
+## Testing an association: Wald test
+
+- Null hypothesis $H_0: \beta = 0$, alternative hypothesis $H_A: \beta \ne 0$
+- Test statistic follows $N(0, 1)$ under $H_0$
+$$
+  z = \frac{\hat{\beta}}{SE(\beta)} \sim N(0, 1)
+  \quad \text{under $H_0$}.
+$$
+- Reported in the R regression output (`summary`):
+\scriptsize
+```{r}
+summary(m_multi)$coefficients
+```
+
+
+## Testing an association: Likelihood ratio test
+
+Useful for:
+
+- Comparing nested models (simple/complex)
+- Testing single coefficient
+
+Hypothesis:
+
+- $H_0$: simple and complex model are equivalent
+- $H_A$: complex model is better
+
+Test statistic: **deviance**
+\begin{align*}
+  D & = -2 \ln \frac{\mathcal{L}(\text{simple})}{\mathcal{L}(\text{complex})} \\
+    & = -2 \ell(\text{simple}) + 2 \ell(\text{complex}).
+\end{align*}
+
+Under $H_0$, $D$ follows a $\chi^2_k$ distribution, where $k$ is the number of extra parameters in the complex model.
+
+
+## Worked out example
+
+Nested models:
+
+- Simple: includes `radius_mean` only
+- Complex: includes both `radius_mean` and `texture_mean`.
+
+From R summary (listed as residual deviance) or direct calculation:
+
+- $-2\ell(\text{simple}) = 256.54$
+- $-2\ell(\text{complex}) = 223.68$
+
+Hence $D = 256.54 - 223.68 = 32.86 > 3.841459 = \chi^2_{1; 0.95}$. 
+
+Conclusion: reject $H_0$, significant evidence to decide (at 5% significance level) that complex model is better.
+
+## Likelihood ratio test in R (single variable)
+
+```{r}
+#| echo: true
+anova(m_simple, m_multi)
+```
+
+Compare with critical values for $\chi^2_1$ to draw conclusion.
+
+## Likelihood ratio test in R (groups of variables)
+
+Nested models:
+
+- Simple: includes `radius_mean` and `texture_mean`.
+- Complex: adds `concavity_mean` and `symmetry_mean`.
+
+R output:
+
+```{r}
+#| include: false
+m_multi_4 <- glm(
+  diagnosis ~ radius_mean + texture_mean + concavity_mean + symmetry_mean,
+               data = train, family = "binomial")
+
+```
+
+
+```{r}
+#| echo: true
+anova(m_multi, m_multi_4)
+```
+
+Compare with critical value $\chi^2_{2; 0.95} = 5.991465$ to conclude that complex model is better.
+
+## Confidence interval for regression parameters
+
+- Wald-type **approximate** $(1 - \alpha) \times 100\%$ confidence interval for $\beta$:
+$$
+  \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta)
+$$
+- Example: 95% confidence interval for $\beta_{\mathtt{radius\_mean}}$:
+$$
+  1.095 \pm 1.96 \times 0.117 = [0.866, 1.324].
+$$
+
+## Confidence interval for regression parameters in R
+
+```{r}
+#| echo: true
+confint(m_multi)
+```
+
+- Computed via different method, slightly different from Wald  CIs (though close)
+- Preferred to use this method
+
+## Confidence interval for odds ratio
+
+- Recall that $\exp(\beta) = \text{OR}$ for a 1-unit change in $X$
+- $(1 - \alpha) \times 100\%$ confidence interval for the $\text{OR}$:
+$$
+  \exp\left( \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta) \right).
+$$
+- Example: 95% confidence interval for $\text{OR}_{\mathtt{radius\_mean}}$:
+\begin{align*}
+  \exp(1.095 \pm 1.96 \times 0.117)
+    & = [\exp(0.866), \exp(1.324)] \\
+    & = [2.377, 3.759]
+\end{align*}
 
 
 

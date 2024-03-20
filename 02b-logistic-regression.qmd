@@ -10,6 +10,7 @@ format:
     header-includes: |
       \setbeamertemplate{frametitle}[default][left]
       \setbeamertemplate{footline}[frame number]
+
 ---
 
 ## Logistic regression
@@ -112,7 +113,7 @@ $$
 $$
 To convert back to probabilities, use the sigmoid or **logistic** function:
 $$
-  p = \sigma(\mathrm{logit}) = \frac{1}{1 + e^{-\mathrm{logit}}}.
+  p = \frac{1}{1 + e^{-\mathrm{logit}}}.
 $$
 
 Logits are unbounded: $\mathrm{logit} \to \pm\infty$ for $p \to 0, 1$
@@ -157,17 +158,19 @@ Problems:
 
 ## Logistic regression
 
-$Y$ is binomial with probability $p(X)$
-
+- The outcome $Y$ is a binomial variable with probability $p(X)$
+- The probability $p(X)$ depends on $X$ through the logistic function
 $$
-  \mathrm{logit}(x) = \alpha + \beta x
+  p(X) = \frac{1}{1 + \exp(-(\alpha + \beta X))}.
 $$
+- **Nonlinear** model in parameters $\alpha$, $\beta$
 
-## Determining the regression parameters
 
-Determined by maximizing the **likelihood function**:
+## Determining the regression parameters: MLE
+
+- Likelihood function $\mathcal{L}$: probability of observing the data given the parameters $\alpha$, $\beta$:
 $$
-  \ell(\alpha, \beta) = \prod_{i = 1}^n P(Y = y_i | X = x_i),
+  \mathcal{L}(\alpha, \beta) = \prod_{i = 1}^n P(Y = y_i | X = x_i),
 $$
 where 
 $$
@@ -175,7 +178,20 @@ $$
 $$
 is the probability of observing one data point $(x_i, y_i)$.
 
-- Maximum cannot be found analytically (unlike least squares)
+- In practice, the log of the likelihood is often used:
+$$
+  \ell(\alpha, \beta) = \ln \mathcal{L}(\alpha, \beta).
+$$
+
+## Determining the regression parameters: MLE
+
+- **Maximum likelihood estimation** (MLE): find parameters that maximize $\mathcal{L}(\alpha, \beta)$ or $\ell(\alpha, \beta)$
+- Finding maximum: set partial derivatives (score functions) equal to zero:
+$$
+  \frac{\partial \ell}{\partial \alpha} = 0, \quad
+  \frac{\partial \ell}{\partial \beta} = 0.
+$$
+- Complicated equations, maximum cannot be found analytically (unlike least squares)
 - Done in R using the `glm` function
 
 ## In R
@@ -187,11 +203,65 @@ m_simple <- glm(diagnosis ~ radius_mean, data = train, family = "binomial")
 summary(m_simple)
 ```
 
-## The likelihood function
+## The (log of the) likelihood function
 
 ```{r}
+log_lh <- function(x, y, alpha, beta) {
+  lp <- alpha + beta * x
+  px <- 1 / (1 + exp(-lp))
+  
+  llh <- log(px)
+  llh[y == 0] <- log(1 - px[y == 0])
+  sum(llh)
+}
+
+alpha <- seq(-20, -10, length.out = 20)
+beta <- seq(0, 2, length.out = 20)
+
+x <- train$radius_mean
+y <- train$diagnosis_binary
+
+llh <- matrix(nrow = length(alpha), ncol = length(beta))
+for (i in seq_along(alpha)) {
+  for (j in seq_along(beta)) {
+    llh[i, j] <- log_lh(x, y, alpha[[i]], beta[[j]])
+  }
+}
+
+filled.contour(alpha, beta, llh,
+               xlab = "alpha",
+               ylab = "beta",
+               plot.axes = {
+                 axis(1)
+                 axis(2)
+                 points(-15.8086, 1.0662, pch = "x", cex = 2, col = "white")
+               })
 
 ```
+
+
+## Multiple logistic regression
+
+- Like in linear regression, often the outcome $Y$ is influenced by several predictors $X_1, X_2, \ldots, X_p$.
+- For example: `diagnosis` depends on `radius_mean` and `texture_mean`:
+\begin{multline*}
+  \mathrm{logit}(\mathtt{diagnosis}) = \\
+  \alpha +
+  \beta_1 \cdot \mathtt{radius\_mean} +
+  \beta_2 \cdot \mathtt{texture\_mean}.
+\end{multline*}
+- Parameters $\alpha, \beta_1, \ldots, \beta_p$ determined through MLE.
+
+## In R
+
+\scriptsize
+```{r}
+#| echo: true
+m_multi <- glm(diagnosis ~ radius_mean + texture_mean,
+               data = train, family = "binomial")
+summary(m_multi)
+```
+
 
 
 
@@ -213,9 +283,58 @@ Here $\beta = 1.0662$, so $OR = \exp(1.0662) = 2.90$. An increase in 1 mm in tum
 that are 2.90 times higher.
 :::
 
-## Testing the association
+## Testing an association
 
-$H_0: \beta = 0$ and $H_A: \beta \ne 0$.
+- Is the model with $x$ "better"? XXX rephrase
+- $H_0: \beta = 0$ and $H_A: \beta \ne 0$.
+
+Several ways of testing:
+
+- Wald test: reported by R
+- Likelihood ratio test: preferred if you can do it
+- Score test (not covered)
+
+## Testing an association: Wald test
+
+To test $H_0: \beta = 0$ against $H_A: \beta \ne 0$, compute the test statistic 
+$$
+  z = \frac{\hat{\beta}}{SE(\beta)} \sim N(0, 1)
+  \quad \text{under $H_0$}.
+$$
+
+This is reported in the R regression output:
+```{r}
+summary(m_simple)$coefficients
+```
+
+::: {.callout-warning}
+## Warning
+
+Suffers from ...
+:::
+
+
+## Testing an association: Likelihood ratio test
+
+Recall:
+
+- $\ell(\alpha, \beta)$: likelihood function
+- $\hat{\alpha}$, $\hat{\beta}$: maximum-likelihood estimates of parameters
+
+**Likelihood ratio** test: compute the **deviance**
+$$
+  D = -2 \ln \frac{
+    \ell(H_0)}{\ell(\hat{\alpha}, \hat{\beta})}
+  \sim \chi^2_1 \quad \text{under $H_0$}
+$$
+
+... this would be better off after multiple regression ...
+
+## Worked out example
+
+
+
+
 
 ## Confidence intervals for regression parameters
 
@@ -248,19 +367,6 @@ ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
               method.args = list(family=binomial))
 ```
 
-## Multiple logistic regression
-
-
-## In R
-
-\scriptsize
-```{r}
-#| echo: true
-m_multi <- glm(diagnosis ~ radius_mean + texture_mean,
-               data = train, family = "binomial")
-summary(m_multi)
-```
-
 
 
 
@@ -268,16 +374,6 @@ summary(m_multi)
 # Draft outline
 
 
-
-
-## Making predictions
-
-## Multiple logistic regression
-
-## Model fit
-
-
-## More than two response classes
 
 ## Linear discriminant analysis (LDA)
 

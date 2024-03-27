@@ -1,0 +1,15 @@
+---
+title: "Principal component analysis: theory and concepts"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+
+---
+

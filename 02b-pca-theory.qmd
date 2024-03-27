@@ -488,8 +488,6 @@ Image credit: https://en.wikipedia.org/wiki/Scree (Kevin Lenz, CC BY-SA 2.5)
 ::::
 
 
-
-
 ## Biplot
 
 - Biplot = loadings plot + score plot
@@ -506,8 +504,118 @@ biplot(pc)
 ```
 
 
+# Principal component regression
 
+## Principal component regression (PCR)
 
+Idea:
 
-## say somewhere
+- Do a PCA (usually with standardized features)
+- Build a linear model on reduced number of PCs
+
+Why do we do this?
+
+- PCs are uncorrelated, so takes care of multicollinearity
+- Results in a simpler model where only important features play a role
+
+Not always the right thing to do, alternatives exist (e.g. ridge regression, see later)
+
+## PCR by hand: starting with PC 1
+
+\scriptsize
+```{r, echo=TRUE}
+pc1 <- pc$x[, "PC1"]
+model_1 <- lm(bodyfat$bodyfat ~ pc1)
+summary(model_1)
+```
+
+## PCR by hand: adding PC 2
+
+\scriptsize
+```{r}
+pc2 <- pc$x[, "PC2"]
+model_12 <- lm(bodyfat$bodyfat ~ pc1 + pc2)
+summary(model_12)
+```
+
+## Aside: variance inflation factors
+
+Reminder: principal components are uncorrelated by definition, so all the VIFs will be equal to 1.
+
+```{r}
+library(faraway)
+plot(vif(model_12))
+```
+
+## PCR by hand: putting together the final model
+
+- We would probably select `model_1`:
+$$
+  \texttt{bodyfat} =  20.195 + 0.614 \cdot \texttt{PC}_1
+$$
+- This model uses the principal components as predictors, but we typically want the original predictors. Recall
+$$
+  \text{PC}_1 = 0.693 \cdot \texttt{triceps} + 0.699 \cdot \texttt{thigh} + 0.179 \cdot \texttt{midarm}
+$$
+- Putting these two together gives the final PCR model:
+\begin{multline*}
+  \texttt{bodyfat} = 20.195 \ + \\
+    0.426 \cdot \texttt{triceps} + 0.429 \cdot \texttt{thigh} + 0.110 \cdot \texttt{midarm}
+\end{multline*}
+
+Stepwise building a model and rewriting it back in terms of the original predictors is a lot of work. Is there a better way?
+
+## PCR via the pls package
+
+\scriptsize
+```{r, echo=TRUE}
+library(pls)
+
+pcr_model <- pcr(bodyfat ~ ., data = bodyfat, validation = "CV")
+summary(pcr_model)
+```
+
+## Selecting the optimal number of components
+
+- "1-sigma rule": select model with least number of components whose cross-validation error is at most 1 standard deviation away from optimal model
+- In human language: 2 PCs gives lowest RMSEP, but we can go down to 1 PC without losing too much
+
+```{r, echo=TRUE}
+#| fig-height: 4
+#| out-height: 3in
+selectNcomp(pcr_model, method = "onesigma", plot = TRUE)
+```
+
+## Ridge regression
+
+- PCR is not the only way to "regularize" a regression model
+- Ridge regression: like ordinary regression, but punish model for coefficients that become too large.
+- Objective function:
+$$
+  J_{\text{ridge}}(\alpha, \beta) = J(\alpha, \beta) + \lambda (\alpha^2 + \beta^2).
+$$
+- Parameter $\lambda$ set to a fixed value or determined via cross-validation.
+  - $\lambda = 0$: ridge regression = ordinary regression
+  - $\lambda \to \infty$: all coefficients become zero
+- Can be done with the `glmnet` package (not very userfriendly)
+
+## Example session
+
+\scriptsize
+```{r, warning=FALSE, echo=TRUE}
+library(glmnet)
+predictors <- data.matrix(bodyfat_predictors)
+outcome <- bodyfat$bodyfat
+
+lambdas <- 10^seq(2, -2, by = -.1)
+ridge_cv <- cv.glmnet(predictors, outcome, alpha = 0, lambda = lambdas)
+
+best <- ridge_cv$lambda.min
+best
+
+best_ridge <- glmnet(predictors, outcome, alpha = 0, lambda = best)
+coef(best_ridge)
+
+```
+
 

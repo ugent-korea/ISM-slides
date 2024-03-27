@@ -30,6 +30,9 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
   - Retain import features to speed up computational processing
 - Visualization
 
+
+# Understanding PCA
+
 ## Directions of maximal variability
 
 Intuitively:
@@ -356,7 +359,7 @@ summary(pca)
 - Interpretation:
 \begin{align*}
   \text{PC}_1 & = 0.693 \cdot \texttt{triceps} + 0.699 \cdot \texttt{thigh} + 0.179 \cdot \texttt{midarm} \\
-  \text{PC}_2 & = 0.699 \cdot \texttt{triceps} - 0.384 \cdot \texttt{thigh} - 0.604 \cdot \texttt{midarm}
+  \text{PC}_2 & = 0.151 \cdot \texttt{triceps} - 0.384 \cdot \texttt{thigh} - 0.910 \cdot \texttt{midarm}
 \end{align*}
 
 ## Standardizing the features
@@ -371,6 +374,140 @@ $$
 - **Not** a good idea when features have the same units (e.g. pixel intensities in an image).
 
 In R: `prcomp(df, center = TRUE, scale = TRUE)`.
+
+
+# Interpretation of PCA results
+
+## Score plot
+
+- Scatter plot of two PC (usually PC1 and PC2)
+- Can be used to spot patterns in data (see later)
+
+```{r}
+#| fig-align: center
+#| fig-height: 4
+
+# Explained variation for first and second component
+total_var <- sum(pca$sdev^2)
+pct_var_1 <- pca$sdev[1]^2 / total_var
+pct_var_2 <- pca$sdev[2]^2 / total_var
+
+df <- data.frame(PC1 = pca$x[,1], PC2 = pca$x[,2])
+ggplot(df, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  xlab(paste0("PC1 (", round(pct_var_1 * 100, 2), "% var. explained)")) +
+  ylab(paste0("PC2 (", round(pct_var_2 * 100, 2), "% var. explained)"))
+```
+
+## Loadings plot
+
+- Shows how much each variable contributes to each PC
+- Useful to discern patterns in PCs
+
+```{r}
+#| fig-align: center
+#| fig-height: 4
+pc <- prcomp(bodyfat_predictors)
+df <- as.data.frame(pc$rotation) %>%
+  rownames_to_column(var = "Variable") %>%
+  pivot_longer(c("PC1", "PC2", "PC3"),
+               names_to = "Component", 
+               values_to = "Loading")
+
+ggplot(df, aes(x = as.factor(Variable), y = Loading, 
+               group = Component, color = Component)) +
+  geom_line() +
+  geom_point() + 
+  xlab("Variable")
+```
+
+## Scree plot
+
+- Shows percentage of variance explained per PC
+- Useful to determine the PCs that contribute most to variance
+- Can be made with R's `screeplot` command, but better to make your own (it's just a line plot)
+
+
+```{r}
+#| fig-align: center
+#| fig-height: 4
+gg_screeplot <- function(pc, n = length(pc$sdev)) {
+  sdev = pc$sdev[1:n]
+  var_explained <- sdev^2 / sum(sdev^2)
+  total_var <- cumsum(var_explained)
+  df_var <- data.frame(
+    n = seq(1, n), v = var_explained, t = total_var)
+  ggplot(df_var) +
+    geom_line(aes(x = n, y = v, color = "Per component")) + 
+    geom_point(aes(x = n, y = v, color = "Per component")) + 
+    geom_line(aes(x = n, y = t, color = "Cumulative")) +
+    geom_point(aes(x = n, y = t, color = "Cumulative")) +
+    ylim(c(0, 1)) +
+    scale_color_manual(
+      name = "Explained variance",
+      breaks = c("Per component", "Cumulative"),
+      values = c("Per component" = "cornflowerblue",
+                 "Cumulative" = "chocolate")
+    ) + 
+    scale_x_continuous(breaks = 1:n) +
+    xlab("Principal component") +
+    ylab("Explained variance (%)")
+}
+
+gg_screeplot(pc)
+```
+
+## Selecting the number of principal components to retain
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+\vspace*{2cm}
+
+
+Many heuristics exist for selecting "optimal" number of PCs:
+
+- Explain fixed percentage (e.g. 80%) of variance
+- "Elbow" in scree plot
+- ...
+
+Can also determine number of PCs dynamically (e.g. if doing regression on PCs, look at $R^2$)
+
+:::
+
+::: {.column width="50%"}
+
+![](./images/02-pca/Yamnuska_bottom_cliff.jpg)
+
+
+\scriptsize
+Image credit: https://en.wikipedia.org/wiki/Scree (Kevin Lenz, CC BY-SA 2.5)
+:::
+
+::::
+
+
+
+
+## Biplot
+
+- Biplot = loadings plot + score plot
+- Numbers: data for first two PC
+- Arrows: contribution of variables to first two PC
+
+```{r, echo=TRUE}
+#| fig-align: center
+#| fig-width: 4.5
+#| fig-height: 4.5
+#| out-width: 2in
+#| out-height: 2in
+biplot(pc)
+```
+
+
+
+
 
 ## say somewhere
 

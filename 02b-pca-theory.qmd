@@ -13,3 +13,364 @@ format:
 
 ---
 
+```{r, include=FALSE}
+set.seed(1234)
+
+library(tidyverse)
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+
+```
+
+
+## Goal of dimensionality reduction
+
+- Pre-processing
+  - Remove collinear predictors
+- Computational efficiency
+  - Retain import features to speed up computational processing
+- Visualization
+
+## Directions of maximal variability
+
+Intuitively:
+
+- Find directions of maximal variability in the dataset
+- Discard directions in which there is neglible variability
+
+
+```{r, echo=FALSE}
+#| fig-height: 3
+#| fig-width: 5
+#| fig-align: center
+library(mvtnorm)
+
+S <- matrix(c(5, 2,  
+              2, 2), byrow = TRUE, nrow = 2)
+
+adjust_cov_mean <- function(z, mean, sigma) {
+  # Adjust NxD matrix z so that sample mean and sample 
+  # covariance are exactly `mean` and `sigma`
+  
+  # whiten the z's
+  z_mean <- colMeans(z)
+  z <- t(apply(z, 1, function(row) row - z_mean))
+  R <- chol(cov(z))
+  z <- t(solve(t(R), t(z)))
+
+  # impose desired covariance, mean
+  R <- chol(S)
+  z <- t(apply(z %*% R, 1, function(row) row + mean))
+  z
+}
+
+z <- rmvnorm(100, mean = c(0, 0))
+z <- adjust_cov_mean(z, c(1, 1), S)
+df <- as.data.frame(z)
+colnames(df) <- c("X", "Y")
+
+vx <- 2/5^0.5
+vy <- 1/5^0.5
+segment <- function(lx, ly, color = "cornflowerblue") {
+  geom_segment(aes(x=1, y=1, xend=1 + lx, yend=1 + ly), 
+               arrow = arrow(length=unit(0.5, 'cm')),
+               color = color, lwd = 1.5, alpha = 1, 
+               lineend = "round")
+}
+
+l1_sqrt <- 6**0.5
+l2_sqrt <- 1
+
+ggplot() +
+  geom_point(data = df, aes(x = X, y = Y)) +
+  segment(l1_sqrt*vx, l1_sqrt*vy, color = "cornflowerblue") +
+  segment(-l2_sqrt*vy, l2_sqrt*vx, color = "chocolate") + 
+  xlim(c(-5, 6)) + ylim(c(-2.5, 4.5)) + theme_void()
+```
+
+
+## Directions of less variability
+
+Since `triceps.skinfold.thickness` and `thigh.circumference` are highly correlated, specifying both is superfluous.
+
+```{r}
+bodyfat <- read.csv("datasets/01-linear-regression/bodyfatNKNW.txt", sep = " ")
+bodyfat_predictors <- bodyfat[,c("triceps.skinfold.thickness", "thigh.circumference", "midarm.circumference")]
+
+library(GGally)
+ggpairs(bodyfat_predictors)
+
+```
+
+## Notation
+
+Dataset: 
+
+- $N$ observations $\mathbf{x}_k$, $k = 1, \ldots, N$
+- Each observation is a (column) vector in $\mathbb{R}^D$
+
+Data matrix:
+$$
+  \mathbf{X} = \begin{bmatrix}
+    \mathbf{x}_1^T \\
+    \mathbf{x}_2^T \\
+    \vdots \\
+    \mathbf{x}_N^T
+  \end{bmatrix} \in \mathbb{R}^{N \times D}
+$$
+
+Columns of the data matrix:
+
+- Referred to as features, predictors, dependent variables
+- Denoted by $\mathbf{X}_i$, $i = 1, \ldots, D$
+
+## Notation: example (body fat dataset)
+
+- 20 observations with 3 features each
+- Data matrix is $20 \times 3$ matrix
+- Features:
+  - $\mathbf{X}_1$: `triceps.skinfold.thickness`
+  - $\mathbf{X}_2$: `thigh.circumference`
+  - $\mathbf{X}_3$: `midarm.circumference`
+
+
+## The covariance matrix
+
+Given observations $\mathbf{x}_1, \ldots, \mathbf{x}_N \in \mathbb{R}^D$, the variance-covariance matrix $\mathbf{S}$ is defined as:
+$$
+  \mathbf{S} = \frac{1}{N} \sum_{k = 1}^N \left(\mathbf{x}_k\mathbf{x}_k^T - \bar{\mathbf{x}}\bar{\mathbf{x}}^T \right).
+$$  
+
+Structure: variances and covariances between components of the data.
+$$
+  \mathbf{S} = \begin{bmatrix}
+    \mathrm{Var}(x_1) & \mathrm{Cov}(x_1, x_2) & \cdots & \mathrm{Cov}(x_1, x_D) \\
+    \mathrm{Cov}(x_2, x_1) & \mathrm{Var}(x_1) & \cdots & \mathrm{Cov}(x_2, x_D) \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \mathrm{Cov}(x_D, x_1) & \mathrm{Cov}(x_D, x_2) & \cdots & \mathrm{Var}(x_D)
+  \end{bmatrix}
+$$
+
+## The covariance matrix: examples
+
+Three examples: ellipsoid, sphere, rotated ellipsoid
+
+```{r}
+
+```
+
+Clearly the covariance matrix will help us find directions of maximum variability, but how?
+
+## Linear combination of features
+
+- The **first principal component** $\mathbf{Z}_1$ is a linear combination of the columns of $\mathbf{X}$:
+$$
+  \mathbf{Z}_1 = v_1 \mathbf{X}_1 + \cdots + v_D \mathbf{X}_D,
+$$
+where we will choose the coefficients $v_i$ so that the variances is maximal, in some sense.
+
+- The coefficients $v_i$ are referred to as the **loadings** and the vector 
+$$
+  \mathbf{v} = \begin{bmatrix} 
+    v_1 \\
+    \vdots \\
+    v_D
+  \end{bmatrix}
+$$
+is the **loadings vector**.
+
+- Variance of $\mathbf{Z}_1$:
+$$
+  \text{Var}(\mathbf{Z}_1) = \mathbf{v}^T \mathbf{S} \mathbf{v}.
+$$
+
+## Maximizing the variance
+
+- Idea: choose loadings $\mathbf{v}$ so that $\text{Var}(\mathbf{Z}_1)$ is **maximal**.
+- Problem: just by increasing the norm of $\mathbf{v}$, variance can become as large as we want. Solution: impose that $\left\Vert \mathbf{v} \right\Vert = 1$.
+
+
+::: {.callout-tip}
+## PC1: maximization of variance
+
+The loadings vector $\mathbf{v}$ for the first principal component is found by solving the following maximization problem:
+$$
+  \text{maximize $\mathbf{v}^T \mathbf{S} \mathbf{v}$ so that $\mathbf{v}^T \mathbf{v} = 1$.}
+$$
+:::
+
+## Geometric interpretation
+
+- $\mathbf{Z}_1$: projection of data on the line in the direction of $\mathbf{v}$.
+- Find direction $\mathbf{v}$ so that variance is maximal (blue)
+
+![](./images/02-pca/max-variance-projection.svg){fig-align=center}
+
+## Eigenvalue problem
+
+Through Lagrange multipliers, can show that maximizing variance is equivalent to finding eigenvalues and eigenvectors of $\mathbf{S}$.
+
+::: {.callout-tip}
+## PC1: eigenvalues
+
+The loadings vector $\mathbf{v}$ for the first principal component is the eigenvector of $\mathbf{S}$ with the largest eigenvalue:
+$$
+  \mathbf{S} \mathbf{v} = \lambda \mathbf{v}
+$$
+:::
+
+Eigenvectors are typically quite efficient to compute.
+
+## Amount of variance explained
+
+Take the eigenvalue equation
+$$
+  \mathbf{S} \mathbf{v} = \lambda \mathbf{v},
+$$
+and left-multiply by $\mathbf{v}^T$ to get
+$$
+  \lambda = \lambda \mathbf{v}^T \mathbf{v} = \mathbf{v}^T \mathbf{S}\mathbf{v} = \text{Var}(\mathbf{Z}_1).
+$$
+
+::: {.callout-note}
+## Eigenvalues and eigenvectors
+- The largest eigenvalue of $\mathbf{S}$ is equal to the variance contained in ("explained by") the first principal component $\mathbf{Z}_1$.
+- The corresponding eigenvector gives the loadings vector $\mathbf{v}$.
+:::
+
+## Example
+
+## The remaining principal components
+
+Next principal components $\mathbf{Z}_2, \mathbf{Z}_3, \ldots$ involve variation in the data after $\mathbf{Z}_1$ has been taken into account. 
+
+- For $\mathbf{Z}_2$:
+  $$
+    \text{maximize Var($\mathbf{Z}_2$) so that Cov($\mathbf{Z}_1$, $\mathbf{Z}_2$) = 0}
+  $$
+- Equivalent to: find second largest eigenvalue $\lambda_2$ and eigenvector $\mathbf{v}_2$.
+
+Same story for remaining principal components.
+
+::: {.callout-note}
+The principal components are *uncorrelated* linear combinations of features that *maximize variance*.
+:::
+
+
+## How many principal components are there?
+
+Recall:
+
+- $\mathbf{S}$ is a symmetric $D \times D$ matrix
+- Such a matrix always has $D$ eigenvalues and eigenvectors
+
+When $D \le N$ (more data points than features)
+
+- In general, $D$ non-zero principal components
+
+When $D > N$:
+
+- $\mathbf{S}$ has rank at most $N$: $N$ non-zero principal components
+- Can happen in high-dimensional datasets (e.g. gene assays)
+
+## Percentage of variance explained
+
+- Eigenvalue $\lambda_i$ is amount of variance explained by PC $i$.
+- Total amount of variance: $\lambda_1 + \lambda_2 + \cdots + \lambda_D$
+- Percentage of variance explained by PC $i$:
+$$
+  \frac{\lambda_i}{\lambda_1 + \cdots + \lambda_D}
+$$
+
+In many cases, the first few PCs will explain the majority of variance (80% to 90%).
+
+**Dimensionality reduction:** we can omit the remaining principal components with only a small loss of information
+
+## Worked out example (by hand)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Dataset is chosen so that
+$$
+  \mathbf{S} = \begin{bmatrix}
+    5 & 2 \\
+    2 & 2
+  \end{bmatrix}.
+$$
+Eigenvalues:
+$$
+  \lambda_1 = 6, \quad \lambda_2 = 1.
+$$
+Eigenvectors:
+$$
+  \mathbf{v}_1 = \frac{1}{\sqrt{5}} \begin{bmatrix} 2 \\ 1 \end{bmatrix},
+  \quad
+  \mathbf{v}_2 = \frac{1}{\sqrt{5}} \begin{bmatrix} -1 \\ 2 \end{bmatrix}.
+$$
+:::
+
+
+::: {.column width="50%"}
+
+```{r}
+#| out-width: 2in
+#| out-height: 1.2in
+#| fig-width: 5
+#| fig-height: 3
+ggplot() +
+  geom_point(data = df, aes(x = X, y = Y)) +
+  segment(l1_sqrt*vx, l1_sqrt*vy, color = "cornflowerblue") +
+  segment(-l2_sqrt*vy, l2_sqrt*vx, color = "chocolate") + 
+  xlim(c(-5, 6)) + ylim(c(-2.5, 4.5)) +
+  theme(text = element_text(size = 20))
+
+```
+:::
+::::
+
+## Worked out example (with R)
+
+```{r, echo=TRUE}
+prcomp(df)
+```
+
+
+Note:
+
+- Standard deviations are **square roots** of eigenvalues
+- Columns of rotation matrix give loadings vectors
+
+## Example: body fat dataset
+
+```{r, echo=TRUE}
+pca <- prcomp(bodyfat_predictors)
+pca
+```
+
+## Percentage of variance explained
+
+```{r, echo=TRUE}
+summary(pca)
+```
+- First 2 PCs explain over 99% of variance in data
+- Interpretation:
+\begin{align*}
+  \text{PC}_1 & = 0.693 \cdot \texttt{triceps} + 0.699 \cdot \texttt{thigh} + 0.179 \cdot \texttt{midarm} \\
+  \text{PC}_2 & = 0.699 \cdot \texttt{triceps} - 0.384 \cdot \texttt{thigh} - 0.604 \cdot \texttt{midarm}
+\end{align*}
+
+## Standardizing the features
+
+Often, data are standardized before running PCA:
+$$
+  \mathbf{Y}_i = \frac{\mathbf{X}_i - \bar{\mathbf{X}}_i}{\text{SD}(\mathbf{X}_i)}
+$$
+
+- Standardization puts all features on the same scale and affects the outcome of your PCA.
+- Often a good idea when features have different units (e.g. mm, Watt, sec).
+- **Not** a good idea when features have the same units (e.g. pixel intensities in an image).
+
+In R: `prcomp(df, center = TRUE, scale = TRUE)`.
+
+## say somewhere
+

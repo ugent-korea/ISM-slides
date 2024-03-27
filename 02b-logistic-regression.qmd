@@ -500,6 +500,112 @@ $$
     & = [2.377, 3.759]
 \end{align*}
 
+## Classification
+
+- Once we have a (logistic) model for $\pi(X)$, we can use it to classify new data $X$ as negative ($Y = 0$) or positive ($Y = 1$), by comparing $\pi(X)$ with a fixed threshold $C$:
+$$
+  Y = 1 \quad \text{if $\pi(X) > C$, otherwise $Y = 0$}.
+$$
+- Performance **depends on choice of $C$**
+
+::: {.callout-note}
+## Breast cancer dataset
+We computed earlier that $\pi(\mathtt{radius\_mean} = 13) = 0.12$. Assuming that the threshold for malignant samples is $C = 0.5$, this sample would be classified as **benign**.
+:::
+
+## Confusion matrix
+
+By comparing labels given by our model with "actual" labels, we can get an idea of the performance of our classifier.
+
+![](./images/02-logistic-regression/confusion_matrix.png)
+
+Figure source: \url{https://en.wikipedia.org/wiki/Confusion_matrix}
+
+## Performance metrics
+
+| Name | Definition | Value for example|
+|------|------------|-------:|
+| Accuracy | (TP + FP)/(P + N) | 0.84 |
+| Sensitivity (recall) | TP / P | 0.93 |
+| Specificity | TN / N | 0.67 |
+| PPV (precision) | TP / PP | 0.84 |
+| NPV | TN / NN | 0.84 |
+
+- Many other metrics exist
+- Which one is important depends on the problem
+- Metrics can give surprising results in case of unbalanced data 
+
+## In R (via caret package)
+
+\scriptsize
+\centering
+```{r}
+library(caret)
+
+pred_test <- predict(m_simple, test, type="response")
+class_test <- ifelse(pred_test >= 0.2, "M", "B")
+
+conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis)
+print(conf_matrix)
+
+```
+
+## Trading sensitivity and specificity
+
+What is important?
+
+- Diagnostic test: **sensitivity** (don't tell people with tumor that they are healthy). Choose low threshold.
+- Classifying email as spam: **specificity** (don't put regular email in the spam folder). Choose high threshold.
+
+By changing the threshold, sensitivity and specificity can be traded against one another.
+
+- Lowering threshold: $\text{Sensitivity} \uparrow$, $\text{Specificity} \downarrow$.
+- Increasing threshold: $\text{Sensitivity} \downarrow$, $\text{Specificity} \uparrow$.
+
+##
+
+::: {.callout-note}
+## Breast cancer dataset
+
+- For $C = 0.5$: sensitivity 0.84
+
+| Prediction \ Reference | B  | M  |
+|------------------------|----|----|
+| B                      | 70 | **13** |
+| M                      | 5  | 26 |
+
+- For $C = 0.2$: sensitivity **0.85**
+
+| Prediction \ Reference | B  | M  |
+|------------------------|----|----|
+| B                      | 64 | **6**  |
+| M                      | 11 | 33 |
+:::
+
+
+## ROC curve
+
+- By varying $C$ from 0 to 1, sensitivity and specificity change continuously and trace out the **Receiver Operator Curve (ROC)**.
+- The closer the curve sticks to the upper left corner, the better
+- Can be used to compare classifiers
+
+```{r}
+#| out-width: 2.5in
+#| out-height: 2.5in
+#| fig-align: center
+
+library(pROC)
+
+pred_test <- predict(m_simple, test, type="response")
+roc_obj <- roc(test$diagnosis_binary, pred_test)
+auc <- round(auc(test$diagnosis_binary, pred_test), 4)
+
+ggroc(roc_obj) +
+    ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
+```
+
+## Area under the ROC curve
+
 
 
 # Draft outline

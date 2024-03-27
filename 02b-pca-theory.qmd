@@ -30,6 +30,16 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
   - Retain import features to speed up computational processing
 - Visualization
 
+## Learning outcomes
+
+At the end of this lecture, you should be able to:
+
+1. Explain the ideas behind PCA
+2. Do a PCA by hand given a covariance matrix
+3. Do a PCA with R
+4. Interpret and explain the PCA results
+5. Build and explain a PCR model
+
 ## Reminder: multicollinearity
 
 Bodyfat dataset: 20 observations, predict amount of body fat from three body measurements.
@@ -114,8 +124,8 @@ colnames(df) <- c("X", "Y")
 
 vx <- 2/5^0.5
 vy <- 1/5^0.5
-segment <- function(lx, ly, color = "cornflowerblue") {
-  geom_segment(aes(x=1, y=1, xend=1 + lx, yend=1 + ly), 
+segment <- function(lx, ly, color = "cornflowerblue", start = c(1, 1), scale = 1) {
+  geom_segment(aes(x = start[1], y = start[2], xend = start[1] + scale * lx, yend = start[2] + scale * ly), 
                arrow = arrow(length=unit(0.5, 'cm')),
                color = color, lwd = 1.5, alpha = 1, 
                lineend = "round")
@@ -126,8 +136,8 @@ l2_sqrt <- 1
 
 ggplot() +
   geom_point(data = df, aes(x = X, y = Y)) +
-  segment(l1_sqrt*vx, l1_sqrt*vy, color = "cornflowerblue") +
-  segment(-l2_sqrt*vy, l2_sqrt*vx, color = "chocolate") + 
+  segment(vx, vy, color = "cornflowerblue", scale = l1_sqrt) +
+  segment(-vy, vx, color = "chocolate", scale = l2_sqrt) + 
   xlim(c(-5, 6)) + ylim(c(-2.5, 4.5)) + theme_void()
 ```
 
@@ -371,6 +381,62 @@ $$
 
 ## Example
 
+:::: {.columns}
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_ellipsoid)
+ggplot(df_ellipsoid, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6)) 
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_sphere)
+ggplot(df_sphere, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+
+```
+
+:::
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_rotated)
+ggplot(df_rotated, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+
+```
+:::
+::::
+
+The loadings vectors may point in the opposite direction of what you expected... Why is this not a problem?
+
+
 ## The remaining principal components
 
 Next principal components $\mathbf{Z}_2, \mathbf{Z}_3, \ldots$ involve variation in the data after $\mathbf{Z}_1$ has been taken into account. 
@@ -416,6 +482,66 @@ $$
 In many cases, the first few PCs will explain the majority of variance (80% to 90%).
 
 **Dimensionality reduction:** we can omit the remaining principal components with only a small loss of information
+
+## Example
+
+:::: {.columns}
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_ellipsoid)
+ggplot(df_ellipsoid, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  segment(pca$rotation[1, 2], pca$rotation[2, 2], color = "chocolate", start = c(0, 0), scale = 3) +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6)) 
+```
+:::
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_sphere)
+ggplot(df_sphere, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  segment(pca$rotation[1, 2], pca$rotation[2, 2], color = "chocolate", start = c(0, 0), scale = 3) +  
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+
+```
+
+:::
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+pca <- prcomp(df_rotated)
+ggplot(df_rotated, aes(x = X, y = Y)) +
+  geom_point() +
+  segment(pca$rotation[1, 1], pca$rotation[2, 1], color = "cornflowerblue", start = c(0, 0), scale = 3) +
+  segment(pca$rotation[1, 2], pca$rotation[2, 2], color = "chocolate", start = c(0, 0), scale = 3) +  
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+
+```
+:::
+::::
+
+Blue: first PC, red: second PC.
 
 ## Worked out example (by hand)
 
@@ -715,7 +841,7 @@ summary(pcr_model)
 selectNcomp(pcr_model, method = "onesigma", plot = TRUE)
 ```
 
-## Ridge regression
+## Ridge regression (optional)
 
 - PCR is not the only way to "regularize" a regression model
 - Ridge regression: like ordinary regression, but punish model for coefficients that become too large.
@@ -746,5 +872,4 @@ best_ridge <- glmnet(predictors, outcome, alpha = 0, lambda = best)
 coef(best_ridge)
 
 ```
-
 

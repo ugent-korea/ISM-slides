@@ -102,7 +102,7 @@ adjust_cov_mean <- function(z, mean, sigma) {
   z <- t(solve(t(R), t(z)))
 
   # impose desired covariance, mean
-  R <- chol(S)
+  R <- chol(sigma)
   z <- t(apply(z %*% R, 1, function(row) row + mean))
   z
 }
@@ -199,11 +199,96 @@ $$
 
 ## The covariance matrix: examples
 
-Three examples: ellipsoid, sphere, rotated ellipsoid
-
 ```{r}
+make_dataset <- function(S, n = 100) {
+  z <- rmvnorm(n, mean = c(0, 0))
+  z <- adjust_cov_mean(z, c(0, 0), S)
+  df <- as.data.frame(z)
+  colnames(df) <- c("X", "Y")
+  return(df)
+}
+```
+
+
+:::: {.columns}
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+S_ellipsoid <- matrix(c(6, 0, 0, 1), nrow = 2, byrow = TRUE)
+df_ellipsoid <- make_dataset(S_ellipsoid)
+ggplot(df_ellipsoid, aes(x = X, y = Y)) +
+  geom_point() +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+```
+
+$$
+  \mathbf{S} = \begin{bmatrix} 
+    6 & 0 \\
+    0 & 1 
+  \end{bmatrix}
+$$
+
+:::
+
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+
+S_sphere <- matrix(c(1, 0, 0, 1), nrow = 2)
+df_sphere <- make_dataset(S_sphere)
+
+ggplot(df_sphere, aes(x = X, y = Y)) +
+  geom_point() +
+    xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
 
 ```
+$$
+  \mathbf{S} = \begin{bmatrix} 
+    1 & 0 \\
+    0 & 1 
+  \end{bmatrix}
+$$
+:::
+::: {.column width="33%"}
+```{r}
+#| fig-width: 2
+#| fig-height: 2
+#| out-width: 1.5in
+#| out-height: 1.5in
+
+S_rotated <- matrix(c(5, 2, 2, 2), nrow = 2)
+df_rotated <- make_dataset(S_rotated)
+
+ggplot(df_rotated, aes(x = X, y = Y)) +
+  geom_point() +
+  xlab(NULL) + ylab(NULL) +
+  xlim(c(-6, 6)) +
+  ylim(c(-6, 6))
+
+```
+$$
+  \mathbf{S} = \begin{bmatrix} 
+    5 & 2 \\
+    2 & 2 
+  \end{bmatrix}
+$$
+
+:::
+
+
+::::
+
 
 Clearly the covariance matrix will help us find directions of maximum variability, but how?
 

@@ -25,13 +25,54 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ## Goal of dimensionality reduction
 
 - Pre-processing
-  - Remove collinear predictors
+  - Remove collinear predictors (multicollinearity)
 - Computational efficiency
   - Retain import features to speed up computational processing
 - Visualization
 
+## Reminder: multicollinearity
 
-# Understanding PCA
+Bodyfat dataset: 20 observations, predict amount of body fat from three body measurements.
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+- Linear regression model:
+\begin{align*}
+  \texttt{bodyfat} & = 117.085 \\
+  & + 4.334 \cdot \texttt{triceps} \\
+  & - 2.857 \cdot \texttt{thigh} \\
+  & - 2.186 \cdot \texttt{midarm}
+\end{align*}
+
+- **Do you see anything wrong with this?**
+
+:::
+
+::: {.column width="50%"}
+```{r}
+bodyfat <- read.csv("datasets/01-linear-regression/bodyfatNKNW.txt", sep = " ")
+bodyfat_predictors <- bodyfat[,c("triceps.skinfold.thickness", "thigh.circumference", "midarm.circumference")]
+
+library(GGally)
+ggpairs(bodyfat_predictors)
+
+```
+
+:::
+::::
+
+
+## 
+
+\scriptsize
+```{r, echo=FALSE}
+m <- lm(bodyfat ~ ., data = bodyfat)
+summary(m)
+```
+
+# Principal component analysis
 
 ## Directions of maximal variability
 
@@ -93,9 +134,12 @@ ggplot() +
 
 ## Directions of less variability
 
-Since `triceps.skinfold.thickness` and `thigh.circumference` are highly correlated, specifying both is superfluous.
+Since `triceps` and `thigh` are highly correlated, specifying both is superfluous. What do we lose if we throw away one of these variables?
 
 ```{r}
+#| fig-align: center
+#| out-width: 4in
+#| out-height: 3in
 bodyfat <- read.csv("datasets/01-linear-regression/bodyfatNKNW.txt", sep = " ")
 bodyfat_predictors <- bodyfat[,c("triceps.skinfold.thickness", "thigh.circumference", "midarm.circumference")]
 
@@ -146,10 +190,10 @@ $$
 Structure: variances and covariances between components of the data.
 $$
   \mathbf{S} = \begin{bmatrix}
-    \mathrm{Var}(x_1) & \mathrm{Cov}(x_1, x_2) & \cdots & \mathrm{Cov}(x_1, x_D) \\
-    \mathrm{Cov}(x_2, x_1) & \mathrm{Var}(x_1) & \cdots & \mathrm{Cov}(x_2, x_D) \\
+    \text{Var}(x_1) & \text{Cov}(x_1, x_2) & \cdots & \text{Cov}(x_1, x_D) \\
+    \text{Cov}(x_2, x_1) & \text{Var}(x_1) & \cdots & \text{Cov}(x_2, x_D) \\
     \vdots & \vdots & \ddots & \vdots \\
-    \mathrm{Cov}(x_D, x_1) & \mathrm{Cov}(x_D, x_2) & \cdots & \mathrm{Var}(x_D)
+    \text{Cov}(x_D, x_1) & \text{Cov}(x_D, x_2) & \cdots & \text{Var}(x_D)
   \end{bmatrix}
 $$
 

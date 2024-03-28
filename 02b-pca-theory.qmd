@@ -40,6 +40,12 @@ At the end of this lecture, you should be able to:
 4. Interpret and explain the PCA results
 5. Build and explain a PCR model
 
+## References
+
+- *Introduction to statistical modeling*. Chapter available on Ufora.
+- *An Introduction to Statistical Learning*. Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Available for free online at https://www.statlearning.com/. 
+  - PCA: section 6.3
+
 ## Reminder: multicollinearity
 
 Bodyfat dataset: 20 observations, predict amount of body fat from three body measurements.
@@ -177,7 +183,7 @@ $$
 
 Columns of the data matrix:
 
-- Referred to as features, predictors, dependent variables
+- Referred to as features, predictors, independent variables
 - Denoted by $\mathbf{X}_i$, $i = 1, \ldots, D$
 
 ## Notation: example (body fat dataset)
@@ -201,7 +207,7 @@ Structure: variances and covariances between components of the data.
 $$
   \mathbf{S} = \begin{bmatrix}
     \text{Var}(x_1) & \text{Cov}(x_1, x_2) & \cdots & \text{Cov}(x_1, x_D) \\
-    \text{Cov}(x_2, x_1) & \text{Var}(x_1) & \cdots & \text{Cov}(x_2, x_D) \\
+    \text{Cov}(x_2, x_1) & \text{Var}(x_2) & \cdots & \text{Cov}(x_2, x_D) \\
     \vdots & \vdots & \ddots & \vdots \\
     \text{Cov}(x_D, x_1) & \text{Cov}(x_D, x_2) & \cdots & \text{Var}(x_D)
   \end{bmatrix}

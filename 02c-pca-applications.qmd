@@ -202,7 +202,23 @@ Main idea: develop model with some of the mixtures, test performance on differen
 
 ![](./images/02b-pca-applications/traintest-stratified.pdf){fig-align=center}
 
+## Building the PCR/PLS models
 
+PCR model:
+
+```default
+pcr_model <- pcr(
+  `% Adulteration` ~ ., data = adulterated_train, 
+  scale = FALSE, validation = "CV", ncomp = 10
+)
+```
+PLS model: replace `pcr` by `plsr`.
+
+Arguments:
+
+- `scale = FALSE`: Don't scale spectra (same units)
+- `ncomp = 10`: Build model with up to 10 components
+- `validation = "CV"`: Assess performance of model with $i$ components using cross-validation
 
 ## Performance of PCR/PLS models
 

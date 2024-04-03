@@ -253,3 +253,9 @@ Both models do well on the test data.
 *Can we detect the degree of adulteration?*
 
   - **Yes**: Build PCR or PLS model
+
+# Human faces dataset
+
+## 
+
+There are no slides for this part of the lecture. Instead, the lecture will follow the discussion in the following book chapter: https://jvkersch.github.io/ISM/pca-applications.html#sec-eigenfaces

@@ -141,4 +141,20 @@ Can we tell pure and adulterated samples apart?
 
 Can we predict the percentage of adulteration?
 
-- **No**: hard to distinguish.
+- **No**: hard to distinguish from first 2 PCs alone.
+
+## Predicting the percentage of adulteration
+
+We will need more than 2 PCs to correctly predict percentage of adulteration.
+
+Two different approaches:
+
+- **Principal component regression**: 
+  1. Compute PCs
+  2. Do a regression on PCs
+
+- **Partial least squares regression**: 
+  1. Compute factors that are most variable and **most correlated with outcome**
+  2. Do a regression on resulting factors
+
+Both models can be built using the `pls` package in R.

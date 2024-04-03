@@ -204,3 +204,8 @@ Main idea: develop model with some of the mixtures, test performance on differen
 
 
 
+## Performance of PCR/PLS models
+
+![](./images/02b-pca-applications/regression-performance.png){fig-align=center height=60%}
+
+Both models do well on the test data.

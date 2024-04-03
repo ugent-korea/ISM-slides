@@ -122,11 +122,23 @@ This is confirmed by the scree plot:
 
 ## Principal component analysis: loadings vectors
 
-Recall: loadings vectors are linear combinations of features, tell us how features contribute to variability in dataset.
+Loadings vectors are linear combinations of features, tell us how features contribute to variability in dataset.
 
 ![](./images/02b-pca-applications/first-two-pcs.png){fig-align=center height=50%}
 
 For our example:
 
-- Loadings vector 1: what does a typical spectrum look like?
-- Loadings vector 2: where are typical differences between spectra located?
+- Loadings vector 1: where do spectra differ the most?
+- Loadings vector 2: where is next source of variability located?
+
+## Principal component analysis: scores
+
+![](./images/02b-pca-applications/oils-score-plot.png){fig-align=center height=60%}
+
+Can we tell pure and adulterated samples apart?
+
+- **Yes**: clearly different on score plot.
+
+Can we predict the percentage of adulteration?
+
+- **No**: hard to distinguish.

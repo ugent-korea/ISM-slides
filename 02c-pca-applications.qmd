@@ -90,6 +90,14 @@ Each sample is imaged 3 times: **183 samples**
 
 Each sample produces a HSI spectrum of **length 224**
 
+## A first look at the data
+
+Averaged spectra for each kind of oil (EVOO + 6 others)
+
+![](./images/02b-pca-applications/spectra.png){fig-align=center height=60%}
+
+Plot shows small differences between spectra: **promising sign** that we will be able to address the research questions.
+
 ## Data matrix
 
 Data matrix has 183 rows (samples) and 224 columns (spectra).
@@ -100,5 +108,6 @@ In addition, we have some metadata:
   - Degree of adulteration
 
 ![](./images/02b-pca-applications/dataset.png)
+
 
 

@@ -62,6 +62,20 @@ To reduce cost, EVOO is often **adulterated** with other, cheaper food oils.
 2. **Regression:** Can we detect the degree of adulteration?
     - Continuous answer, from 0% (no adulteration) to 100%
 
-## Data acquisition
+## Data acquisition: hyperspectral imaging
 
-## 
+![](./images/02b-pca-applications/hyperspectral.png){fig-align=center height=50%}
+
+- Measures reflected infrared light (700-1800 nm) off sample
+- Provides a non-destructive way of testing sample
+
+
+## Hyperspectral "images" (spectra)
+
+![](./images/02b-pca-applications/hsi-spectra.png){fig-align=center height=50%}
+
+- HSI measures reflectance at 224 wavelengths from 700 to 1800 nm
+- Reflectance at given wavelength is determined by molecular features of sample
+
+
+

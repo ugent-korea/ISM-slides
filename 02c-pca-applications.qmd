@@ -57,6 +57,11 @@ To reduce cost, EVOO is often **adulterated** with other, cheaper food oils.
 
 ## Research questions
 
+1. **Classification:** Can we detect whether a given EVOO sample has been adulterated?
+    - Yes/no answer (categorical)
+2. **Regression:** Can we detect the degree of adulteration?
+    - Continuous answer, from 0% (no adulteration) to 100%
+
 ## Data acquisition
 
 ## 

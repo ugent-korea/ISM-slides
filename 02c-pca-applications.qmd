@@ -10,6 +10,7 @@ format:
     header-includes: |
       \setbeamertemplate{frametitle}[default][left]
       \setbeamertemplate{footline}[frame number]
+      \hypersetup{colorlinks,urlcolor=blue}
 
 ---
 
@@ -20,3 +21,42 @@ library(tidyverse)
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
 
 ```
+
+## Examples
+
+1. Adulteration of olive oil
+  - Malavi, Derick, Amin Nikkhah, Katleen Raes, and Sam Van Haute. 2023. "Hyperspectral Imaging and Chemometrics for Authentication of Extra Virgin Olive Oil: A Comparative Approach with FTIR, UV-VIS, Raman, and GC-MS.” Foods 12 (3): 429. \url{https://doi.org/10.3390/foods12030429}
+2. Human faces dataset
+  - \url{https://scikit-learn.org/0.19/datasets/olivetti_faces.html}
+  
+# Adulteration of olive oil
+
+## Problem setting
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Extra virgin olive oil (EVOO):
+\vspace*{0.5cm}
+
+- High quality
+- Flavorful
+- Health benefits
+- **More expensive** (than regular oil)
+
+\vspace*{1cm}
+To reduce cost, EVOO is often **adulterated** with other, cheaper food oils.
+
+:::
+
+::: {.column width="50%"}
+![](./images/02b-pca-applications/olive-oil.jpg){height=2in fig-align=center}
+:::
+::::
+
+## Research questions
+
+## Data acquisition
+
+## 

@@ -225,3 +225,31 @@ Arguments:
 ![](./images/02b-pca-applications/regression-performance.png){fig-align=center height=60%}
 
 Both models do well on the test data.
+
+## Optimal number of components: PCR
+
+(obtained via `selectNcomp(method = "onesigma")`)
+
+![](./images/02b-pca-applications/ncomp-pcr.png){fig-align=center height=60%}
+
+- Optimal number of components: 7
+- RMSEP for 7 components: 1.796
+
+## Optimal number of components: PLS
+
+
+![](./images/02b-pca-applications/ncomp-pls.png){fig-align=center height=60%}
+
+- Optimal number of components: 9
+- RMSEP for 7 components: 1.627
+
+## Conclusions
+
+*Can we detect whether a given EVOO sample has been adulterated?*
+
+  - **Yes**: Look at score plot
+  - More conclusive answer next lecture
+
+*Can we detect the degree of adulteration?*
+
+  - **Yes**: Build PCR or PLS model

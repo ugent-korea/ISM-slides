@@ -158,3 +158,49 @@ Two different approaches:
   2. Do a regression on resulting factors
 
 Both models can be built using the `pls` package in R.
+
+## Dataset
+
+For this example we will use only the 42 adulterated mixtures.
+
+Each mixture is imaged 3 times: $42 \times 3 = 126$ samples
+
+Predictors: 224 wavelengths
+
+Outcome: percentage of adulteration (1%-20%)
+
+## Performing a fair assessment: train/test split
+
+Evaluating the model using the same data used to train it leads to an **optimistic** estimate of the model's performance.
+
+To avoid this bias, randomly select and set aside some data for testing, and use the remaining data to develop the model.
+
+![](./images/02b-pca-applications/traintest.pdf){fig-align=center}
+
+Adulteration prediction:
+
+- Train dataset: 101 samples
+- Test dataset: 25 samples
+
+Can you spot an issue with this?
+
+## Performing a fair assessment: data leakage
+
+- Each of the 42 mixtures is imaged 3 times.
+- Presumably these replicates are very similar
+- If some replicates end up in the test dataset and some in the train dataset: model gains unfair advantage.
+
+![](./images/02b-pca-applications/traintest-unstratified.pdf){fig-align=center}
+
+## Avoiding data leakage: stratified train/test split
+
+Main idea: develop model with some of the mixtures, test performance on different mixtures:
+
+1. Randomly select 80% of **mixtures**
+2. Put all 3 replicates for those 80% in the training set
+3. Put the remainder in the test set.
+
+![](./images/02b-pca-applications/traintest-stratified.pdf){fig-align=center}
+
+
+

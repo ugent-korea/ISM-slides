@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="123.60634mm"
+   height="13.038643mm"
+   viewBox="0 0 123.60634 13.038643"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   sodipodi:docname="traintest.svg"
+   inkscape:export-filename="traintest.pdf"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.5219183"
+     inkscape:cx="336.089"
+     inkscape:cy="94.945963"
+     inkscape:window-width="2560"
+     inkscape:window-height="1387"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-19.471041,-127.17023)">
+    <rect
+       style="fill:#afc6e9;stroke-width:1.323;stroke-linejoin:round;stop-color:#000000"
+       id="rect184"
+       width="23.991102"
+       height="13.038643"
+       x="19.471041"
+       y="127.17023" />
+    <rect
+       style="fill:#afc6e9;stroke-width:2.6412;stroke-linejoin:round;stop-color:#000000"
+       id="rect184-7-9-3-0"
+       width="95.616714"
+       height="13.038643"
+       x="47.460663"
+       y="127.17023" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;fill:#000000;fill-opacity:0.85;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.2, 1.2;-inkscape-stroke:none;stop-color:#000000"
+       x="31.680016"
+       y="131.98216"
+       id="text494"><tspan
+         sodipodi:role="line"
+         id="tspan492"
+         style="font-size:4.93889px;text-align:center;text-anchor:middle;stroke-width:0.3"
+         x="31.680016"
+         y="131.98216">Test data</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.93889px;text-align:center;text-anchor:middle;stroke-width:0.3"
+         x="31.680016"
+         y="138.15578"
+         id="tspan546">(20%)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;fill:#000000;fill-opacity:0.85;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.2, 1.2;-inkscape-stroke:none;stop-color:#000000"
+       x="95.482445"
+       y="131.98216"
+       id="text494-9"><tspan
+         sodipodi:role="line"
+         id="tspan492-1"
+         style="font-size:4.93889px;text-align:center;text-anchor:middle;stroke-width:0.3"
+         x="95.482445"
+         y="131.98216">Train data</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.93889px;text-align:center;text-anchor:middle;stroke-width:0.3"
+         x="95.482445"
+         y="138.15578"
+         id="tspan546-7">(80%)</tspan></text>
+  </g>
+</svg>

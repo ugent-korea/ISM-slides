@@ -111,9 +111,7 @@ Plot shows small differences between spectra: **promising sign** that we will be
 
 ## Principal component analysis: scree plot
 
-Not all 224 wavelengths are equally informative.
-
-Much of our dataset is redundant.
+Not all 224 wavelengths are equally informative. Much of our dataset is redundant.
 
 ![](./images/02b-pca-applications/scree-plot.png){fig-align=center height=50%}
 
@@ -122,4 +120,13 @@ This is confirmed by the scree plot:
 - First 2 PCs explain **94% of variance** in the data
 - First 3 PCs: almost 100%
 
+## Principal component analysis: loadings vectors
 
+Recall: loadings vectors are linear combinations of features, tell us how features contribute to variability in dataset.
+
+![](./images/02b-pca-applications/first-two-pcs.png){fig-align=center height=50%}
+
+For our example:
+
+- Loadings vector 1: what does a typical spectrum look like?
+- Loadings vector 2: where are typical differences between spectra located?

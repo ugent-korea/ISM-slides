@@ -92,4 +92,13 @@ Each sample produces a HSI spectrum of **length 224**
 
 ## Data matrix
 
+Data matrix has 183 rows (samples) and 224 columns (spectra).
+
+In addition, we have some metadata:
+
+  - Name of sample
+  - Degree of adulteration
+
+![](./images/02b-pca-applications/dataset.png)
+
 

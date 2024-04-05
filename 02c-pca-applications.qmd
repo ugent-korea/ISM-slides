@@ -1,0 +1,261 @@
+---
+title: "Principal component analysis: examples"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \hypersetup{colorlinks,urlcolor=blue}
+
+---
+
+```{r, include=FALSE}
+set.seed(1234)
+
+library(tidyverse)
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+
+```
+
+## Examples
+
+1. Adulteration of olive oil
+  - Malavi, Derick, Amin Nikkhah, Katleen Raes, and Sam Van Haute. 2023. "Hyperspectral Imaging and Chemometrics for Authentication of Extra Virgin Olive Oil: A Comparative Approach with FTIR, UV-VIS, Raman, and GC-MS.” Foods 12 (3): 429. \url{https://doi.org/10.3390/foods12030429}
+2. Human faces dataset
+  - \url{https://scikit-learn.org/0.19/datasets/olivetti_faces.html}
+  
+# Adulteration of olive oil
+
+## Problem setting
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+Extra virgin olive oil (EVOO):
+\vspace*{0.5cm}
+
+- High quality
+- Flavorful
+- Health benefits
+- **More expensive** (than regular oil)
+
+\vspace*{1cm}
+To reduce cost, EVOO is often **adulterated** with other, cheaper food oils.
+
+:::
+
+::: {.column width="50%"}
+![](./images/02b-pca-applications/olive-oil.jpg){height=2in fig-align=center}
+:::
+::::
+
+## Research questions
+
+1. **Classification:** Can we detect whether a given EVOO sample has been adulterated?
+    - Yes/no answer (categorical)
+2. **Regression:** Can we detect the degree of adulteration?
+    - Continuous answer, from 0% (no adulteration) to 100%
+
+## Hyperspectral imaging (HSI)
+
+![](./images/02b-pca-applications/hyperspectral.png){fig-align=center height=50%}
+
+- Measures reflected infrared light (700-1800 nm) off sample
+- Provides a non-destructive way of testing sample
+
+
+## Hyperspectral "images" (spectra)
+
+![](./images/02b-pca-applications/hsi-spectra.png){fig-align=center height=50%}
+
+- HSI measures reflectance at 224 wavelengths from 700 to 1800 nm
+- Reflectance at given wavelength is determined by molecular features of sample
+
+## Experimental setup
+
+Samples to test (61 total):
+
+- 13 different kinds of unadulterated EVOO
+- 6 vegetable oils
+- 42 adulterated mixtures
+  - EVOO + one of 6 vegetable oils at one of 7 different percentages (from 1% to 20%)
+
+Each sample is imaged 3 times: **183 samples**
+
+Each sample produces a HSI spectrum of **length 224**
+
+## Data matrix
+
+Data matrix has 183 rows (samples) and 224 columns (spectra).
+
+In addition, we have some metadata:
+
+  - Name of sample
+  - Degree of adulteration
+
+![](./images/02b-pca-applications/dataset.png)
+
+## A first look at the data
+
+Averaged spectra for each kind of oil (EVOO + 6 others)
+
+![](./images/02b-pca-applications/spectra.png){fig-align=center height=60%}
+
+Plot shows small differences between spectra: **promising sign** that we will be able to address the research questions.
+
+## Principal component analysis: scree plot
+
+Not all 224 wavelengths are equally informative. Much of our dataset is redundant.
+
+![](./images/02b-pca-applications/scree-plot.png){fig-align=center height=50%}
+
+This is confirmed by the scree plot: 
+
+- First 2 PCs explain **94% of variance** in the data
+- First 3 PCs: almost 100%
+
+## Principal component analysis: loadings vectors
+
+Loadings vectors are linear combinations of features, tell us how features contribute to variability in dataset.
+
+![](./images/02b-pca-applications/first-two-pcs.png){fig-align=center height=50%}
+
+For our example:
+
+- Loadings vector 1: where do spectra differ the most?
+- Loadings vector 2: where is next source of variability located?
+
+## Principal component analysis: scores
+
+![](./images/02b-pca-applications/oils-score-plot.png){fig-align=center height=60%}
+
+Can we tell pure and adulterated samples apart?
+
+- **Yes**: clearly different on score plot.
+
+Can we predict the percentage of adulteration?
+
+- **No**: hard to distinguish from first 2 PCs alone.
+
+## Predicting the percentage of adulteration
+
+We will need more than 2 PCs to correctly predict percentage of adulteration.
+
+Two different approaches:
+
+- **Principal component regression**: 
+  1. Compute PCs
+  2. Do a regression on PCs
+
+- **Partial least squares regression**: 
+  1. Compute factors that are most variable and **most correlated with outcome**
+  2. Do a regression on resulting factors
+
+Both models can be built using the `pls` package in R.
+
+## Dataset
+
+For this example we will use only the 42 adulterated mixtures.
+
+Each mixture is imaged 3 times: $42 \times 3 = 126$ samples
+
+Predictors: 224 wavelengths
+
+Outcome: percentage of adulteration (1%-20%)
+
+## Performing a fair assessment: train/test split
+
+Evaluating the model using the same data used to train it leads to an **optimistic** estimate of the model's performance.
+
+To avoid this bias, randomly select and set aside some data for testing, and use the remaining data to develop the model.
+
+![](./images/02b-pca-applications/traintest.pdf){fig-align=center}
+
+Adulteration prediction:
+
+- Train dataset: 101 samples
+- Test dataset: 25 samples
+
+Can you spot an issue with this?
+
+## Performing a fair assessment: data leakage
+
+- Each of the 42 mixtures is imaged 3 times.
+- Presumably these replicates are very similar
+- If some replicates end up in the test dataset and some in the train dataset: model gains unfair advantage.
+
+![](./images/02b-pca-applications/traintest-unstratified.pdf){fig-align=center}
+
+## Avoiding data leakage: stratified train/test split
+
+Main idea: develop model with some of the mixtures, test performance on different mixtures:
+
+1. Randomly select 80% of **mixtures**
+2. Put all 3 replicates for those 80% in the training set
+3. Put the remainder in the test set.
+
+![](./images/02b-pca-applications/traintest-stratified.pdf){fig-align=center}
+
+## Building the PCR/PLS models
+
+PCR model:
+
+```default
+pcr_model <- pcr(
+  `% Adulteration` ~ ., data = adulterated_train, 
+  scale = FALSE, validation = "CV", ncomp = 10
+)
+```
+PLS model: replace `pcr` by `plsr`.
+
+Arguments:
+
+- `scale = FALSE`: Don't scale spectra (same units)
+- `ncomp = 10`: Build model with up to 10 components
+- `validation = "CV"`: Assess performance of model with $i$ components using cross-validation
+
+## Performance of PCR/PLS models
+
+![](./images/02b-pca-applications/regression-performance.png){fig-align=center height=60%}
+
+Both models do well on the test data.
+
+## Optimal number of components: PCR
+
+(obtained via `selectNcomp(method = "onesigma")`)
+
+![](./images/02b-pca-applications/ncomp-pcr.png){fig-align=center height=60%}
+
+- Optimal number of components: 7
+- RMSEP for 7 components: 1.796
+
+## Optimal number of components: PLS
+
+
+![](./images/02b-pca-applications/ncomp-pls.png){fig-align=center height=60%}
+
+- Optimal number of components: 9
+- RMSEP for 7 components: 1.627
+
+## Conclusions
+
+*Can we detect whether a given EVOO sample has been adulterated?*
+
+  - **Yes**: Look at score plot
+  - More conclusive answer next lecture
+
+*Can we detect the degree of adulteration?*
+
+  - **Yes**: Build PCR or PLS model
+
+# Human faces dataset
+
+## 
+
+There are no slides for this part of the lecture. Instead, the lecture will follow the discussion in the following book chapter: https://jvkersch.github.io/ISM/pca-applications.html#sec-eigenfaces

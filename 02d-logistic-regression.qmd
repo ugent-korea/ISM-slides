@@ -1,0 +1,987 @@
+---
+title: "Logistic Regression and Classification"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+
+---
+
+## Overview
+
+1. Introduction: what are classification problems?
+2. K-nearest neighbors classification
+3. Logistic regression
+4. Classification 
+
+# Introduction
+
+## Classification
+
+In many problems, the outcome is a **categorical** variable:
+
+- Figure out whether mutation is deleterious (yes/no), based on DNA sequencing data.
+- Predict a person's eye color (blue/brown/green)
+- Predict the outcome of surgery (success/failure) for patients with ovarian cancer, based on patient characteristics
+- Classify iris (flower) variety given dimensions of leaves
+
+These problems are examples of **classification** problems.
+
+## Techniques for classification
+
+- **Logistic regression**
+- **K-nearest neighbors**
+- Linear discriminant analysis
+- Support vector classification (SVC)
+- Decision trees
+- ...
+
+The techniques in **bold** are discussed in this lecture.
+
+Each technique has its advantages and disadvantages.
+
+## References
+
+- *An Introduction to Statistical Learning*. Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Available for free online at https://www.statlearning.com/. 
+  - Logistic regression: sections 4.1 - 4.3
+
+## Dataset
+
+`bdiag` -- Wisconsin breast cancer diagnostic dataset (*Nuclear feature extraction for breast tumor diagnosis.* W. Street, W. Wolberg, O. Mangasarian. Electronic imaging 29 (1993))
+
+\vspace*{0.5cm}
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+  - Cell nuclei from 569 tumor samples
+  - Classified as malignant or benign
+  - Features:
+    - radius of the cell nucleus
+    - texture (variance of gray-scale values)
+
+:::
+::: {.column width="40%"}
+
+![](./images/02-logistic-regression/Invasive_Ductal_Carcinoma_40x.jpg)
+:::
+::::
+
+```{r}
+#| include: false
+library(tidyverse)
+library(gridExtra)
+
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+
+bdiag <- read_csv("datasets/02-logistic-regression/bdiag.csv") |>
+  mutate(diagnosis = as.factor(diagnosis),
+         diagnosis_binary = ifelse(diagnosis == "B", 0, 1))
+
+```
+```{r}
+#| include: false
+set.seed(1234)
+
+train_size <- 0.80 * nrow(bdiag)
+train_ind <- sample(seq_len(nrow(bdiag)),
+                    size = train_size)
+
+train <- bdiag[train_ind, ]
+test <- bdiag[-train_ind, ]
+```
+
+## A first look at the data
+
+```{r}
+#| echo: false
+
+p_scatter <- ggplot(train, 
+                    aes(x = radius_mean, y = texture_mean, color = diagnosis)) +
+  geom_jitter() +
+  theme(legend.position = "top")
+
+p_box_radius <- ggplot(train, 
+                       aes(y = radius_mean, x = diagnosis, fill = diagnosis)) +
+  geom_boxplot(show.legend = FALSE) +
+  ggtitle("radius_mean") + xlab("") + ylab(NULL)
+
+p_box_texture <- ggplot(train, 
+                        aes(y = texture_mean, x = diagnosis, fill = diagnosis)) +
+  geom_boxplot(show.legend = FALSE) +
+  ggtitle("texture_mean") + xlab("") + ylab(NULL)
+
+
+grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 1))
+```
+
+# K-nearest neighbors classification
+
+## Principle
+
+- Find $K$ nearest neighbors to $x$
+- Probability of belonging to class $i$ is proportional to number of neighbors in that class
+
+![](./images/02-logistic-regression/knearest.pdf)
+
+- $P(\text{red}|X = x) = \frac{3}{5} = 60\%$
+- $P(\text{green} | X = x) = \frac{2}{5} = 40\%$
+
+## Properties
+
+K-nearest neighbor (KNN) classification estimates probabilities
+$$
+  P(Y = j | X = x) = \frac{1}{|\mathcal{N}_K(x)|} \sum_{i = 1}^{|\mathcal{N}_K(x)|} I(y_i = j)
+$$
+Here:
+
+- $\mathcal{N}_K(x)$ is the set of $K$ nearest datapoints to $x$
+- $I(y_i = j)$ is equal to $1$ if $y_i = j$ and to $0$ otherwise
+
+## Advantages and disadvantages
+
+Advantages:
+
+- No "training" necessary 
+- Robust to outliers
+- Can easily deal with more than 2 labels
+
+Disadvantages:
+
+- Not very interpretable -- why was class decided?
+- Memory-intensive
+
+## Decision boundary ($K = 5$)
+
+```{r}
+# decision boundary plot code adapted from https://www.thomaspuschel.com/post/decision_boundary_plot2/
+
+library(caret)
+model_knn_5 <- knn3(diagnosis ~ radius_mean + texture_mean, data = train, k = 5)
+
+
+library(scales)  # for hue_pal()
+
+# these will become arguments
+model <- model_knn_5
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+y_class_probs <- predict(model, newdata = xgrid, type = "prob")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+  
+
+```
+
+
+
+
+
+# Logistic regression
+
+## Reminder: odds
+
+- If $\pi$ is the probability of having a malignant tumor, then the **odds** are defined as
+$$
+  \text{Odds} = \frac{\pi}{1 - \pi}.
+$$
+For example: if $\pi = 0.8$ then $\text{Odds} = 4$, meaning that for every benign tumor there are 4 malignant ones (on average).
+
+- Odds range from 0 (impossible event) to $+\infty$ (almost certain).
+
+## Reminder: odds ratio
+
+- **Odds ratio** (OR): indicates by how much the odds change between two treatments. For example: suppose in the treatment group the probability of a malignant tumor drops to $\pi_T = 0.75$ (compared to $\pi_C = 0.8$ in the untreated group). Then
+$$
+  \text{OR} = \frac{\text{Odds}(T)}{\text{Odds}(C)} = \frac{3}{4} = 0.75
+$$
+- If $\text{OR} < 1$, then the odds for treatment 1 decrease compared to treatment 2. If $\text{OR} > 1$, the odds increase.
+
+
+## Log-odds (logits)
+
+Often it makes sense to work with the logarithm of the odds (**logits**):
+$$
+  \text{logit}(\pi) = 
+    \ln \text{Odds} = 
+    \ln \left( \frac{\pi}{1 - \pi} \right).
+$$
+To convert back to probabilities, use the **logistic** function:
+$$
+  \pi = \frac{1}{1 + e^{-\text{logit}}}.
+$$
+
+Logits are unbounded: $\text{logit} \to \pm\infty$ for $p \to 0, 1$
+
+```{r}
+#| fig-height: 3
+ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
+  geom_function(fun = plogis) +
+  xlab("Logit") +
+  ylab("Probability")
+```
+
+## Regression for classification
+
+- Given data $(X_1, Y_1), \ldots, (X_n, Y_n)$ where:
+  - Outcomes $Y_i$ are categorical (0 or 1)
+  - Predictors $X_i$ can be continuous or discrete
+
+- We will model $Y_i$ as a Bernoulli random variable ($0$ or $1$) with probability $\pi(X_i)$:
+\begin{align*}
+  Y_i & = 0 \quad \text{with probability $\pi(X_i)$} \\
+  Y_i & = 1 \quad \text{with probability $1 - \pi(X_i)$}
+\end{align*}
+
+- Now we need to determine how $\pi(X)$ depends on $X$.
+
+
+## Idea 1: linear regression (bad)
+
+- One predictor $X = \mathtt{radius\_mean}$, outcome $Y = 0$ (benign) or $Y = 1$ (malignant).
+- Assume $\pi(X) = \alpha + \beta X$ and determine $\alpha, \beta$ through linear regression.
+
+```{r}
+#| out-width: 2in
+#| out-height: 1.5in
+#| fig-align: center
+ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
+  geom_point(aes(color = diagnosis)) +
+  stat_smooth(method="lm", se=FALSE, color = "gray40") +
+  ylab("Probability")
+
+```
+
+Problems:
+
+- Fitted probabilities can take on values outside $[0, 1]$.
+- Does not easily generalize to more than two classes.
+
+## Idea 2: logistic regression (better)
+
+- Let $\pi(X)$ depend on $X$ through the logistic function
+$$
+  \pi(X) = \frac{1}{1 + \exp(-(\alpha + \beta X))}.
+$$
+- **Nonlinear** model in parameters $\alpha$, $\beta$
+- Alternatively, apply the logit transformation
+$$
+  \text{logit}(\pi) = \alpha + \beta X.
+$$
+- Linear in the logits.
+
+## Determining the regression parameters: MLE
+
+- **Likelihood function** $\mathcal{L}$: probability of observing the data given the parameters $\alpha$, $\beta$:
+$$
+  \mathcal{L}(\alpha, \beta) = \prod_{i = 1}^n P(Y = Y_i | X = X_i),
+$$
+where 
+$$
+  P(Y = Y_i | X = X_i) = \pi(X_i)^{Y_i}(1 - \pi(X_i))^{1 - {Y_i}}.
+$$
+is the probability of observing one data point $(X_i, Y_i)$.
+
+- In practice, often better to use the log of the likelihood:
+$$
+  \ell(\alpha, \beta) = \ln \mathcal{L}(\alpha, \beta).
+$$
+
+## Determining the regression parameters: MLE
+
+- **Maximum likelihood estimation** (MLE): find parameters that maximize $\mathcal{L}(\alpha, \beta)$ or $\ell(\alpha, \beta)$
+- Finding maximum: set partial derivatives (score functions) equal to zero:
+$$
+  \frac{\partial \ell}{\partial \alpha} = 0, \quad
+  \frac{\partial \ell}{\partial \beta} = 0.
+$$
+- Complicated equations, usually maximum cannot be found analytically (unlike least squares)
+- Use numerical methods to find maximum (R does this automatically with the `glm` command)
+
+## Simplified example: MLE for binomial variable
+
+- Suppose there are *no* predictors. We just have a bunch of categorical outcomes $Y_i = 0, 1$, e.g.
+$$
+  Y = (0, 0, 1, 0, 1, 0, \ldots, 1, 1, 0, 0, 1)
+$$
+
+- In semester 1 we saw that a good estimate for the probability $\pi = P(Y = 1)$ is given by the proportion of 1s in the data:
+$$
+  \hat{\pi} = \frac{1}{N} \sum_{i = 1}^N Y_i = \bar{Y}.
+$$
+
+- We'll use MLE to re-derive this result.
+
+## Simplified example: MLE for binomial variable
+
+- Likelihood
+\begin{align*}
+  \mathcal{L}(\pi) 
+    & = \Pi_{i = 1}^n P(Y = Y_i) \\
+    & = \pi^{n\bar{Y}} (1 - \pi)^{n(1 - \bar{Y})}
+\end{align*}
+
+- Log likelihood: $\ell(\pi) = n \bar{Y} \ln \pi + n(1-\bar{Y})\ln(1 - \pi)$.
+
+- Maximum occurs when first derivative vanishes:
+$$
+  \frac{d \ell}{d \pi} = \frac{n \bar{Y}}{\pi} - \frac{n(1 - \bar{Y})}{1 - \pi} = 0.
+$$
+- Simplifies to $\hat{\pi} = \bar{Y}$.
+
+
+## MLE for logistic regression in R
+
+\scriptsize
+```{r}
+#| echo: true
+m_simple <- glm(diagnosis ~ radius_mean, data = train, family = "binomial")
+summary(m_simple)
+```
+
+## The log likelihood
+
+```{r}
+log_lh <- function(x, y, alpha, beta) {
+  lp <- alpha + beta * x
+  px <- 1 / (1 + exp(-lp))
+  
+  llh <- log(px)
+  llh[y == 0] <- log(1 - px[y == 0])
+  sum(llh)
+}
+
+alpha <- seq(-20, -10, length.out = 20)
+beta <- seq(0, 2, length.out = 20)
+
+x <- train$radius_mean
+y <- train$diagnosis_binary
+
+llh <- matrix(nrow = length(alpha), ncol = length(beta))
+for (i in seq_along(alpha)) {
+  for (j in seq_along(beta)) {
+    llh[i, j] <- log_lh(x, y, alpha[[i]], beta[[j]])
+  }
+}
+
+filled.contour(alpha, beta, llh,
+               xlab = "alpha",
+               ylab = "beta",
+               plot.axes = {
+                 axis(1)
+                 axis(2)
+                 points(-15.8086, 1.0662, pch = "x", cex = 2, col = "white")
+               })
+
+```
+
+- Value of log likelihood at MLE: $\ell = -128.2701$.
+- R reports (residual) deviance: $D = -2 \times \ell = 256.54$
+
+## Multiple logistic regression
+
+- Like in linear regression, often the outcome $Y$ is influenced by several predictors $X_1, X_2, \ldots, X_p$.
+- For example: `diagnosis` depends on `radius_mean` and `texture_mean`:
+\begin{multline*}
+  \mathrm{logit}(\pi) =
+  \alpha +
+  \beta_1 \cdot \mathtt{radius\_mean} +
+  \beta_2 \cdot \mathtt{texture\_mean}.
+\end{multline*}
+- Parameters $\alpha, \beta_1, \ldots, \beta_p$ determined through MLE.
+
+## In R
+
+\scriptsize
+```{r}
+#| echo: true
+m_multi <- glm(diagnosis ~ radius_mean + texture_mean,
+               data = train, family = "binomial")
+summary(m_multi)
+```
+
+## Interactions between variables
+
+```{r}
+#| echo: true
+m_inter <- glm(diagnosis ~ radius_mean * texture_mean,
+               data = train, family = "binomial")
+```
+
+::: {#tbl:model-coefficients}
+| Coefficient               | Estimate | SE         | z value | p value  |
+|---------------------------|---------:|-----------:|--------:|---------:|
+| (Intercept)               |  -8.3046 |     7.4554 |  -1.114 |   0.2653 |
+| radius                    |   0.2182 |     0.5288 |   0.413 |   0.6798 |
+| texture                   |  -0.4133 |     0.3855 |  -1.072 |   0.2836 |
+| radius:texture            |   0.0455 |     0.0276 |   1.647 |   0.0995 |
+:::
+
+Interaction between radius and texture is not significant
+
+
+## Making predictions (by hand)
+
+What is the probability of a tumor being malignant if the radius is 13 mm?
+
+\begin{align*}
+ \pi(\mathtt{radius\_mean} = 13) 
+     & = \frac{1}{1 + \exp(15.8086 - 1.0662 \times 13)} \\
+     & = 0.1247716
+\end{align*}
+
+No easy formula for confidence interval on the prediction.
+
+## Making predictions (using R)
+
+```{r}
+#| echo: true
+predict(m_simple,
+        newdata = data.frame(radius_mean = 13), 
+        type = "response")
+
+```
+
+## Computing a confidence interval for the prediction
+
+Proceeds in three steps:
+
+1. Make a prediction on the **logit** scale (`type = "link"`)
+2. Compute CI on logit scale from SE (`se.fit = TRUE`)
+3. Map CI back to probabilities
+
+For step 3, use `plogis` to undo the logit transformation:
+$$
+  \text{plogis}(x) = \frac{1}{1 + \exp(-x)}.
+$$
+
+
+## Computing an CI: example
+
+**Step 1**: Prediction on the logit scale.
+
+```{r}
+#| echo: true
+pred <- predict(m_simple,
+                newdata = data.frame(radius_mean = 13), 
+                type = "link", se.fit = TRUE)
+```
+
+**Step 2**: CI on the logit scale.
+```{r}
+#| echo: true
+ci_logits <- c(pred$fit - 1.96 * pred$se.fit,
+               pred$fit + 1.96 * pred$se.fit)
+ci_logits
+```
+
+##
+
+**Step 3**: CI on the original scale (probabilities)
+```{r}
+#| echo: true
+ci_probs <- c(plogis(ci_logits[1]), plogis(ci_logits[2]))
+ci_probs
+```
+
+Original prediction:
+
+```{r}
+#| echo: true
+pred_probs <- plogis(pred$fit)
+pred_probs
+```
+
+**Conclusion**:  The predicted probability that a tumor of radius 13mm is malignant is 12.5% (95% CI: [8.6%, 17.7%])
+
+
+## Making predictions
+
+```{r}
+ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
+  geom_vline(xintercept = 13, linetype = "dashed", color = "gray60") +
+  geom_hline(yintercept = 0.1247961, linetype = "dashed", color = "gray60") +
+  geom_point(aes(color = diagnosis)) +
+  stat_smooth(method="glm", se=FALSE, color = "gray40",
+              method.args = list(family=binomial))
+```
+
+
+
+## Quantifying the strength of an association
+
+Write the logistic regression model in terms of odds as
+$$
+  \text{logit}(\pi) = \ln \text{Odds} = 
+  \alpha + \beta X.
+$$
+After some algebra:
+$$
+  e^\beta = \frac{\text{Odds}(X + 1)}{\text{Odds(X)}}.
+$$
+In other words: $e^\beta$ is the odds ratio (OR) associated to a 1-unit increase in $X$.
+
+::: {.callout-note}
+## Breast cancer dataset
+Here $\beta = 1.0662$, so $\text{OR} = \exp(1.0662) = 2.90$. An increase in 1 mm in tumor radius is associated with odds 
+that are 2.90 times higher (risk increase).
+:::
+
+## Testing an association
+
+- Often, we want to test whether a model coefficient $\beta$ is significant.
+- Related: check if complex and simple nested models are equivalent (recall $F$-test from linear regression).
+
+Several ways of testing:
+
+- Wald test (reported in `summary`): can be conservative
+- Likelihood ratio test (via `anova` command): more power, preferred
+- Score test (not covered)
+
+## Testing an association: Wald test
+
+- Null hypothesis $H_0: \beta = 0$, alternative hypothesis $H_A: \beta \ne 0$
+- Test statistic follows $N(0, 1)$ under $H_0$
+$$
+  z = \frac{\hat{\beta}}{SE(\beta)} \sim N(0, 1)
+  \quad \text{under $H_0$}.
+$$
+- Reported in the R regression output (`summary`):
+
+::: {#tbl:model-coefficients}
+| Coefficient   | Estimate | SE | z value | p value      |
+|---------------|---------:|-----------:|--------:|-------------:|
+| (Intercept)   | -20.5169 |     2.0473 | -10.021 |   < 2e-16    |
+| radius_mean   |   1.0954 |     0.1173 |   9.341 |   < 2e-16    |
+| texture_mean |   0.2175 |     0.0403 |   5.391  |   7.01e-08   |
+:::
+
+
+
+## Testing an association: Likelihood ratio test
+
+Useful for:
+
+- Comparing nested models (simple/complex)
+- Testing single coefficient
+
+Hypothesis:
+
+- $H_0$: simple and complex model are equivalent
+- $H_A$: complex model is better
+
+Test statistic: **deviance**
+\begin{align*}
+  D & = -2 \ln \frac{\mathcal{L}(\text{simple})}{\mathcal{L}(\text{complex})} \\
+    & = -2 \ell(\text{simple}) + 2 \ell(\text{complex}).
+\end{align*}
+
+Under $H_0$, $D$ follows a $\chi^2_k$ distribution, where $k$ is the number of extra parameters in the complex model.
+
+
+## Worked out example
+
+Nested models:
+
+- Simple: includes `radius_mean` only
+- Complex: includes both `radius_mean` and `texture_mean`.
+
+From R summary (listed as residual deviance) or direct calculation:
+
+- $-2\ell(\text{simple}) = 256.54$
+- $-2\ell(\text{complex}) = 223.68$
+
+Hence $D = 256.54 - 223.68 = 32.86 > 3.841459 = \chi^2_{1; 0.95}$. 
+
+Conclusion: reject $H_0$, significant evidence to decide (at 5% significance level) that complex model is better.
+
+## Likelihood ratio test in R (single variable)
+
+```{r}
+#| echo: true
+anova(m_simple, m_multi)
+```
+
+Compare with critical values for $\chi^2_1$ to draw conclusion
+
+
+## Likelihood ratio test in R (groups of variables)
+
+Nested models:
+
+- Simple: includes `radius_mean` and `texture_mean`.
+- Complex: adds `concavity_mean` and `symmetry_mean`.
+
+R output:
+
+```{r}
+#| include: false
+m_multi_4 <- glm(
+  diagnosis ~ radius_mean + texture_mean + concavity_mean + symmetry_mean,
+               data = train, family = "binomial")
+
+```
+
+
+```{r}
+#| echo: true
+anova(m_multi, m_multi_4)
+```
+
+Compare with critical value $\chi^2_{2; 0.95} = 5.991465$ to conclude that complex model is better.
+
+## Confidence interval for regression parameters
+
+Wald-type **approximate** $(1 - \alpha) \times 100\%$ confidence interval for $\beta$:
+$$
+  \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta)
+$$
+
+::: {.callout-note}
+## Breast cancer dataset
+95% confidence interval for $\beta_{\mathtt{radius\_mean}}$:
+$$
+  1.095 \pm 1.96 \times 0.117 = [0.866, 1.324].
+$$
+::: 
+
+
+## Confidence interval for regression parameters in R
+
+```{r}
+#| echo: true
+confint(m_multi)
+```
+
+R uses the so-called profile method to compute CI:
+
+- Different from Wald method (narrower CIs, but close)
+- Preferred to use this method through R
+
+## Confidence interval for odds ratio
+
+- Recall that $\exp(\beta) = \text{OR}$ for a 1-unit change in $X$
+- $(1 - \alpha) \times 100\%$ confidence interval for the $\text{OR}$:
+$$
+  \exp\left( \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta) \right).
+$$
+
+::: {.callout-note}
+## Breast cancer dataset
+95% confidence interval for $\text{OR}_{\mathtt{radius\_mean}}$:
+\begin{align*}
+  \exp(1.095 \pm 1.96 \times 0.117)
+    & = [\exp(0.866), \exp(1.324)] \\
+    & = [2.377, 3.759]
+\end{align*}
+:::
+
+# Classification
+
+## Decision boundary (no interaction terms)
+
+- Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture}$
+- Decision boundary is **straight** line
+
+```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
+
+library(scales)  # for hue_pal()
+
+# these will become arguments
+model <- m_multi
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+
+
+y_response <- predict(model, newdata = xgrid, type = "response")
+y_class_probs <- cbind(1 - y_response, y_response)
+colnames(y_class_probs) <- c("B", "M")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+  
+
+```
+
+## Decision boundary (with interaction terms)
+
+- Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
+- Decision boundary is **curved** line
+
+```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
+
+# these will become arguments
+model <- m_inter
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+
+
+y_response <- predict(model, newdata = xgrid, type = "response")
+y_class_probs <- cbind(1 - y_response, y_response)
+colnames(y_class_probs) <- c("B", "M")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+```
+
+
+
+
+## Classification
+
+- Once we have a (logistic) model for $\pi(X)$, we can use it to classify new data $X$ as negative ($Y = 0$) or positive ($Y = 1$), by comparing $\pi(X)$ with a fixed threshold $C$:
+$$
+  Y = 1 \quad \text{if $\pi(X) > C$, otherwise $Y = 0$}.
+$$
+- Performance **depends on choice of $C$**
+
+::: {.callout-note}
+## Breast cancer dataset
+We computed earlier that $\pi(\mathtt{radius\_mean} = 13) = 0.12$. Assuming that the threshold for malignant samples is $C = 0.5$, this sample would be classified as **benign**.
+:::
+
+## Confusion matrix
+
+By comparing labels given by our model with "actual" labels, we can get an idea of the performance of our classifier.
+
+![](./images/02-logistic-regression/confusion_matrix.png)
+
+Figure source: \url{https://en.wikipedia.org/wiki/Confusion_matrix}
+
+## Performance metrics
+
+| Name | Definition | Value for example|
+|------|------------|-------:|
+| Accuracy | (TP + TN)/(P + N) | 0.84 |
+| Sensitivity (recall) | TP / P | 0.93 |
+| Specificity | TN / N | 0.67 |
+| PPV (precision) | TP / PP | 0.84 |
+| NPV | TN / NN | 0.84 |
+
+- Many other metrics exist
+- Which one is important depends on the problem
+- Metrics can give surprising results in case of unbalanced data 
+
+## In R (via caret package)
+
+\scriptsize
+\centering
+```{r}
+library(caret)
+
+pred_test <- predict(m_simple, test, type="response")
+class_test <- ifelse(pred_test >= 0.2, "M", "B")
+
+conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis, positive = "M")
+print(conf_matrix)
+
+```
+
+## Trading sensitivity and specificity
+
+What is important?
+
+- Diagnostic test: **sensitivity** (don't tell people with tumor that they are healthy). Choose low threshold.
+- Classifying email as spam: **specificity** (don't put regular email in the spam folder). Choose high threshold.
+
+By changing the threshold, sensitivity and specificity can be traded against one another.
+
+- Lowering threshold: $\text{Sensitivity} \uparrow$, $\text{Specificity} \downarrow$.
+- Increasing threshold: $\text{Sensitivity} \downarrow$, $\text{Specificity} \uparrow$.
+
+##
+
+::: {.callout-note}
+## Breast cancer dataset
+
+- For $C = 0.5$: sensitivity 0.84
+
+| Prediction \ Reference | B  | M  |
+|------------------------|----|----|
+| B                      | 70 | **13** |
+| M                      | 5  | 26 |
+
+- For $C = 0.2$: sensitivity **0.85**
+
+| Prediction \ Reference | B  | M  |
+|------------------------|----|----|
+| B                      | 64 | **6**  |
+| M                      | 11 | 33 |
+:::
+
+
+## Sensitivity and specificity as a function of threshold
+
+```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
+
+pred_test <- predict(m_simple, test, type="response")
+se_sp_for_C <- function(C) {
+  class_test <- ifelse(pred_test >= C, "M", "B")
+  conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis, positive = "M")
+  tibble(C = C,
+         se = conf_matrix[["byClass"]][["Sensitivity"]],
+         sp = conf_matrix[["byClass"]][["Specificity"]])
+}
+
+se_sp_curves <- seq(0, 1, length.out = 50) |>
+  map(se_sp_for_C) |>
+  list_rbind()
+
+se_sp_curves |> 
+  reshape2::melt(id.var = "C") |>
+  ggplot(aes(x = C, y = value, color = variable)) +
+  geom_line() +
+  xlab("C (Threshold)") +
+  ylab(NULL) +
+  scale_color_hue(labels = c(se = "Sensitivity", sp = "Specificity"), name = NULL)
+
+```
+
+As threshold increases:
+
+- Sensitivity **decreases** (less true positives)
+- Specificity **increases** (less false positives)
+
+
+## ROC curve
+
+- By varying $C$ from 0 to 1, sensitivity and specificity change continuously and trace out the **Receiver Operator Curve (ROC)**.
+- The closer the curve sticks to the upper left corner, the better
+- Can be used to compare classifiers
+
+```{r}
+#| out-width: 2.5in
+#| out-height: 2.5in
+#| fig-align: center
+
+library(pROC)
+
+pred_test <- predict(m_simple, test, type="response")
+roc_logis <- roc(test$diagnosis_binary, pred_test)
+auc <- round(auc(test$diagnosis_binary, pred_test), 4)
+
+ggroc(roc_logis) +
+    ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
+```
+
+## ROC: KNN versus logistic regression
+
+```{r}
+# ROC for KNN
+pred_test_knn <- predict(model_knn_5, newdata = test, type = "prob")[, 2]
+roc_knn <- roc(test$diagnosis_binary, pred_test_knn)
+
+ggroc(list(knn=roc_knn, logis=roc_logis)) +
+  scale_color_hue(labels = c(knn = "KNN", logis = "Logistic regression"), name = NULL)
+  
+
+```
+
+
+## AUC: Area under the ROC
+
+Single number to quantify performance of classifier:
+
+- $\text{AUC} = 1.0$: distinguishes perfectly between two classes
+- $\text{AUC} = 0.5$: classifier no better than guessing randomly
+- $0.5 < \text{AUC} < 1.0$: varying degrees of performance.
+
+## AUC: Link with concordance probability
+
+**Concordance probability**: probability that classifier will give a negative sample a lower probability than a positive sample.
+
+The AUC is equal to the concordance probability 
+$$
+  \text{AUC} = P(\pi(x_{\text{neg}}) \le \pi(x_{\text{pos}}))
+$$
+
+Important for model calibration:
+
+- Often, we don't care much about probability $\pi$ to belong to the positive class
+- But, want negative samples to have lower probability than positive samples
+
+## In clinical research
+
+The ROC and AUC are often reported in clinical research.
+
+![](./images/02-logistic-regression/di-donna-roc.png){fig-align=center width=75%}
+
+
+## 
+
+![](./images/02-logistic-regression/di-donna-auc.png){fig-align=center width=75%}
+\scriptsize
+Figure and text from Di Donna *et al.*, Concordance of Radiological, Laparoscopic and Laparotomic Scoring to Predict Complete Cytoreduction in Women with Advanced Ovarian Cancer. Cancers (2023)
+
+

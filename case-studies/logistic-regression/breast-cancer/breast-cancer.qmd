@@ -1,0 +1,130 @@
+---
+title: "Breast cancer"
+format: html
+---
+
+```{r}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
+
+Breast Cancer Wisconsin (Diagnostic) Data Set
+
+a) radius (mean of distances from center to points on the perimeter)
+b) texture (standard deviation of gray-scale values)
+
+
+# EDA
+
+```{r}
+bdiag <- read_csv("bdiag.csv") |>
+  mutate(diagnosis = as.factor(diagnosis),
+         diagnosis_binary = ifelse(diagnosis == "B", 0, 1))
+glimpse(bdiag)
+```
+
+```{r}
+set.seed(1234)
+
+train_size <- 0.80 * nrow(bdiag)
+train_ind <- sample(seq_len(nrow(bdiag)), size = train_size)
+
+train <- bdiag[train_ind, ]
+test <- bdiag[-train_ind, ]
+```
+
+
+```{r}
+ggplot(train, aes(x = texture_mean, y = radius_mean, color = diagnosis)) +
+  geom_jitter()
+```
+
+```{r}
+ggplot(train, aes(y = texture_mean, fill = diagnosis)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(train, aes(y = radius_mean, fill = diagnosis)) +
+  geom_boxplot()
+```
+
+# Simple regression model
+
+```{r}
+m_simple <- glm(diagnosis ~ radius_mean, data = train, family = "binomial")
+summary(m_simple)
+```
+
+```{r}
+ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
+  geom_jitter(aes(color = diagnosis), height = 0.10) +
+  stat_smooth(method="glm", se=FALSE, color = "gray40",
+              method.args = list(family=binomial))
+```
+
+```{r}
+confint(m_simple)
+```
+
+## Model evaluation (classification)
+
+```{r}
+library(caret)
+
+pred_test <- predict(m_simple, test, type="response")
+class_test <- ifelse(pred_test >= 0.5, "M", "B")
+
+conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis)
+print(conf_matrix)
+```
+
+```{r}
+library(pROC)
+
+pred_test <- predict(m_simple, test, type="response")
+roc_obj <- roc(test$diagnosis_binary, pred_test)
+auc <- round(auc(test$diagnosis_binary, pred_test), 4)
+
+ggroc(roc_obj) +
+    ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
+```
+
+
+# Multiple regression model
+
+```{r}
+m_multiple <- glm(diagnosis ~ radius_mean + texture_mean, data = train, family = "binomial")
+summary(m_multiple)
+```
+
+## Model evaluation (classification)
+
+```{r}
+pred_test <- predict(m_multiple, test, type="response")
+class_test <- ifelse(pred_test >= 0.5, "M", "B")
+
+conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis)
+print(conf_matrix)
+```
+
+```{r}
+library(pROC)
+
+pred_test <- predict(m_multiple, test, type="response")
+roc_obj <- roc(test$diagnosis_binary, pred_test)
+auc <- round(auc(test$diagnosis_binary, pred_test), 4)
+
+ggroc(roc_obj) +
+    ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
+```
+
+## Model significance
+
+```{r}
+null_model <- glm(diagnosis ~ 1, data = train, family = "binomial")
+anova(null_model, m_multiple, test = "Chisq")
+```
+

@@ -241,7 +241,7 @@ Both models do well on the test data.
 ![](./images/02b-pca-applications/ncomp-pls.png){fig-align=center height=60%}
 
 - Optimal number of components: 9
-- RMSEP for 7 components: 1.627
+- RMSEP for 9 components: 1.627
 
 ## Conclusions
 

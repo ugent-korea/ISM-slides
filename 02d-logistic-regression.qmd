@@ -45,21 +45,8 @@ bdiag <- read_csv("datasets/02-logistic-regression/bdiag.csv") |>
          diagnosis_binary = ifelse(diagnosis == "B", 0, 1))
 
 ```
-
-
-## Train/test split
-
-**note to self: train/test split only necessary to evaluate predictive performance?**
-
-For a fair assessment of our model, split data into:
-
-- **Train** data: used to develop the model (typically 70-80%)
-- **Test** data: used to evaluate the model (remaining 20-30%). This data is **not used during model development**.
-
-Not using all data to develop the model has disadvantages (cf. cross-validation).
-
 ```{r}
-#| echo: true
+#| include: false
 set.seed(1234)
 
 train_size <- 0.80 * nrow(bdiag)
@@ -314,6 +301,25 @@ m_multi <- glm(diagnosis ~ radius_mean + texture_mean,
                data = train, family = "binomial")
 summary(m_multi)
 ```
+
+## Interactions between variables
+
+```{r}
+#| echo: true
+m_inter <- glm(diagnosis ~ radius_mean * texture_mean,
+               data = train, family = "binomial")
+```
+
+::: {#tbl:model-coefficients}
+| Coefficient               | Estimate | SE         | z value | p value  |
+|---------------------------|---------:|-----------:|--------:|---------:|
+| (Intercept)               |  -8.3046 |     7.4554 |  -1.114 |   0.2653 |
+| radius                    |   0.2182 |     0.5288 |   0.413 |   0.6798 |
+| texture                   |  -0.4133 |     0.3855 |  -1.072 |   0.2836 |
+| radius:texture            |   0.0455 |     0.0276 |   1.647 |   0.0995 |
+:::
+
+Interaction between radius and texture is not significant
 
 
 ## Making predictions

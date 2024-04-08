@@ -157,13 +157,13 @@ Disadvantages:
 # decision boundary plot code adapted from https://www.thomaspuschel.com/post/decision_boundary_plot2/
 
 library(caret)
-model5 <- knn3(diagnosis ~ radius_mean + texture_mean, data = train, k = 5)
+model_knn_5 <- knn3(diagnosis ~ radius_mean + texture_mean, data = train, k = 5)
 
 
 library(scales)  # for hue_pal()
 
 # these will become arguments
-model <- model5
+model <- model_knn_5
 data <- train
 n <- 100
 n_classes <- 2  # derive from data?
@@ -699,9 +699,14 @@ $$
 
 ## Decision boundary (no interaction terms)
 
-Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture}$
+- Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture}$
+- Decision boundary is **straight** line
 
 ```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
+
 library(scales)  # for hue_pal()
 
 # these will become arguments
@@ -740,10 +745,13 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
 
 ## Decision boundary (with interaction terms)
 
-
-Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
+- Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
+- Decision boundary is **curved** line
 
 ```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
 
 # these will become arguments
 model <- m_inter
@@ -825,7 +833,7 @@ library(caret)
 pred_test <- predict(m_simple, test, type="response")
 class_test <- ifelse(pred_test >= 0.2, "M", "B")
 
-conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis)
+conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis, positive = "M")
 print(conf_matrix)
 
 ```
@@ -913,12 +921,26 @@ As threshold increases:
 library(pROC)
 
 pred_test <- predict(m_simple, test, type="response")
-roc_obj <- roc(test$diagnosis_binary, pred_test)
+roc_logis <- roc(test$diagnosis_binary, pred_test)
 auc <- round(auc(test$diagnosis_binary, pred_test), 4)
 
-ggroc(roc_obj) +
+ggroc(roc_logis) +
     ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
 ```
+
+## ROC: KNN versus logistic regression
+
+```{r}
+# ROC for KNN
+pred_test_knn <- predict(model_knn_5, newdata = test, type = "prob")[, 2]
+roc_knn <- roc(test$diagnosis_binary, pred_test_knn)
+
+ggroc(list(knn=roc_knn, logis=roc_logis)) +
+  scale_color_hue(labels = c(knn = "KNN", logis = "Logistic regression"), name = NULL)
+  
+
+```
+
 
 ## AUC: Area under the ROC
 

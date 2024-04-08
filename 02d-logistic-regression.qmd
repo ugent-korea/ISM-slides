@@ -695,6 +695,88 @@ $$
 \end{align*}
 :::
 
+## Decision boundary (no interaction terms)
+
+Model: $\texttt{diagnosis} \sim \texttt{radius} + \texttt{texture}$
+
+```{r}
+library(scales)  # for hue_pal()
+
+# these will become arguments
+model <- m_multi
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+
+
+y_response <- predict(model, newdata = xgrid, type = "response")
+y_class_probs <- cbind(1 - y_response, y_response)
+colnames(y_class_probs) <- c("B", "M")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+  
+
+```
+
+## Decision boundary (with interaction terms)
+
+
+Model: $\texttt{diagnosis} \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
+
+```{r}
+
+# these will become arguments
+model <- m_inter
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+
+
+y_response <- predict(model, newdata = xgrid, type = "response")
+y_class_probs <- cbind(1 - y_response, y_response)
+colnames(y_class_probs) <- c("B", "M")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+```
+
+
+
 
 ## Classification
 

@@ -115,7 +115,7 @@ p_box_texture <- ggplot(train,
 grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 1))
 ```
 
-# K-nearest neighbors
+# K-nearest neighbors classification
 
 ## Principle
 
@@ -126,6 +126,75 @@ grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 
 
 - $P(\text{red}|X = x) = \frac{3}{5} = 60\%$
 - $P(\text{green} | X = x) = \frac{2}{5} = 40\%$
+
+## Properties
+
+K-nearest neighbor (KNN) classification estimates probabilities
+$$
+  P(Y = j | X = x) = \frac{1}{|\mathcal{N}_K(x)|} \sum_{i = 1}^{|\mathcal{N}_K(x)|} I(y_i = j)
+$$
+Here:
+
+- $\mathcal{N}_K(x)$ is the set of $K$ nearest datapoints to $x$
+- $I(y_i = j)$ is equal to $1$ if $y_i = j$ and to $0$ otherwise
+
+## Advantages and disadvantages
+
+Advantages:
+
+- No "training" necessary 
+- Robust to outliers
+- Can easily deal with more than 2 labels
+
+Disadvantages:
+
+- Not very interpretable -- why was class decided?
+- Memory-intensive
+
+## Decision boundary ($K = 5$)
+
+```{r}
+# decision boundary plot code adapted from https://www.thomaspuschel.com/post/decision_boundary_plot2/
+
+library(caret)
+model5 <- knn3(diagnosis ~ radius_mean + texture_mean, data = train, k = 5)
+
+
+library(scales)  # for hue_pal()
+
+# these will become arguments
+model <- model5
+data <- train
+n <- 100
+n_classes <- 2  # derive from data?
+
+# plot code. TODO: turn into function
+xgrid <- with(data, expand_grid(
+  radius_mean = seq(0.95 * min(radius_mean), 1.05 * max(radius_mean), length.out = n),
+  texture_mean = seq(0.95 * min(texture_mean), 1.05 * max(texture_mean), length.out = n)))
+y_class_probs <- predict(model, newdata = xgrid, type = "prob")
+
+y_max_prob <- apply(y_class_probs, 1, max)
+y_max_i <- apply(y_class_probs, 1, which.max)
+
+bg_cols <- hue_pal()(n_classes)
+
+ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
+  geom_raster(aes(fill = y_max_i), alpha = y_max_prob) +
+  scale_fill_gradientn(colours=bg_cols,
+                       breaks = c(1, 2)) +
+  geom_point(data = data, aes(x = radius_mean, y = texture_mean, fill = as.numeric(diagnosis)),
+             pch = 21, color = "black", size = 2, alpha = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+  
+
+```
+
+
+
+
 
 # Logistic regression
 

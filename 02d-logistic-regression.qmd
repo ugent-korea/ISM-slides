@@ -695,9 +695,11 @@ $$
 \end{align*}
 :::
 
+# Classification
+
 ## Decision boundary (no interaction terms)
 
-Model: $\texttt{diagnosis} \sim \texttt{radius} + \texttt{texture}$
+Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture}$
 
 ```{r}
 library(scales)  # for hue_pal()
@@ -739,7 +741,7 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
 ## Decision boundary (with interaction terms)
 
 
-Model: $\texttt{diagnosis} \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
+Model: $\text{logit}(\texttt{diagnosis}) \sim \texttt{radius} + \texttt{texture} + \texttt{radius}:\texttt{texture}$
 
 ```{r}
 

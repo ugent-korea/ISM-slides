@@ -115,6 +115,20 @@ p_box_texture <- ggplot(train,
 grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 1))
 ```
 
+# K-nearest neighbors
+
+## Principle
+
+- Find $K$ nearest neighbors to $x$
+- Probability of belonging to class $i$ is proportional to number of neighbors in that class
+
+![](./images/02-logistic-regression/knearest.pdf)
+
+- $P(\text{red}|X = x) = \frac{3}{5} = 60\%$
+- $P(\text{green} | X = x) = \frac{2}{5} = 40\%$
+
+# Logistic regression
+
 ## Reminder: odds
 
 - If $\pi$ is the probability of having a malignant tumor, then the **odds** are defined as

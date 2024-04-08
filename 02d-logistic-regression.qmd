@@ -13,11 +13,18 @@ format:
 
 ---
 
+## Overview
+
+1. Introduction: what are classification problems?
+2. K-nearest neighbors classification
+3. Logistic regression
+4. Classification 
+
 # Introduction
 
 ## Classification
 
-In many regression problems, the outcome is a **categorical** variable:
+In many problems, the outcome is a **categorical** variable:
 
 - Figure out whether mutation is deleterious (yes/no), based on DNA sequencing data.
 - Predict a person's eye color (blue/brown/green)
@@ -813,7 +820,7 @@ Figure source: \url{https://en.wikipedia.org/wiki/Confusion_matrix}
 
 | Name | Definition | Value for example|
 |------|------------|-------:|
-| Accuracy | (TP + FP)/(P + N) | 0.84 |
+| Accuracy | (TP + TN)/(P + N) | 0.84 |
 | Sensitivity (recall) | TP / P | 0.93 |
 | Specificity | TN / N | 0.67 |
 | PPV (precision) | TP / PP | 0.84 |

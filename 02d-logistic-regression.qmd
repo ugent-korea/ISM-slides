@@ -449,10 +449,15 @@ $$
   \quad \text{under $H_0$}.
 $$
 - Reported in the R regression output (`summary`):
-\scriptsize
-```{r}
-summary(m_multi)$coefficients
-```
+
+::: {#tbl:model-coefficients}
+| Coefficient   | Estimate | SE | z value | p value      |
+|---------------|---------:|-----------:|--------:|-------------:|
+| (Intercept)   | -20.5169 |     2.0473 | -10.021 |   < 2e-16    |
+| radius_mean   |   1.0954 |     0.1173 |   9.341 |   < 2e-16    |
+| texture_mean |   0.2175 |     0.0403 |   5.391  |   7.01e-08   |
+:::
+
 
 
 ## Testing an association: Likelihood ratio test
@@ -499,7 +504,8 @@ Conclusion: reject $H_0$, significant evidence to decide (at 5% significance lev
 anova(m_simple, m_multi)
 ```
 
-Compare with critical values for $\chi^2_1$ to draw conclusion.
+Compare with critical values for $\chi^2_1$ to draw conclusion
+
 
 ## Likelihood ratio test in R (groups of variables)
 
@@ -528,14 +534,19 @@ Compare with critical value $\chi^2_{2; 0.95} = 5.991465$ to conclude that compl
 
 ## Confidence interval for regression parameters
 
-- Wald-type **approximate** $(1 - \alpha) \times 100\%$ confidence interval for $\beta$:
+Wald-type **approximate** $(1 - \alpha) \times 100\%$ confidence interval for $\beta$:
 $$
   \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta)
 $$
-- Example: 95% confidence interval for $\beta_{\mathtt{radius\_mean}}$:
+
+::: {.callout-note}
+## Breast cancer dataset
+95% confidence interval for $\beta_{\mathtt{radius\_mean}}$:
 $$
   1.095 \pm 1.96 \times 0.117 = [0.866, 1.324].
 $$
+::: 
+
 
 ## Confidence interval for regression parameters in R
 
@@ -544,8 +555,10 @@ $$
 confint(m_multi)
 ```
 
-- Computed via different method, slightly different from Wald  CIs (though close)
-- Preferred to use this method
+R uses the so-called profile method to compute CI:
+
+- Different from Wald method (narrower CIs, but close)
+- Preferred to use this method through R
 
 ## Confidence interval for odds ratio
 
@@ -554,12 +567,17 @@ confint(m_multi)
 $$
   \exp\left( \hat{\beta} \pm z_{1 - \alpha/2} \cdot SE(\beta) \right).
 $$
-- Example: 95% confidence interval for $\text{OR}_{\mathtt{radius\_mean}}$:
+
+::: {.callout-note}
+## Breast cancer dataset
+95% confidence interval for $\text{OR}_{\mathtt{radius\_mean}}$:
 \begin{align*}
   \exp(1.095 \pm 1.96 \times 0.117)
     & = [\exp(0.866), \exp(1.324)] \\
     & = [2.377, 3.759]
 \end{align*}
+:::
+
 
 ## Classification
 
@@ -642,6 +660,42 @@ By changing the threshold, sensitivity and specificity can be traded against one
 | B                      | 64 | **6**  |
 | M                      | 11 | 33 |
 :::
+
+
+## Sensitivity and specificity as a function of threshold
+
+```{r}
+#| fig-align: center
+#| out-width: 3in
+#| out-height: 2in
+
+pred_test <- predict(m_simple, test, type="response")
+se_sp_for_C <- function(C) {
+  class_test <- ifelse(pred_test >= C, "M", "B")
+  conf_matrix <- confusionMatrix(as.factor(class_test), test$diagnosis, positive = "M")
+  tibble(C = C,
+         se = conf_matrix[["byClass"]][["Sensitivity"]],
+         sp = conf_matrix[["byClass"]][["Specificity"]])
+}
+
+se_sp_curves <- seq(0, 1, length.out = 50) |>
+  map(se_sp_for_C) |>
+  list_rbind()
+
+se_sp_curves |> 
+  reshape2::melt(id.var = "C") |>
+  ggplot(aes(x = C, y = value, color = variable)) +
+  geom_line() +
+  xlab("C (Threshold)") +
+  ylab(NULL) +
+  scale_color_hue(labels = c(se = "Sensitivity", sp = "Specificity"), name = NULL)
+
+```
+
+As threshold increases:
+
+- Sensitivity **decreases** (less true positives)
+- Specificity **increases** (less false positives)
 
 
 ## ROC curve

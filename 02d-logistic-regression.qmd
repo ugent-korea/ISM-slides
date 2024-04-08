@@ -322,17 +322,19 @@ m_inter <- glm(diagnosis ~ radius_mean * texture_mean,
 Interaction between radius and texture is not significant
 
 
-## Making predictions
+## Making predictions (by hand)
 
 What is the probability of a tumor being malignant if the radius is 13 mm?
 
-- By hand: 
-  \begin{align*}
-    \pi(\mathtt{radius\_mean} = 13) 
-      & = \frac{1}{1 + \exp(15.8086 - 1.0662 \times 13)} \\
-      & = 0.1247716
-  \end{align*}
-- Using R:
+\begin{align*}
+ \pi(\mathtt{radius\_mean} = 13) 
+     & = \frac{1}{1 + \exp(15.8086 - 1.0662 \times 13)} \\
+     & = 0.1247716
+\end{align*}
+
+No easy formula for confidence interval on the prediction.
+
+## Making predictions (using R)
 
 ```{r}
 #| echo: true
@@ -341,6 +343,59 @@ predict(m_simple,
         type = "response")
 
 ```
+
+## Computing a confidence interval for the prediction
+
+Proceeds in three steps:
+
+1. Make a prediction on the **logit** scale (`type = "link"`)
+2. Compute CI on logit scale from SE (`se.fit = TRUE`)
+3. Map CI back to probabilities
+
+For step 3, use `plogis` to undo the logit transformation:
+$$
+  \text{plogis}(x) = \frac{1}{1 + \exp(-x)}.
+$$
+
+
+## Computing an CI: example
+
+**Step 1**: Prediction on the logit scale.
+
+```{r}
+#| echo: true
+pred <- predict(m_simple,
+                newdata = data.frame(radius_mean = 13), 
+                type = "link", se.fit = TRUE)
+```
+
+**Step 2**: CI on the logit scale.
+```{r}
+#| echo: true
+ci_logits <- c(pred$fit - 1.96 * pred$se.fit,
+               pred$fit + 1.96 * pred$se.fit)
+ci_logits
+```
+
+##
+
+**Step 3**: CI on the original scale (probabilities)
+```{r}
+#| echo: true
+ci_probs <- c(plogis(ci_logits[1]), plogis(ci_logits[2]))
+ci_probs
+```
+
+Original prediction:
+
+```{r}
+#| echo: true
+pred_probs <- plogis(pred$fit)
+pred_probs
+```
+
+**Conclusion**:  The predicted probability that a tumor of radius 13mm is malignant is 12.5% (95% CI: [8.6%, 17.7%])
+
 
 ## Making predictions
 

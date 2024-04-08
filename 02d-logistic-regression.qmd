@@ -13,7 +13,9 @@ format:
 
 ---
 
-## Logistic regression
+# Introduction
+
+## Classification
 
 In many regression problems, the outcome is a **categorical** variable:
 
@@ -22,16 +24,48 @@ In many regression problems, the outcome is a **categorical** variable:
 - Predict the outcome of surgery (success/failure) for patients with ovarian cancer, based on patient characteristics
 - Classify iris (flower) variety given dimensions of leaves
 
-## Datasets
+These problems are examples of **classification** problems.
 
-1. `bdiag` -- Wisconsin breast cancer diagnostic dataset (*Nuclear feature extraction for breast tumor diagnosis.*
-W. Street, W. Wolberg, O. Mangasarian. Electronic imaging 29 (1993))
+## Techniques for classification
+
+- **Logistic regression**
+- **K-nearest neighbors**
+- Linear discriminant analysis
+- Support vector classification (SVC)
+- Decision trees
+- ...
+
+The techniques in **bold** are discussed in this lecture.
+
+Each technique has its advantages and disadvantages.
+
+## References
+
+- *An Introduction to Statistical Learning*. Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Available for free online at https://www.statlearning.com/. 
+  - Logistic regression: sections 4.1 - 4.3
+
+## Dataset
+
+`bdiag` -- Wisconsin breast cancer diagnostic dataset (*Nuclear feature extraction for breast tumor diagnosis.* W. Street, W. Wolberg, O. Mangasarian. Electronic imaging 29 (1993))
+
+\vspace*{0.5cm}
+
+:::: {.columns}
+
+::: {.column width="60%"}
 
   - Cell nuclei from 569 tumor samples
   - Classified as malignant or benign
   - Features:
     - radius of the cell nucleus
     - texture (variance of gray-scale values)
+
+:::
+::: {.column width="40%"}
+
+![](./images/02-logistic-regression/Invasive_Ductal_Carcinoma_40x.jpg)
+:::
+::::
 
 ```{r}
 #| include: false
@@ -719,79 +753,39 @@ ggroc(roc_obj) +
     ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
 ```
 
-## Area under the ROC curve
+## AUC: Area under the ROC
 
+Single number to quantify performance of classifier:
 
+- $\text{AUC} = 1.0$: distinguishes perfectly between two classes
+- $\text{AUC} = 0.5$: classifier no better than guessing randomly
+- $0.5 < \text{AUC} < 1.0$: varying degrees of performance.
 
-# Draft outline
+## AUC: Link with concordance probability
 
+**Concordance probability**: probability that classifier will give a negative sample a lower probability than a positive sample.
 
-
-## Linear discriminant analysis (LDA)
-
-Why another classification technique?
-
-- More stable when classes are well separated
-- More stable for small $n$
-- Easy to use when more than two response classes
-
-Results often surprisingly similar. No method will outperform all the others all the time.
-
-Other classifiers:
-- $k$-nearest neighbors
-- Neural networks
-- Support vector machines (SVM)
-
-## Reminder: Bayes
-
+The AUC is equal to the concordance probability 
 $$
-  P(Y = k | X = x) = \frac{P(X = x | Y = k) P(Y = k)}{\sum P(X = x | Y = k) P(Y = k)}
+  \text{AUC} = P(\pi(x_{\text{neg}}) \le \pi(x_{\text{pos}}))
 $$
 
-Need to model:
-- Prior probabilities $\pi_k$
-- Class functions $f_k(x)$
+Important for model calibration:
 
-We get: posterior probabilities $p_k(X)$
+- Often, we don't care much about probability $\pi$ to belong to the positive class
+- But, want negative samples to have lower probability than positive samples
 
-## Gaussian assumption
+## In clinical research
 
-$f_k(x)$ are Gaussians with **same variance**
+The ROC and AUC are often reported in clinical research.
 
-Derive discriminant functions
-
-
-## Estimating the LDA parameters
-
-## Worked out example
-
-Simulated data, well separated, linear decision boundary is line orthogonal to centers (if noise is isotropic)
-
-## In R
+![](./images/02-logistic-regression/di-donna-roc.png){fig-align=center width=75%}
 
 
-## More than two predictors
+## 
 
-## Comparison logistic and linear regression
-
-
-## References
-
-- 
-
-## Note to self
-
-- Find compelling case studies
-- Make sure decision boundary is clearly introduced
-- Figure out the wald test
-
-## Case studies
-
-- Synthetic data
-- Iris, for multiple classes
-- Zuur et al (modeling ecological data): S. Solea vs salinity. 61 observations
-- VGSM: WCGS dataset (large, multiple predictors)
-- Le et al: Prostate cancer dataset. Multiple predictors, small-ish
-- Pupal color.
+![](./images/02-logistic-regression/di-donna-auc.png){fig-align=center width=75%}
+\scriptsize
+Figure and text from Di Donna *et al.*, Concordance of Radiological, Laparoscopic and Laparotomic Scoring to Predict Complete Cytoreduction in Women with Advanced Ovarian Cancer. Cancers (2023)
 
 

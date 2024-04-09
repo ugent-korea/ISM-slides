@@ -2,6 +2,7 @@
 title: "Nonlinear Modeling: Parameter Estimation"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
 format:
   beamer:
     theme: Pittsburgh
@@ -10,6 +11,7 @@ format:
     header-includes: |
       \setbeamertemplate{frametitle}[default][left]
       \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
 
 ---
 
@@ -56,7 +58,264 @@ Note that this is done numerically and often painful
 
 ## Method of steepest descent
 
-here all the slides that I made earlier
+:::: {.columns}
+
+::: {.column width="50%"}
+
+
+You want to go down the mountain into the valley as efficiently as possible. 
+
+\vspace*{0.5cm}
+
+The fog prevents you from seeing more than a few meters in every direction. 
+
+\vspace*{0.5cm}
+
+How do you proceed?
+
+\vspace*{0.5cm}
+
+\emoji{light-bulb} Walk in the direction of **steepest descent**
+
+:::
+
+::: {.column width="50%"}
+
+![](images/03a-parameter-estimation/cdf-wanderer.jpeg)
+:::
+
+::::
+
+
+<!-- ## Method of steepest descent: level sets     -->
+
+<!-- Direction of steepest descent: **Gradient** -->
+<!-- \begin{eqnarray*} -->
+<!-- s_k & = & -\nabla J(\theta^k) \\ -->
+<!-- & = & -\left[ \begin{array}{c} -->
+<!--                 \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\ -->
+<!--                 \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\ -->
+<!--                 \vdots \\ -->
+<!--                 \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k} -->
+<!--             \end{array}\right]. -->
+<!-- \end{eqnarray*} -->
+
+<!-- The gradient is perpendicular to the level set at $\theta^k$.     -->
+
+
+<!-- ## Method of steepest descent: characteristics -->
+
+<!-- \begin{exampleblock}{Algorithm} -->
+<!-- \begin{itemize} -->
+<!-- \item Compute gradient $\nabla J(\theta^k)$ at current value $\theta^k$. -->
+<!-- \item Follow negative gradient to update $\theta^k$: -->
+<!-- \[ -->
+<!--   \theta^{k+1} = \theta^k - \alpha_k \nabla J(\theta^k), -->
+<!-- \] -->
+<!-- with $\alpha_k$ the step size. -->
+<!-- \item Repeat until convergence -->
+<!-- \end{itemize} -->
+<!-- \end{exampleblock} -->
+
+
+<!-- Step size $\alpha_k$ can be  -->
+<!-- \begin{itemize} -->
+<!-- \item Fixed: $\alpha_k = \alpha$ for a small fixed $\alpha$ (e.g. $\alpha = 0.01$). -->
+<!-- \item Adaptive: determine the best $\alpha_k$ at each step. -->
+<!-- \end{itemize} -->
+
+<!-- ## Method of steepest descent: variable step size -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- source("scripts/03a-parameter-estimation//quadratic-function.R", local = knitr::knit_global()) -->
+<!-- ``` -->
+
+
+<!-- ## Method of steepest descent: disadvantages -->
+
+<!-- ```{r, echo=FALSE, fig.height=4.5} -->
+<!-- source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_global()) -->
+<!-- ``` -->
+
+<!-- - Converge can be slow (e.g for minimum hidden inside narrow "valley")  -->
+<!-- - Steepest descent path will zigzag towards minimum, making little progress at each iteration. -->
+
+<!-- ## Method of Newton: 1D case -->
+
+<!-- Find a minimum of $J(x)$ by solving $J'(x) = 0$.  -->
+
+<!-- :::::: {.cols data-latex=""} -->
+
+<!-- ::: {.col data-latex="{0.60\textwidth}"} -->
+
+<!-- - For a starting point $x_k$, look for a search direction $s_k$ such that $J'(x_k + s_k) \approx 0$. -->
+
+<!-- - Taylor: $J'(x_k + s_k)$ is approximately -->
+<!-- \[ -->
+<!--   J'(x_k + s_k) \approx J'(x_k) + s_k J''(x_k). -->
+<!-- \] -->
+
+<!-- - Search direction: -->
+<!-- \[ -->
+<!--   s_k = -\frac{J'(x_k)}{J''(x_k)} -->
+<!-- \] -->
+<!-- ::: -->
+
+<!-- ::: {.col data-latex="{0.10\textwidth}"} -->
+<!-- \  -->
+<!-- ::: -->
+
+<!-- ::: {.col data-latex="{0.40\textwidth}"} -->
+<!-- \includegraphics{images/03a-parameter-estimation/newton2.jpeg} -->
+<!-- ::: -->
+<!-- :::::: -->
+
+<!-- Uses information from **first** and **second** derivatives. -->
+
+
+<!-- ## Method of Newton: properties -->
+
+<!-- For a quadratic function $J(x) = Ax^2 + Bx + C$, Newton's method finds the minimum in **one step**. -->
+
+
+<!-- \begin{exampleblock}{Geometric interpretation} -->
+<!-- \begin{itemize} -->
+<!-- \item Approximate $J(x)$ around $x_k$ by best-fitting parabola. -->
+<!-- \item Jump to bottom of parabola to find $x_{k+1}$. -->
+<!-- \item Repeat! -->
+<!-- \end{itemize} -->
+<!-- \end{exampleblock} -->
+
+<!-- ```{r, echo=FALSE, fig.height=3} -->
+<!-- source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::knit_global()) -->
+<!-- ``` -->
+
+<!-- ## Method of Newton: higher dimensions -->
+
+<!-- - Search direction uses gradient and **Hessian** -->
+<!-- \[ -->
+<!--   s_k = -\left[ H(\theta^k)\right]^{-1} \nabla J(\theta^k) -->
+<!-- \] -->
+<!-- where -->
+<!-- \[ -->
+<!-- H(\theta^k) = \nabla^2 J(\theta^k) = -->
+<!--           \left[ \begin{array}{cccc} -->
+<!--                 \frac{\partial^2 J(\theta)}{\partial \theta_1^2} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_n} |_{\theta^k} \\ -->
+<!--                 \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_2^2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_n} |_{\theta^k} \\ -->
+<!--                 \vdots & \vdots & \ddots & \vdots \\ -->
+<!--                 \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_n^2} |_{\theta^k} -->
+<!--             \end{array}\right] -->
+<!-- \] -->
+
+<!-- ## Method of Newton: advantages and disadvantages -->
+
+<!-- - Less iterations needed -->
+<!-- - Choice direction more efficient: descent and curvature -->
+
+<!-- Disadvantages: -->
+
+<!-- - More sensitive to local extrema -->
+<!-- - First **and** second order differentials -->
+<!-- - Step size $\alpha=1$. If initial vector too far from minimum, method will often not converge to minimum. -->
+
+<!-- ## Method of Newton: convergence -->
+
+<!-- ```{r, echo=FALSE, fig.height=4.5} -->
+<!-- source("scripts/03a-parameter-estimation//rosenbrock-newton.R", local = knitr::knit_global()) -->
+<!-- ``` -->
+
+<!-- - Very fast convergence for Rosenbrock function (3 iterations) -->
+<!-- - In general: **quadratic convergence** -->
+
+<!-- ## Many advanced gradient-based methods exist -->
+
+<!-- - Broyden-Fletcher-Goldfarb-Shanno (BFGS): approximation of Hessian -->
+<!-- - Levenberg-Marquardt: very popular, combines  -->
+<!--     - Steepest descent: robust but slow -->
+<!--     - Method of Newton: fast, but often not convergent -->
+<!-- - Powell/Brent: search along set of directions -->
+
+<!-- \begin{exampleblock}{Optimization in R} -->
+<!-- \begin{itemize} -->
+<!-- \item Use \texttt{optim(par, fn)}, with \texttt{par} the initial guess and \texttt{fn} the function to optimize. -->
+<!-- \item Set \texttt{method} to the method to use: "Nelder-Mead" (the default), "BFGS", "Brent", \dots -->
+<!-- \end{itemize} -->
+
+<!-- \end{exampleblock} -->
+
+<!-- ## Simplex algorithm -->
+
+<!-- \begin{exampleblock}{Simplex algorithm (Nelder-Mead 1965)} -->
+<!-- Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...) -->
+<!-- \begin{itemize} -->
+<!-- \item Start with random simplex. -->
+<!-- \item Adjust worst corner of simplex by using different "actions". -->
+<!-- \item Repeat until convergence. -->
+<!-- \end{itemize} -->
+<!-- \end{exampleblock} -->
+
+<!-- \begin{center} -->
+<!-- \includegraphics{images/03a-parameter-estimation/nelder-mead-actions.pdf} -->
+<!-- \end{center} -->
+
+<!-- ## Simplex algorithm -->
+
+<!-- \includegraphics{images/03a-parameter-estimation/nelder-mead.pdf} -->
+
+<!-- ## Simplex algorithm: advantages and disadvantages -->
+
+<!-- - Does not require gradient, Hessian, ... information -->
+<!-- - Robust: often finds a minimum where other optimizers cannot. -->
+<!-- - Can find a rough approximation of a minimum in just a few updates ... -->
+<!-- - ... but may take a long time to converge completely. -->
+
+<!-- ## Global minimisation -->
+
+<!-- - Disadvantage local techniques: local minima can never be completely excluded  -->
+<!-- - Global techniques insensitive to this problem -->
+<!-- - Disadvantage: needs a lot of evaluations of $J$ -->
+<!-- - Types: -->
+<!--     - Gridding -->
+<!--     - Random methods -->
+
+<!-- ## Global minimisation: Gridding -->
+
+<!-- - Evaluate $J$ for a grid of parameter values $\theta$ -->
+<!-- - Select minimum among grid values -->
+
+<!-- ```{r, echo=FALSE, fig.height=6} -->
+<!-- source("scripts/03a-parameter-estimation//gridding.R", local = knitr::knit_global()) -->
+<!-- ``` -->
+
+<!-- ## Global minimisation: Gridding -->
+
+<!-- - The finer the grid -->
+<!--     - the more likely to find the optimum,  -->
+<!--     - BUT the more calculations needed -->
+<!-- - Iterative -->
+<!--     - Start with a coarse-grained grid -->
+<!--     - Refine parameter domain and repeat -->
+<!-- - Brute force, inefficient -->
+
+<!-- ## Global minimisation: Random methods -->
+
+<!-- - Evaluate $J$ for random parameter sets -->
+<!--     - Choose PDF for each parameter -->
+<!--     - Random sampling; Latin hypercube sampling -->
+<!-- - Retain -->
+<!--     - Optimal set (with $J_{min}$) -->
+<!--     - Some sets below certain critical value ($J_{crit}$) -->
+
+<!-- \begin{exampleblock}{Examples:} -->
+<!-- \begin{itemize} -->
+<!--     \item Genetic algorithms -->
+<!--     \item Shuffled complex evolution -->
+<!--     \item Ant colony optimization -->
+<!--     \item Particle swarm optimization -->
+<!--     \item Simulated annealing -->
+<!--     \item \ldots -->
+<!-- \end{itemize} -->
+<!-- \end{exampleblock} -->
 
 
 # Assessing the quality of a fit

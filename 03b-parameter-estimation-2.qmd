@@ -1,0 +1,66 @@
+---
+title: "Nonlinear Modeling: Parameter Estimation"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+
+---
+
+# Overview
+
+## What is parameter estimation?
+
+
+Determining the **optimal values for the parameters** using the experimental data, assuming that the structure of the model, or in other words, the relations between the variables and the parameters, are known.
+
+
+## Objective function
+
+## Minimizing the objective function
+
+Note that this is done numerically and often painful
+
+# Before doing parameter estimation
+
+## Preparation: train/test split
+
+## Preparation: determining parameters to estimate
+
+## Preparation: determining good initial values
+
+## Preparation: determining boundaries for parameters
+
+- Penalty function
+- Transformation
+
+## Preparation: identifiability
+
+# Minimizing the objective function
+
+## Worked out example
+
+## Nonlinear parameter estimation
+
+## Local minima
+
+## Minimization algorithms: gradient based
+
+## Minimization algorithms: gradient-free
+
+## Method of steepest descent
+
+here all the slides that I made earlier
+
+
+# Assessing the quality of a fit
+
+## Residuals
+
+

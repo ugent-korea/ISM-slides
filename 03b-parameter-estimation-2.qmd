@@ -87,58 +87,60 @@ How do you proceed?
 ::::
 
 
-<!-- ## Method of steepest descent: level sets     -->
+## Method of steepest descent: level sets
 
-<!-- Direction of steepest descent: **Gradient** -->
-<!-- \begin{eqnarray*} -->
-<!-- s_k & = & -\nabla J(\theta^k) \\ -->
-<!-- & = & -\left[ \begin{array}{c} -->
-<!--                 \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\ -->
-<!--                 \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\ -->
-<!--                 \vdots \\ -->
-<!--                 \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k} -->
-<!--             \end{array}\right]. -->
-<!-- \end{eqnarray*} -->
+*Why is this called "level sets"*
 
-<!-- The gradient is perpendicular to the level set at $\theta^k$.     -->
+Direction of steepest descent: **Gradient**
+\begin{eqnarray*}
+s_k & = & -\nabla J(\theta^k) \\
+& = & -\left[ \begin{array}{c}
+                \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
+                \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
+                \vdots \\
+                \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
+            \end{array}\right].
+\end{eqnarray*}
 
-
-<!-- ## Method of steepest descent: characteristics -->
-
-<!-- \begin{exampleblock}{Algorithm} -->
-<!-- \begin{itemize} -->
-<!-- \item Compute gradient $\nabla J(\theta^k)$ at current value $\theta^k$. -->
-<!-- \item Follow negative gradient to update $\theta^k$: -->
-<!-- \[ -->
-<!--   \theta^{k+1} = \theta^k - \alpha_k \nabla J(\theta^k), -->
-<!-- \] -->
-<!-- with $\alpha_k$ the step size. -->
-<!-- \item Repeat until convergence -->
-<!-- \end{itemize} -->
-<!-- \end{exampleblock} -->
+The gradient is perpendicular to the level set at $\theta^k$.
 
 
-<!-- Step size $\alpha_k$ can be  -->
-<!-- \begin{itemize} -->
-<!-- \item Fixed: $\alpha_k = \alpha$ for a small fixed $\alpha$ (e.g. $\alpha = 0.01$). -->
-<!-- \item Adaptive: determine the best $\alpha_k$ at each step. -->
-<!-- \end{itemize} -->
+## Method of steepest descent: Algorithm
 
-<!-- ## Method of steepest descent: variable step size -->
+*Split algorithm and step size over 2 slides*
 
-<!-- ```{r, echo=FALSE} -->
-<!-- source("scripts/03a-parameter-estimation//quadratic-function.R", local = knitr::knit_global()) -->
-<!-- ``` -->
+Algorithm:
+
+- Compute gradient $\nabla J(\theta^k)$ at current value $\theta^k$.
+- Follow negative gradient to update $\theta^k$:
+$$
+  \theta^{k+1} = \theta^k - \alpha_k \nabla J(\theta^k),
+$$
+with $\alpha_k$ the step size.
+- Repeat until convergence
 
 
-<!-- ## Method of steepest descent: disadvantages -->
+Step size $\alpha_k$ can be
 
-<!-- ```{r, echo=FALSE, fig.height=4.5} -->
-<!-- source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_global()) -->
-<!-- ``` -->
+- Fixed: $\alpha_k = \alpha$ for a small fixed $\alpha$ (e.g. $\alpha = 0.01$).
+- Adaptive: determine the best $\alpha_k$ at each step.
 
-<!-- - Converge can be slow (e.g for minimum hidden inside narrow "valley")  -->
-<!-- - Steepest descent path will zigzag towards minimum, making little progress at each iteration. -->
+
+## Method of steepest descent: variable step size
+
+```{r, echo=FALSE}
+source("scripts/03a-parameter-estimation//quadratic-function.R", local = knitr::knit_global())
+```
+
+
+## Method of steepest descent: disadvantages
+
+```{r, echo=FALSE, fig.height=4.5}
+source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_global())
+```
+
+- Convergence can be slow (e.g for minimum hidden inside narrow "valley")
+- Steepest descent path will zigzag towards minimum, making little progress at each iteration.
 
 <!-- ## Method of Newton: 1D case -->
 

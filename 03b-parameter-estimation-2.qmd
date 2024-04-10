@@ -149,29 +149,87 @@ q <- ggplot(plot_data_alphas, aes(x = S, y = y, color = alpha, group = alpha)) +
 grid.arrange(p, q, ncol = 2)
 ```
 
+## Goals
+
+- **Parameter estimation**: Find values $\hat{\alpha}$ and $\hat{k}$ that best fit data.
+- **Uncertainty quantification**: Provide a measure of uncertainty for parameter values (confidence interval)
+- **Sensitivity analysis**: Understand how model changes if parameters are varied
+
+# Parameter estimation
 
 
 ## What is parameter estimation?
 
-Determining the **optimal values for the parameters** using the experimental data, assuming that the structure of the model, or in other words, the relations between the variables and the parameters, are known.
+Determining the **optimal values for the parameters** using the experimental data, assuming that the model is known.
+
+Example: For *M. merluccius*, we will see that $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+bh_fit <- nls(
+  num.fish ~ alpha * spawn.biomass / (1 + spawn.biomass / k),
+  data = M.merluccius,
+  start = list(alpha = 6, k = 20))
+
+ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point() +
+  geom_function(
+    fun = \(S) predict(bh_fit, newdata = data.frame(spawn.biomass = S)), 
+    xlim = c(0, 80))
+```
 
 ## Specifying a model
 
+Assume that we are **given** a nonlinear model
+$$
+  y = f(x; \theta) + \epsilon
+$$
+where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ is normally distributed noise.
 
+- $x$: inputs, predictors, features (e.g. `spawn.biomass`)
+- $y$: outcome, depent variable (e.g. `num.fish`)
+- $\theta$: (vector of) parameters (e.g. $\theta = (\alpha, k)$)
 
-## Objective function
+We will not talk about **building** a model (see one of your many other courses)
 
+## The objective function
 
+Given a dataset $(x_1, y_1), \ldots, (x_N, y_N)$, we want to quantify how well the model fits the data.
 
-Sum-squared of residuals measures how far predictions $f(x_i; \theta)$ are removed from actual values $y_i$:
+**Objective function**: measures difference (squared) between predictions $f(x_i; \theta)$ and actual values $y_i$:
 $$
   J(\theta) = \sum_{i=1}^N (y_i - f(x_i; \theta))^2
 $$
 
-
 ## Minimizing the objective function
 
-Note that this is done numerically and often painful
+**Goal:** Find the parameter value(s) $\hat{\theta}$ so that $J(\theta)$ is minimal:
+$$
+  \hat{\theta} = \text{argmin}_\theta\, J(\theta).
+$$
+Problems:
+
+- Depending on $f(x; \theta)$ this can be very difficult
+- There may be multiple (local) minima
+- Almost always needs to be done numerically
+
+## Example: linear regression
+
+In linear regression, $f(x; \theta) = \alpha + \beta x$, so that
+$$
+  J(\alpha, \beta) = \sum_{i = 1}^N (y_i - \alpha - \beta x_i)^2.
+$$
+Minimizing $J(\alpha, \beta)$ can be done by setting the partial derivatives equal to zero and gives the usual formulas:
+$$
+  \hat{\beta} = R \frac{s_y}{s_x}, \quad \hat{\alpha} = \bar{y} - \hat{\beta} \bar{x}.
+$$
+
+In general, **no closed-form formula exists** for the optimal parameters.
+
 
 # Before doing parameter estimation
 

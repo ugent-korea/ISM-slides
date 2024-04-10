@@ -738,16 +738,13 @@ Examples:
 
 ## Simplex algorithm (Nelder-Mead 1965)
 
-
 Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...)
 
 - Start with random simplex.
 - Adjust worst corner of simplex by using different "actions".
 - Repeat until convergence.
 
-
 ![](images/03a-parameter-estimation/nelder-mead-actions.pdf){fig-align=center}
-
 
 ## Simplex algorithm
 
@@ -757,28 +754,36 @@ Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...)
 
 - Does not require gradient, Hessian, ... information
 - Robust: often finds a minimum where other optimizers cannot.
-
-- Can find a rough approximation of a minimum in just a few updates ...
+- Can find a rough approximation of a minimum in just a few updates...
 - ... but may take a long time to converge completely.
 
-## Global minimisation
+## Example: M. mercullius
+
+```{r, echo=TRUE}
+fit <- optim(theta0, J, 
+             method = "Nelder-Mead",
+             x = M.merluccius$spawn.biomass,
+             y = M.merluccius$num.fish)
+fit$par
+fit$count
+```
+Compared to BFGS:
+
+- Almost same parameter values
+- More function evaluations, no gradient evaluations
+
+## Global minimization
 
 - Disadvantage local techniques: local minima can never be completely excluded
-
 - Global techniques insensitive to this problem
-
 - Disadvantage: needs a lot of evaluations of $J$
-
 - Types:
-
     - Gridding
-
     - Random methods
 
 ## Global minimisation: Gridding
 
 - Evaluate $J$ for a grid of parameter values $\theta$
-
 - Select minimum among grid values
 
 ```{r, echo=FALSE, fig.height=6}
@@ -839,6 +844,37 @@ If the model is well-fit, the residuals $e_i = y_i - f(x_i; \theta)$ should be
 - Normally distributed with mean 0 and constant variance.
 
 Can be checked with QQ-plot of residuals
+
+## Example: M. mercullius
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+resids <- with(M.merluccius, {
+  num.fish - beverton_holt(spawn.biomass, fit$par)
+})
+
+easy_qqplot <- function(data) {
+  ggplot(tibble(sample = data), aes(sample = sample)) +
+    stat_qq_line(color = "gray") + stat_qq() + 
+    xlab(NULL) +
+    ylab(NULL)
+}
+
+p <- ggplot(tibble(x = 1:length(resids), y = resids), aes(x, y)) +
+  geom_point() +
+  xlab(NULL) +
+  ylab("Residual")
+
+q <- easy_qqplot(resids)
+
+grid.arrange(p, q, ncol = 2)
+```
+
 
 # Correlations in time series (Optional)
 
@@ -1089,15 +1125,6 @@ grid.arrange(p, q, ncol = 2)
 #| fig-width: 7
 #| fig-height: 3
 #| fig-align: center
-
-library(gridExtra)
-
-easy_qqplot <- function(data) {
-  ggplot(tibble(sample = data), aes(sample = sample)) +
-    stat_qq_line(color = "gray") + stat_qq() + 
-    xlab(NULL) +
-    ylab(NULL)
-}
 
 p <- easy_qqplot(resids) +
   ggtitle("Original model")

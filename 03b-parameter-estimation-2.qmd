@@ -477,9 +477,6 @@ Examples:
 - Levenberg-Marquardt
 
 
-## Local minima
-
-
 ## Method of steepest descent
 
 ::: columns
@@ -504,21 +501,43 @@ How do you proceed?
 :::
 :::
 
-## Method of steepest descent: level sets
+## Direction of steepest descent
 
-*Why is this called "level sets"*
+:::: {.columns}
 
-Direction of steepest descent: **Gradient** \begin{eqnarray*}
+::: {.column width="60%"}
+
+\vspace*{0.5cm}
+
+Gradient:
+
+- Perpendicular to level sets of $J$
+- Direction of steepest ascent
+
+:::
+::: {.column width="40%"}
+![](./images/03a-parameter-estimation/gradient.pdf){fig-align=center width=50%}
+:::
+
+::::
+
+\vspace*{0.5cm}
+
+To **decrease** $J(\theta)$, take a small step in direction of negative gradient:
+\begin{eqnarray*}
 s_k & = & -\nabla J(\theta^k) \\
-& = & -\left[ \begin{array}{c}
-                \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
-                \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
-                \vdots \\
-                \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
-            \end{array}\right].
+    & = & -\left[ 
+  \begin{array}{c}
+    \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
+    \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
+    \vdots \\
+    \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
+  \end{array}\right].
 \end{eqnarray*}
 
-The gradient is perpendicular to the level set at $\theta^k$.
+
+
+
 
 ## Method of steepest descent: Algorithm
 

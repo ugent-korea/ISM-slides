@@ -19,6 +19,7 @@ format:
 ```{r, include=FALSE}
 library(tidyverse)
 library(gridExtra)
+library(latex2exp)
 
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
@@ -371,14 +372,12 @@ is minimized.
   3. Repeat if $\hat{\theta}$ not good enough
 
 
-## Very simple algorithm: hill descender
+## Very minimization algorithm: hill descender
 
 Objective function: $J(\theta) = (\theta - 1)^2$
 
 :::: {.columns}
-
 ::: {.column width="50%"}
-
 
 \footnotesize
 ```{r, echo=TRUE, eval=FALSE}
@@ -446,19 +445,31 @@ ggplot(trajectory) +
 :::
 ::::
 
+# Minimization algorithms
 
+## Gradient-based minimization algorithms
 
+Two main classes of minimization algorithms:
 
+1. **Gradient-based methods**
+2. Gradient-free methods
 
-## Worked out example
+Gradient-based methods:
 
-## Nonlinear parameter estimation
+- Are typically faster
+- Require the objective function to be differentiable
+- Can fail to converge 
+
+Examples:
+
+- Steepest descent
+- Newton
+- Gauss-Newton
+- Levenberg-Marquardt
+
 
 ## Local minima
 
-## Minimization algorithms: gradient based
-
-## Minimization algorithms: gradient-free
 
 ## Method of steepest descent
 
@@ -624,6 +635,25 @@ Use `optim(par, fn)`, where
 - `method`: "Nelder-Mead" (default), "BFGS", "Brent", ...
 :::
 
+
+## Gradient-free minimization algorithms
+
+Two main classes of minimization algorithms:
+
+1. Gradient-based methods
+2. **Gradient-free methods**
+
+Gradient-free methods:
+
+- Are typically slower
+- Can work even if the objective function is not differentiable
+- Are more robust
+
+Examples:
+
+- Direction set (Powell, Brent)
+- Simplex
+- Global minimisation
 
 ## Simplex algorithm (Nelder-Mead 1965)
 

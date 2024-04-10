@@ -246,11 +246,16 @@ Consider selecting subset of parameters to estimate:
 
 ## Before parameter estimation: select initial values
 
-Numerical optimization algorithm requires a good **starting guess** for the parameters.
+Numerical optimization algorithm requires a good **starting guess** for the parameters. When choice is bad:
+
+- Algorithm will converge slowly (take many iterations)
+- Optimization will fail altogether
+
+How to find initial guess:
 
 - Determine from model properties (growth rate, asymptotes)
 - Use (known) experimental values
-- Use trial and error
+- Use trial and error (select from grid of values)
 
 Doesn't need to be overly precise, a rough estimate is usually sufficient. 
 
@@ -289,12 +294,42 @@ M.merluccius |>
 Later, we will see that the initial guesses are close to the optimal parameters $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
 
 
-
-
 ## Preparation: determining boundaries for parameters
 
--   Penalty function
--   Transformation
+Some parameters come with bounds, for example:
+
+- Kinetic rate: $k > 0$
+- Probability: $0 \le p \le 1$
+
+Two ways of accounting for parameter bounds:
+
+- Adding penalty terms to the objective function
+- Transforming the parameter so it becomes unconstrained
+
+## Adding penalty terms
+
+Suppose we want $\alpha \le \theta \le \beta$. Add **penalty term** to objective function:
+$$
+  J_\text{constrained}(\theta) = J_\text{unconstrained}(\theta) + J_\text{penalty}(\theta)
+$$
+where $J_\text{penalty}(\theta)$ is
+
+- Roughly zero between $\alpha$ and $\beta$
+- Very large for $\theta < \alpha$ or $\theta > \beta$.
+
+![](./images/03a-parameter-estimation/penalty.pdf){fig-align=center height=75%}
+
+## Transformation parameters
+
+Transform constrained problem into equivalent **unconstrained** problem.
+
+Some examples:
+
+- If $\theta > 0$: write $\theta = \exp \varphi$ or $\theta = \varphi^2$
+- If $-1 < \theta < 1$: write $\theta = \tanh \varphi$
+
+In either case, $\varphi$ is unconstrained (can range from $-\infty$ to $+\infty$). Now substitute this transformation into the objective function, and optimize in terms of $\varphi$.
+
 
 ## Preparation: identifiability
 

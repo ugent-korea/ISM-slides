@@ -230,14 +230,66 @@ $$
 
 In general, **no closed-form formula exists** for the optimal parameters.
 
+## Before parameter estimation: select parameters
 
-# Before doing parameter estimation
+More parameters = more work and less certainty:
 
-## Preparation: train/test split
+- Solver may not converge
+- Wider uncertainty estimates for parameters and outputs
+- Correlations between parameters can make it impossible to find parameters
 
-## Preparation: determining parameters to estimate
+Consider selecting subset of parameters to estimate:
 
-## Preparation: determining good initial values
+- Fix parameters at experimental values
+- Omit least sensitive parameters
+
+
+## Before parameter estimation: select initial values
+
+Numerical optimization algorithm requires a good **starting guess** for the parameters.
+
+- Determine from model properties (growth rate, asymptotes)
+- Use (known) experimental values
+- Use trial and error
+
+Doesn't need to be overly precise, a rough estimate is usually sufficient. 
+
+## Initial values for M. merluccius
+
+- Slope: $\alpha_0 = \frac{75}{15} = 6$
+- Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 20$.
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+measure <- arrow(angle = 90, ends = "both", length = unit(0.1, "in"))
+
+M.merluccius |>
+  ggplot(aes(spawn.biomass, num.fish)) +
+  annotate("segment",
+           x = 15, xend = 30, y = 30, yend = 30, 
+           color = "red", linewidth = 1, arrow = measure) +
+  annotate("text", x = 22.5, y = 35, size = 5, color = "red", label = "15") +
+  annotate("segment",
+           x = 32, xend = 32, y = 30, yend = 105, 
+           color = "red", linewidth = 1, arrow = measure) +
+  annotate("text", x = 34, y = 75, size = 5, color = "red", label = "75") +
+  geom_hline(yintercept = 120, linewidth = 1, linetype = "dashed",
+             color = "blue") +
+  annotate("text", x = 25, y = 125, size = 5, color = "blue",
+           label = "min.fish = 120") +
+  geom_point() 
+
+```
+
+Later, we will see that the initial guesses are close to the optimal parameters $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
+
+
+
 
 ## Preparation: determining boundaries for parameters
 

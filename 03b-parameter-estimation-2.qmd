@@ -330,8 +330,29 @@ Some examples:
 
 In either case, $\varphi$ is unconstrained (can range from $-\infty$ to $+\infty$). Now substitute this transformation into the objective function, and optimize in terms of $\varphi$.
 
+## Caveat: identifiability
 
-## Preparation: identifiability
+In some cases, parameters cannot be determined uniquely. For example, exponential model with parameters $A, B, C$:
+$$
+  y = A \exp(Bx + C) = (A e^C) e^{Bx}
+$$
+Only $B$ and the combination $Ae^C$ can be determined.
+
+- **Structural** identifiability: all parameters can be uniquely determined, given perfect data.
+- **Practical** identifiability: same, but from finite, noisy data.
+
+## Dealing with non-identifiable parameters
+
+Minimization of objective function will **fail** if some parameters are not identifiable. Workarounds:
+
+- Add penalty term to $J$ to privilege certain parameter values
+- Rewrite $J$ so all parameters are identifiable
+
+Example: put $k = A e^C$ and write exponential model as
+$$
+  y = k \exp(Bx).
+$$
+
 
 # Minimizing the objective function
 

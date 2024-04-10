@@ -24,6 +24,18 @@ library(latex2exp)
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
 
+## Outline
+
+\tableofcontents
+
+## Learning outcomes
+
+You should be able to
+
+- Determine the parameters of a nonlinear model via minimization (using R)
+- Understand the principles behind various minimization algorithms, as well as their advantages and disadvantages
+- Be able to assess the fit of a model
+
 # Example: building a stock-recruitment model
 
 ## M. merluccius: stock-recruitment model
@@ -157,7 +169,6 @@ grid.arrange(p, q, ncol = 2)
 - **Sensitivity analysis**: Understand how model changes if parameters are varied
 
 # Parameter estimation
-
 
 ## What is parameter estimation?
 
@@ -294,8 +305,7 @@ M.merluccius |>
 
 Later, we will see that the initial guesses are close to the optimal parameters $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
 
-
-## Preparation: determining boundaries for parameters
+## Preparation: Determining boundaries for parameters
 
 Some parameters come with bounds, for example:
 
@@ -331,7 +341,7 @@ Some examples:
 
 In either case, $\varphi$ is unconstrained (can range from $-\infty$ to $+\infty$). Now substitute this transformation into the objective function, and optimize in terms of $\varphi$.
 
-## Caveat: identifiability
+## Preparation: Dealing with non-identifiability
 
 In some cases, parameters cannot be determined uniquely. For example, exponential model with parameters $A, B, C$:
 $$
@@ -342,7 +352,7 @@ Only $B$ and the combination $Ae^C$ can be determined.
 - **Structural** identifiability: all parameters can be uniquely determined, given perfect data.
 - **Practical** identifiability: same, but from finite, noisy data.
 
-## Dealing with non-identifiable parameters
+## Preparation: Dealing with non-identifiability
 
 Minimization of objective function will **fail** if some parameters are not identifiable. Workarounds:
 
@@ -371,10 +381,7 @@ is minimized.
   2. Slightly change $\hat{\theta}$ and compute $J(\hat{\theta})$ 
   3. Repeat if $\hat{\theta}$ not good enough
 
-
-## Very minimization algorithm: hill descender
-
-Objective function: $J(\theta) = (\theta - 1)^2$
+## Very simple minimization algorithm: hill descender
 
 :::: {.columns}
 ::: {.column width="50%"}
@@ -875,6 +882,7 @@ q <- easy_qqplot(resids)
 grid.arrange(p, q, ncol = 2)
 ```
 
+No pattern in residuals + normality: model appears well-fit.
 
 # Correlations in time series (Optional)
 

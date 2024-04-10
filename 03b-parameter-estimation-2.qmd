@@ -12,22 +12,162 @@ format:
       \setbeamertemplate{frametitle}[default][left]
       \setbeamertemplate{footline}[frame number]
       \usepackage{emoji}
+      \usepackage{luatexko}
+
 ---
 
 ```{r, include=FALSE}
 library(tidyverse)
+library(gridExtra)
 
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
 
+# Example: building a stock-recruitment model
 
-# Overview
+## M. merluccius: stock-recruitment model
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+\vspace*{0.5cm}
+
+European hake (*M. merluccius*)
+
+- Deep water fish
+- Important for European fisheries
+- Similar to 명태 in Korea
+
+:::
+::: {.column width="50%"}
+![](./images/03a-parameter-estimation/2560px-Fish_-_Mercato_Orientale_-_Genoa,_Italy_-_DSC02485.jpeg)
+
+:::
+:::
+
+::: {.callout-note}
+
+## Stock-recruitment model
+
+Model of **number of adult fish** (recruitment) as a function of **spawning biomass** (fish that can reproduce).
+:::
+
+## M.merluccius: Dataset
+
+15 observations, 3 features:
+
+- `spawn.biomass`: spawning (stock) biomass
+- `num.fish`: number of fish (recruitment)
+- `year`: not used
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+load("datasets/03-parameter-estimation/M.merluccius.rda")
+
+M.merluccius |>
+  ggplot(aes(spawn.biomass, num.fish)) +
+  geom_point()
+
+```
+
+
+## M. Merluccius: Beverton-Holt model
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+\vspace*{0.5cm}
+
+Beverton-Holt model (1956):
+$$
+  f(S; \alpha, k) = \frac{\alpha S}{1 + S/k}
+$$
+:::
+::: {.column width="50%"}
+![](./images/03a-parameter-estimation/beverton-holt.pdf){fig-align=center width=75%}
+:::
+::::
+
+
+Parameters:
+
+- $\alpha$: initial growth rate (for $S = 0$)
+  $$
+    \alpha = f'(0; \alpha, k)
+  $$
+- $k$: related to behavior for large $S$
+  $$
+    k \alpha = \lim_{S \to +\infty} f(S; \alpha, k)
+  $$
+
+
+## Beverton-Holt: Effect of varying $\alpha$ and $k$
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+beverton_holt <- function(S, theta) {
+  alpha <- theta[[1]]
+  k <- theta[[2]]
+  y <- alpha * S / (1 + S / k)
+  tibble(S = S, alpha = alpha, k = k, y = y)
+}
+
+alpha <- 2.0
+ks <- c(0.5, 1.0, 2.0)
+alphas <- c(1.0, 2.0, 3.0)
+
+S <- seq(0, 10, length.out = 100)
+plot_data_ks <- map(ks, \(k) beverton_holt(S, c(alpha, k))) |>
+  list_rbind() |>
+  mutate(k = as.factor(k))
+
+p <- ggplot(plot_data_ks, aes(x = S, y = y, color = k, group = k)) +
+  geom_line() +
+  ggtitle(paste0("Alpha = ", alpha, ", varying k"))
+
+k <- 1.0
+plot_data_alphas  <- map(alphas, \(alpha) beverton_holt(S, c(alpha, k))) |>
+  list_rbind() |>
+  mutate(alpha = as.factor(alpha))
+
+q <- ggplot(plot_data_alphas, aes(x = S, y = y, color = alpha, group = alpha)) +
+  geom_line() +
+  ggtitle(paste0("Varying alpha (k = ", k, ")"))
+
+grid.arrange(p, q, ncol = 2)
+```
+
+
 
 ## What is parameter estimation?
 
 Determining the **optimal values for the parameters** using the experimental data, assuming that the structure of the model, or in other words, the relations between the variables and the parameters, are known.
 
+## Specifying a model
+
+
+
 ## Objective function
+
+
+
+Sum-squared of residuals measures how far predictions $f(x_i; \theta)$ are removed from actual values $y_i$:
+$$
+  J(\theta) = \sum_{i=1}^N (y_i - f(x_i; \theta))^2
+$$
+
 
 ## Minimizing the objective function
 
@@ -322,11 +462,12 @@ $$
 $$
 where $\epsilon$ is normally distributed.
 
-If the model is well-fit, the residuals $e_i = y_i - f(x_i; \theta)$ should not show any systematic patterns.
+If the model is well-fit, the residuals $e_i = y_i - f(x_i; \theta)$ should be 
 
-- Independence
-- Mean 0
-- Constant variance
+- Independent
+- Normally distributed with mean 0 and constant variance.
+
+Can be checked with QQ-plot of residuals
 
 # Correlations in time series (Optional)
 
@@ -366,7 +507,7 @@ where $r_\varepsilon(0)=\sum_{k=1}^{N} \frac{\varepsilon^2(t_k)}{N}$
 
 If data is uncorrelated, then autocorrelation is normally distributed:
 $$
-  r_\varepsilon(\tau) \sim N\left(0, \frac{1}{\sqrt{N}}\right).
+  r_\varepsilon(\tau) \sim \mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right).
 $$
 Can be used to detect "abnormally high" correlations: 
 
@@ -397,9 +538,9 @@ Source: Korea Energy Economics Institute.
 
 ## How to deal with correlations in residuals?
 
-- **Make model bigger** (next slides)
+- **Make model bigger**: next slides
 - Subsample data to reduce strength of correlations: not recommended
-- Use modelling technique that does not need uncorrelated residuals (e.g. autoregressive models)
+- Use modelling technique that does not need uncorrelated residuals (e.g. autoregressive models): outside scope of this course
 
 ## Example: Calcium flows (simulated data)
 

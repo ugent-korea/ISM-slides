@@ -1,0 +1,1144 @@
+---
+title: "Nonlinear Modeling: Parameter Estimation"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(latex2exp)
+
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+```
+
+## Outline
+
+\tableofcontents
+
+## Learning outcomes
+
+You should be able to
+
+- Determine the parameters of a nonlinear model via minimization (using R)
+- Understand the principles behind various minimization algorithms, as well as their advantages and disadvantages
+- Be able to assess the fit of a model
+
+# Example: building a stock-recruitment model
+
+## M. merluccius: stock-recruitment model
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+\vspace*{0.5cm}
+
+European hake (*M. merluccius*)
+
+- Deep water fish
+- Important for European fisheries
+- Similar to 명태 in Korea
+
+:::
+::: {.column width="50%"}
+![](./images/03a-parameter-estimation/2560px-Fish_-_Mercato_Orientale_-_Genoa,_Italy_-_DSC02485.jpeg)
+
+:::
+:::
+
+::: {.callout-note}
+
+## Stock-recruitment model
+
+Model of **number of adult fish** (recruitment) as a function of **spawning biomass** (fish that can reproduce).
+:::
+
+## M.merluccius: Dataset
+
+15 observations, 3 features:
+
+- `spawn.biomass`: spawning (stock) biomass
+- `num.fish`: number of fish (recruitment)
+- `year`: not used
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+load("datasets/03-parameter-estimation/M.merluccius.rda")
+
+M.merluccius |>
+  ggplot(aes(spawn.biomass, num.fish)) +
+  geom_point()
+
+```
+
+
+## M. merluccius: Beverton-Holt model
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+\vspace*{0.5cm}
+
+Beverton-Holt model (1956):
+$$
+  f(S; \alpha, k) = \frac{\alpha S}{1 + S/k}
+$$
+:::
+::: {.column width="50%"}
+![](./images/03a-parameter-estimation/beverton-holt.pdf){fig-align=center width=75%}
+:::
+::::
+
+
+Parameters:
+
+- $\alpha$: initial growth rate (for $S = 0$)
+  $$
+    \alpha = f'(0; \alpha, k)
+  $$
+- $k$: related to behavior for large $S$
+  $$
+    k \alpha = \lim_{S \to +\infty} f(S; \alpha, k)
+  $$
+
+
+## Beverton-Holt: Effect of varying $\alpha$ and $k$
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+beverton_holt <- function(S, theta) {
+  alpha <- theta[[1]]
+  k <- theta[[2]]
+  y <- alpha * S / (1 + S / k)
+  tibble(S = S, alpha = alpha, k = k, y = y)
+}
+
+alpha <- 2.0
+ks <- c(0.5, 1.0, 2.0)
+alphas <- c(1.0, 2.0, 3.0)
+
+S <- seq(0, 10, length.out = 100)
+plot_data_ks <- map(ks, \(k) beverton_holt(S, c(alpha, k))) |>
+  list_rbind() |>
+  mutate(k = as.factor(k))
+
+p <- ggplot(plot_data_ks, aes(x = S, y = y, color = k, group = k)) +
+  geom_line() +
+  ggtitle(paste0("Alpha = ", alpha, ", varying k"))
+
+k <- 1.0
+plot_data_alphas  <- map(alphas, \(alpha) beverton_holt(S, c(alpha, k))) |>
+  list_rbind() |>
+  mutate(alpha = as.factor(alpha))
+
+q <- ggplot(plot_data_alphas, aes(x = S, y = y, color = alpha, group = alpha)) +
+  geom_line() +
+  ggtitle(paste0("Varying alpha (k = ", k, ")"))
+
+grid.arrange(p, q, ncol = 2)
+```
+
+## Goals
+
+- **Parameter estimation**: Find values $\hat{\alpha}$ and $\hat{k}$ that best fit data.
+- **Uncertainty quantification**: Provide a measure of uncertainty for parameter values (confidence interval)
+- **Sensitivity analysis**: Understand how model changes if parameters are varied
+
+# Parameter estimation
+
+## What is parameter estimation?
+
+Determining the **optimal values for the parameters** using the experimental data, assuming that the model is known.
+
+Example: For *M. merluccius*, we will see that $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+bh_fit <- nls(
+  num.fish ~ alpha * spawn.biomass / (1 + spawn.biomass / k),
+  data = M.merluccius,
+  start = list(alpha = 6, k = 20))
+
+ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point() +
+  geom_function(
+    fun = \(S) predict(bh_fit, newdata = data.frame(spawn.biomass = S)), 
+    xlim = c(0, 80))
+```
+
+## Specifying a model
+
+Assume that we are **given** a nonlinear model
+$$
+  y = f(x; \theta) + \epsilon
+$$
+where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ is normally distributed noise.
+
+- $x$: inputs, predictors, features (e.g. `spawn.biomass`)
+- $y$: outcome, depent variable (e.g. `num.fish`)
+- $\theta$: (vector of) parameters (e.g. $\theta = (\alpha, k)$)
+
+We will not talk about **building** a model (see one of your many other courses)
+
+## The objective function
+
+Given a dataset $(x_1, y_1), \ldots, (x_N, y_N)$, we want to quantify how well the model fits the data.
+
+**Objective function**: measures difference (squared) between predictions $f(x_i; \theta)$ and actual values $y_i$:
+$$
+  J(\theta) = \sum_{i=1}^N (y_i - f(x_i; \theta))^2
+$$
+
+## Minimizing the objective function
+
+**Goal:** Find the parameter value(s) $\hat{\theta}$ so that $J(\theta)$ is minimal:
+$$
+  \hat{\theta} = \text{argmin}_\theta\, J(\theta).
+$$
+Problems:
+
+- Depending on $f(x; \theta)$ this can be very difficult
+- There may be multiple (local) minima
+- Almost always needs to be done numerically
+
+## Example: linear regression
+
+In linear regression, $f(x; \theta) = \alpha + \beta x$, so that
+$$
+  J(\alpha, \beta) = \sum_{i = 1}^N (y_i - \alpha - \beta x_i)^2.
+$$
+Minimizing $J(\alpha, \beta)$ can be done by setting the partial derivatives equal to zero and gives the usual formulas:
+$$
+  \hat{\beta} = R \frac{s_y}{s_x}, \quad \hat{\alpha} = \bar{y} - \hat{\beta} \bar{x}.
+$$
+
+In general, **no closed-form formula exists** for the optimal parameters.
+
+## Before parameter estimation: select parameters
+
+More parameters = more work and less certainty:
+
+- Solver may not converge
+- Wider uncertainty estimates for parameters and outputs
+- Correlations between parameters can make it impossible to find parameters
+
+Consider selecting subset of parameters to estimate:
+
+- Fix parameters at experimental values
+- Omit least sensitive parameters
+
+
+## Before parameter estimation: select initial values
+
+Numerical optimization algorithm requires a good **starting guess** for the parameters. When choice is bad:
+
+- Algorithm will converge slowly (take many iterations)
+- Optimization will fail altogether
+
+How to find initial guess:
+
+- Determine from model properties (growth rate, asymptotes)
+- Use (known) experimental values
+- Use trial and error (select from grid of values)
+
+Doesn't need to be overly precise, a rough estimate is usually sufficient. 
+
+## Initial values for M. merluccius
+
+- Slope: $\alpha_0 = \frac{75}{15} = 6$
+- Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 20$.
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+measure <- arrow(angle = 90, ends = "both", length = unit(0.1, "in"))
+
+M.merluccius |>
+  ggplot(aes(spawn.biomass, num.fish)) +
+  annotate("segment",
+           x = 15, xend = 30, y = 30, yend = 30, 
+           color = "red", linewidth = 1, arrow = measure) +
+  annotate("text", x = 22.5, y = 35, size = 5, color = "red", label = "15") +
+  annotate("segment",
+           x = 32, xend = 32, y = 30, yend = 105, 
+           color = "red", linewidth = 1, arrow = measure) +
+  annotate("text", x = 34, y = 75, size = 5, color = "red", label = "75") +
+  geom_hline(yintercept = 120, linewidth = 1, linetype = "dashed",
+             color = "blue") +
+  annotate("text", x = 25, y = 125, size = 5, color = "blue",
+           label = "min.fish = 120") +
+  geom_point() 
+
+```
+
+Later, we will see that the initial guesses are close to the optimal parameters $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
+
+## Preparation: Determining boundaries for parameters
+
+Some parameters come with bounds, for example:
+
+- Kinetic rate: $k > 0$
+- Probability: $0 \le p \le 1$
+
+Two ways of accounting for parameter bounds:
+
+- Adding penalty terms to the objective function
+- Transforming the parameter so it becomes unconstrained
+
+## Adding penalty terms
+
+Suppose we want $\alpha \le \theta \le \beta$. Add **penalty term** to objective function:
+$$
+  J_\text{constrained}(\theta) = J_\text{unconstrained}(\theta) + J_\text{penalty}(\theta)
+$$
+where $J_\text{penalty}(\theta)$ is
+
+- Roughly zero between $\alpha$ and $\beta$
+- Very large for $\theta < \alpha$ or $\theta > \beta$.
+
+![](./images/03a-parameter-estimation/penalty.pdf){fig-align=center height=75%}
+
+## Transformation parameters
+
+Transform constrained problem into equivalent **unconstrained** problem.
+
+Some examples:
+
+- If $\theta > 0$: write $\theta = \exp \varphi$ or $\theta = \varphi^2$
+- If $-1 < \theta < 1$: write $\theta = \tanh \varphi$
+
+In either case, $\varphi$ is unconstrained (can range from $-\infty$ to $+\infty$). Now substitute this transformation into the objective function, and optimize in terms of $\varphi$.
+
+## Preparation: Dealing with non-identifiability
+
+In some cases, parameters cannot be determined uniquely. For example, exponential model with parameters $A, B, C$:
+$$
+  y = A \exp(Bx + C) = (A e^C) e^{Bx}
+$$
+Only $B$ and the combination $Ae^C$ can be determined.
+
+- **Structural** identifiability: all parameters can be uniquely determined, given perfect data.
+- **Practical** identifiability: same, but from finite, noisy data.
+
+## Preparation: Dealing with non-identifiability
+
+Minimization of objective function will **fail** if some parameters are not identifiable. Workarounds:
+
+- Add penalty term to $J$ to privilege certain parameter values
+- Rewrite $J$ so all parameters are identifiable
+
+Example: put $k = A e^C$ and write exponential model as
+$$
+  y = k \exp(Bx).
+$$
+Both $k$ and $B$ are identifiable.
+
+# Minimizing the objective function
+
+## General approach
+
+Recall that we are trying to find $\theta$ so that
+$$
+  J(\theta) = \sum_{i=1}^N (y_i - f(x_i; \theta))^2
+$$
+is minimized.
+
+- For **linear** model: direct, one-step solution
+- For **nonlinear** model: iterative algorithm. Typically:
+  1. Start with initial guess for $\hat{\theta}$
+  2. Slightly change $\hat{\theta}$ and compute $J(\hat{\theta})$ 
+  3. Repeat if $\hat{\theta}$ not good enough
+
+## Very simple minimization algorithm: hill descender
+
+:::: {.columns}
+::: {.column width="50%"}
+
+\footnotesize
+```{r, echo=TRUE, eval=FALSE}
+# Initial guess
+theta <- 5.0
+
+for (i in 1:100) {
+  # Add random noise to theta
+  theta_new <- 
+    theta + 0.5 * rnorm(1)
+
+  # Accept if objective is lower
+  if (J(theta_new) < J(theta)) {
+    theta <- theta_new
+  }
+}
+```
+
+:::
+::: {.column width="50%"}
+
+```{r}
+#| out-width: 2in
+#| out-height: 2in
+#| fig-width: 3
+#| fig-height: 3
+#| fig-align: center
+
+# Run the algorithm again but now only plot output
+set.seed(1234)
+
+J <- function(theta) {
+  (theta - 1)^2
+}
+
+theta <- 5.0
+successful_thetas <- c(theta)
+for (i in 1:100) {
+  # Add some random noise to theta
+  theta_new <- theta + 0.5 * rnorm(1)
+
+  # Accept if objective is lower
+  if (J(theta_new) < J(theta)) {
+    theta <- theta_new
+    successful_thetas <- c(successful_thetas, theta)
+  }
+}
+
+trajectory <- tibble(
+  theta = successful_thetas,
+  J = J(successful_thetas),
+  i = seq(1, length(theta)))
+
+ggplot(trajectory) +
+  geom_function(fun = J, xlim = c(-4, 6)) +
+  geom_point(aes(x = theta, y = J), color = "red") +
+  geom_text(aes(x = theta, y = J, label = i),
+            color = "red", check_overlap = TRUE,
+            nudge_y = 2) +
+  xlab(TeX("\\theta")) +
+  ylab(TeX("J(\\theta)"))
+
+```
+
+:::
+::::
+
+## Caveat: local and global minima
+
+- Linear problems: unique minium
+- Nonlinear problems: (typically) several local minima
+
+![](./images/03a-parameter-estimation/local-global-minimum.pdf)
+
+Most minimization algorithms only guarantee **convergence to a local minimum**.
+
+# Minimization algorithms
+
+## Gradient-based minimization algorithms
+
+Two main classes of minimization algorithms:
+
+1. **Gradient-based methods**
+2. Gradient-free methods
+
+Gradient-based methods:
+
+- Are typically faster
+- Require the objective function to be differentiable
+- Can fail to converge 
+
+Examples:
+
+- Steepest descent
+- Newton
+- Gauss-Newton
+- Levenberg-Marquardt
+
+
+## Method of steepest descent
+
+::: columns
+::: {.column width="50%"}
+You want to go down the mountain into the valley as efficiently as possible.
+
+\vspace*{0.5cm}
+
+The fog prevents you from seeing more than a few meters in every direction.
+
+\vspace*{0.5cm}
+
+How do you proceed?
+
+\vspace*{0.5cm}
+
+\emoji{light-bulb} Walk in the direction of **steepest descent**
+:::
+
+::: {.column width="50%"}
+![](images/03a-parameter-estimation/cdf-wanderer.jpeg)
+:::
+:::
+
+## Direction of steepest descent
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+\vspace*{0.5cm}
+
+Gradient:
+
+- Perpendicular to level sets of $J$
+- Direction of steepest ascent
+
+:::
+::: {.column width="40%"}
+![](./images/03a-parameter-estimation/gradient.pdf){fig-align=center width=50%}
+:::
+
+::::
+
+\vspace*{0.5cm}
+
+To **decrease** $J(\theta)$, take a small step in direction of negative gradient:
+\begin{eqnarray*}
+s_k & = & -\nabla J(\theta^k) \\
+    & = & -\left[ 
+  \begin{array}{c}
+    \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
+    \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
+    \vdots \\
+    \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
+  \end{array}\right].
+\end{eqnarray*}
+
+
+## Method of steepest descent: Algorithm
+
+Algorithm:
+
+-   Compute gradient $\nabla J(\theta^k)$ at current value $\theta^k$.
+-   Follow negative gradient to update $\theta^k$: $$
+    \theta^{k+1} = \theta^k - \alpha_k \nabla J(\theta^k),
+    $$ with $\alpha_k$ the step size.
+-   Repeat until convergence
+
+Step size $\alpha_k$ can be
+
+-   Fixed: $\alpha_k = \alpha$ for a small fixed $\alpha$ (e.g. $\alpha = 0.01$).
+-   Adaptive: determine the best $\alpha_k$ at each step.
+
+## Method of steepest descent: variable step size
+
+```{r, echo=FALSE}
+source("scripts/03a-parameter-estimation//quadratic-function.R", local = knitr::knit_global())
+```
+
+## Method of steepest descent: disadvantages
+
+```{r, echo=FALSE, fig.height=4.5}
+source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_global())
+```
+
+-   Convergence can be slow (e.g for minimum hidden inside narrow "valley")
+-   Steepest descent path will zigzag towards minimum, making little progress at each iteration.
+
+## Method of Newton: 1D case
+
+Find a minimum of $J(\theta)$ by solving $J'(\theta) = 0$.
+
+::: columns
+::: {.column width="60%"}
+-   For a starting point $\theta_k$, look for a search direction $s_k$ such that $J'(\theta_k + s_k) \approx 0$.
+
+-   Taylor: $J'(\theta_k + s_k)$ is approximately $$
+      J'(\theta_k + s_k) \approx J'(\theta_k) + s_k J''(\theta_k).
+    $$
+
+-   Search direction: $$
+    s_k = -\frac{J'(\theta_k)}{J''(\theta_k)}
+    $$
+:::
+
+::: {.column width="30%"}
+![](images/03a-parameter-estimation/newton2.jpeg)
+:::
+:::
+
+Uses information from **first** and **second** derivatives.
+
+## Method of Newton: properties
+
+For a quadratic function $J(x) = Ax^2 + Bx + C$, Newton's method finds the minimum in **one step**.
+
+Geometric interpretation:
+
+-   Approximate $J(x)$ around $x_k$ by best-fitting parabola.
+-   Jump to bottom of parabola to find $x_{k+1}$.
+-   Repeat!
+
+```{r, echo=FALSE, fig.height=3}
+source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::knit_global())
+```
+
+## Method of Newton: higher dimensions
+
+Search direction uses gradient and **Hessian** $$
+    s_k = -\left[ H(\theta^k)\right]^{-1} \nabla J(\theta^k)
+    $$ where $$
+    H(\theta^k) = \nabla^2 J(\theta^k) =
+            \left[ \begin{array}{cccc}
+                  \frac{\partial^2 J(\theta)}{\partial \theta_1^2} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_n} |_{\theta^k} \\
+                  \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_2^2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_n} |_{\theta^k} \\
+                  \vdots & \vdots & \ddots & \vdots \\
+                  \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_n^2} |_{\theta^k}
+              \end{array}\right]
+    $$
+
+- In practice, not necessary to invert $H(\theta)$
+- Still requires $\mathcal{O}(D^2)$ computation at each step (expensive)
+
+## Method of Newton: advantages and disadvantages
+
+Advantages:
+
+-   Less iterations needed
+-   Choice direction more efficient: descent and curvature
+
+Disadvantages:
+
+-   More sensitive to local extrema
+-   First **and** second order differentials
+-   Step size $\alpha=1$. If initial vector too far from minimum, method will often not converge to minimum.
+
+## Method of Newton: convergence
+
+```{r, echo=FALSE, fig.height=4.5}
+source("scripts/03a-parameter-estimation//rosenbrock-newton.R", local = knitr::knit_global())
+```
+
+-   Very fast convergence for Rosenbrock function (3 iterations)
+-   In general: **quadratic convergence**
+
+## Many advanced gradient-based methods exist
+
+-   Broyden-Fletcher-Goldfarb-Shanno (BFGS): approximation of Hessian
+-   Levenberg-Marquardt: very popular, combines
+    -   Steepest descent: robust but slow
+    -   Method of Newton: fast, but often not convergent
+-   Powell/Brent: search along set of directions
+
+::: {.callout-note}
+## Optimization in R
+
+Use `optim(par, fn)`, where
+
+- `par`: initial guess
+- `fn`: the function to optimize
+- `method`: "Nelder-Mead" (default), "BFGS", "Brent", ...
+:::
+
+## Worked-out example: M. merluccius
+
+1. Define the objective function:
+
+```{r}
+beverton_holt <- function(S, theta) {
+  return(theta[[1]]*S/(1 + S/theta[[2]]))
+}
+```
+
+```{r, echo=TRUE}
+J <- function(theta, x, y) {
+  resid <- y - beverton_holt(x, theta)
+  return(sum(resid^2))
+}
+```
+
+2. Specify the initial parameters:
+
+```{r, echo=TRUE}
+theta0 <- c(6, 20)
+```
+
+##
+
+3. Run the optimizer
+
+\footnotesize
+```{r, echo=TRUE}
+fit <- optim(theta0, J, 
+             method = "BFGS",
+             x = M.merluccius$spawn.biomass,
+             y = M.merluccius$num.fish)
+fit 
+```
+
+##
+
+4. Evaluate the fit
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point() +
+  geom_function(
+    fun = \(S) beverton_holt(S, fit$par),
+    xlim = c(0, 80))
+```
+
+More sophisticated ways to look at the fit will come later.
+
+## Gradient-free minimization algorithms
+
+Two main classes of minimization algorithms:
+
+1. Gradient-based methods
+2. **Gradient-free methods**
+
+Gradient-free methods:
+
+- Are typically slower
+- Can work even if the objective function is not differentiable
+- Are more robust
+
+Examples:
+
+- Direction set (Powell, Brent)
+- Simplex
+- Global minimisation
+
+## Simplex algorithm (Nelder-Mead 1965)
+
+Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...)
+
+- Start with random simplex.
+- Adjust worst corner of simplex by using different "actions".
+- Repeat until convergence.
+
+![](images/03a-parameter-estimation/nelder-mead-actions.pdf){fig-align=center}
+
+## Simplex algorithm
+
+![](images/03a-parameter-estimation/nelder-mead.pdf)
+
+## Simplex algorithm: advantages and disadvantages
+
+- Does not require gradient, Hessian, ... information
+- Robust: often finds a minimum where other optimizers cannot.
+- Can find a rough approximation of a minimum in just a few updates...
+- ... but may take a long time to converge completely.
+
+## Example: M. mercullius
+
+```{r, echo=TRUE}
+fit <- optim(theta0, J, 
+             method = "Nelder-Mead",
+             x = M.merluccius$spawn.biomass,
+             y = M.merluccius$num.fish)
+fit$par
+fit$count
+```
+Compared to BFGS:
+
+- Almost same parameter values
+- More function evaluations, no gradient evaluations
+
+## Global minimization
+
+- Disadvantage local techniques: local minima can never be completely excluded
+- Global techniques insensitive to this problem
+- Disadvantage: needs a lot of evaluations of $J$
+- Types:
+    - Gridding
+    - Random methods
+
+## Global minimisation: Gridding
+
+- Evaluate $J$ for a grid of parameter values $\theta$
+- Select minimum among grid values
+
+```{r, echo=FALSE, fig.height=6}
+
+source("scripts/03a-parameter-estimation//gridding.R", local = knitr::knit_global())
+
+```
+
+## Global minimisation: Gridding
+
+The finer the grid:
+
+- the more likely to find the optimum,
+- BUT the more calculations needed
+
+Iterative:
+
+- Start with a coarse-grained grid
+- Refine parameter domain and repeat
+
+Brute force, inefficient
+
+## Global minimisation: Random methods
+
+Evaluate $J$ for random parameter sets
+
+- Choose PDF for each parameter
+- Random sampling; Latin hypercube sampling
+
+Retain
+
+- Optimal set (with $J_{min}$)
+- Some sets below certain critical value ($J_{crit}$)
+
+Examples:
+
+- Genetic algorithms
+- Shuffled complex evolution
+- Ant colony optimization
+- Particle swarm optimization
+- Simulated annealing
+- ...
+
+
+# Assessing the quality of a fit
+
+## Residuals
+
+Model:
+$$
+  y = f(x; \theta) + \epsilon
+$$
+where $\epsilon$ is normally distributed.
+
+If the model is well-fit, the residuals $e_i = y_i - f(x_i; \theta)$ should be 
+
+- Independent
+- Normally distributed with mean 0 and constant variance.
+
+Can be checked with QQ-plot of residuals
+
+## Example: M. mercullius
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+resids <- with(M.merluccius, {
+  num.fish - beverton_holt(spawn.biomass, fit$par)
+})
+
+easy_qqplot <- function(data) {
+  ggplot(tibble(sample = data), aes(sample = sample)) +
+    stat_qq_line(color = "gray") + stat_qq() + 
+    xlab(NULL) +
+    ylab(NULL)
+}
+
+p <- ggplot(tibble(x = 1:length(resids), y = resids), aes(x, y)) +
+  geom_point() +
+  xlab(NULL) +
+  ylab("Residual")
+
+q <- easy_qqplot(resids)
+
+grid.arrange(p, q, ncol = 2)
+```
+
+No pattern in residuals + normality: model appears well-fit.
+
+# Correlations in time series (Optional)
+
+## Residuals: correlation and independence
+
+- We often assume that residuals are independent. But this is not always the case, especially in **time series**.
+- Correlations in residuals are often a sign that something is missing from model fit.
+
+How can we detect patterns, correlations, ... in residuals?
+
+```{r, include=FALSE}
+source("scripts/03a-parameter-estimation/autocorrelation.R", local = knitr::knit_global())
+```
+
+\vspace*{1cm}
+
+```{r, echo=FALSE, fig.height=3}
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+
+## Autocorrelation: how are residuals related?
+
+**Autocorrelation** with lag $\tau$ answers the following questions:
+
+- To what extent does a residual depend on a previous residual?
+- Is there correlation between residuals in time?
+
+$$
+  r_\varepsilon(\tau) = \frac{1}{r_\varepsilon(0)}\sum_{k=1}^{N-\tau} \frac{\varepsilon(t_k) \cdot \varepsilon(t_k+\tau)}{N-\tau}
+$$
+
+where $r_\varepsilon(0)=\sum_{k=1}^{N} \frac{\varepsilon^2(t_k)}{N}$
+
+## Detecting significant autocorrelations
+
+If data is uncorrelated, then autocorrelation is normally distributed:
+$$
+  r_\varepsilon(\tau) \sim \mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right).
+$$
+Can be used to detect "abnormally high" correlations: 
+
+- Only about 5% of values outside range $\pm 1.96/\sqrt{N}$.
+- If more, sign that data is correlated.
+
+
+## Example: Energy consumption in Korea (2017-19)
+
+Autocorrelation uncovers repeating patterns in signal:
+
+- Highly correlated over 12-month basis
+- Anticorrelated over 6-month basis
+
+```{r, include=FALSE}
+library(gridExtra)
+source("scripts/03a-parameter-estimation/energy.R", local = knitr::knit_global())
+```
+
+\vspace*{0.5cm}
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3}
+library(gridExtra)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Source: Korea Energy Economics Institute.
+
+## How to deal with correlations in residuals?
+
+- **Make model bigger**: next slides
+- Subsample data to reduce strength of correlations: not recommended
+- Use modelling technique that does not need uncorrelated residuals (e.g. autoregressive models): outside scope of this course
+
+## Example: Calcium flows (simulated data)
+
+Over the course of exercise, calcium ions flow in and out of the muscle cells. On biological grounds, model calcium concentration as exponentially damped sine:
+$$
+  C(t) = \exp(-A t) \sin(t)
+$$
+
+Data and model fit:
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+set.seed(1234)
+
+t <- seq(0, 20, length.out = 50)
+y_large <- exp(-t/10)*sin(t)
+y_perturb <- 0.2 * cos(t)
+y_noise <- 0.1 * rnorm(length(t))
+
+y_full <- y_large + y_perturb + y_noise
+
+fit <- nls(y ~ exp(-t/A)*sin(t),
+           data = data.frame(t = t, y = y_full),
+           start = list(A = 10))
+A_fitted <- coef(fit)["A"]
+
+tibble(t = t, y_full = y_full, y_predict = predict(fit)) |>
+  ggplot() +
+  geom_point(aes(t, y_full)) +
+  geom_line(aes(t, y_predict)) +
+  xlab("Time") +
+  ylab("Calcium conc.")
+
+```
+
+## Residual plot
+
+Model fit is good, but not perfect. Clear **repeating pattern** in the residuals.
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+resids <- y_full - predict(fit)
+tibble(t = t, resids = resids) |>
+  ggplot(aes(t, resids)) +
+  geom_point() +
+  geom_line(linetype = "dashed") +
+  xlab("Time") +
+  ylab("Residual")
+```
+
+## Autocorrelation plot
+
+Lack of model fit, repeating pattern in the residuals can also be seen from the autocorrelation plot.
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+autocorr_plot <- function(x, plot_thresholds = FALSE, conf_level = 0.95) {
+  plotdata <- with(acf(x, plot = FALSE), 
+                   data.frame(lag, acf))
+
+  p <- ggplot(plotdata, aes(x = lag, y = acf)) +
+         geom_bar(stat = "identity", position = "identity") +
+    xlab("Lag") +
+    ylab("ACF")
+
+  if (plot_thresholds) {
+    threshold <- qnorm((1 - conf_level) / 2) / sqrt(length(x))
+    p <- p +
+        geom_hline(yintercept=c(threshold, -threshold),
+                   linetype="dashed", color = "red", linewidth = 1)
+  }
+  
+  p
+}
+
+autocorr_plot(resids, plot_thresholds = TRUE)
+```
+
+- Red lines: thresholds $1.96 / \sqrt{50} = 0.227$.
+- 13 out of 17 autocorrelations (76%) exceed threshold 
+
+
+## Expanding the model
+
+Pattern in residuals is a clear sign that **something is missing** in our modelling approach. Given the periodic oscillations, propose
+$$
+  C(t) = \exp(-At)\sin(t) + B\cos(\omega t).
+$$
+
+
+```{r}
+#| out-height: 2in
+#| out-width: 4in
+#| fig-height: 3
+#| fig-width: 6
+#| fig-align: center
+
+fit_full <- nls(y ~ exp(-t/A)*sin(t) + B*cos(C*t),
+            data = data.frame(t = t, y = y_full),
+            start = list(A = 10, B = 1.0, C = 1.0))
+A_fitted <- coef(fit)["A"]
+B_fitted <- coef(fit)["B"]
+C_fitted <- coef(fit)["C"]
+
+easy_predict <- function(model, t) {
+  predict(model, newdata = data.frame(t = t))
+}
+
+data <- tibble(t = t, y_full = y_full)
+t_dense <- seq(min(t), max(t), length.out = 500)
+curves <- tibble(
+  t = t_dense,
+  y_p = easy_predict(fit, t_dense),
+  y_p_full = easy_predict(fit_full, t_dense))
+
+ggplot() +
+  geom_point(data = data, aes(t, y_full)) +
+  geom_line(data = curves,
+            aes(t, y_p, linetype = "Original"),
+            color = "gray50") +
+  geom_line(data = curves, 
+            aes(t, y_p_full, linetype = "Expanded")) +
+  xlab("Time") +
+  ylab("Calcium conc.") +
+  scale_linetype_manual(
+    values = c("Expanded" = "solid", "Original" = "dashed"),
+    name = "Model")
+
+```
+
+## Residual and autocorrelation plot
+
+No residual pattern visible in residuals. The model is well fit.
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+library(gridExtra)
+
+resids_full <- y_full - predict(fit_full)
+p <- tibble(t = t, resids = resids_full) |>
+  ggplot(aes(t, resids)) +
+  geom_point() +
+  geom_line(linetype = "dashed") +
+  xlab("Time") +
+  ylab("Residual")
+
+q <- autocorr_plot(resids_full, plot_thresholds = TRUE)
+
+grid.arrange(p, q, ncol = 2)
+```
+
+## Residual QQ-plots
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+p <- easy_qqplot(resids) +
+  ggtitle("Original model")
+q <- easy_qqplot(resids_full) +
+  ggtitle("Expanded model")
+
+grid.arrange(p, q, ncol = 2)
+
+```

@@ -352,9 +352,103 @@ Example: put $k = A e^C$ and write exponential model as
 $$
   y = k \exp(Bx).
 $$
-
+Both $k$ and $B$ are identifiable.
 
 # Minimizing the objective function
+
+## General approach
+
+Recall that we are trying to find $\theta$ so that
+$$
+  J(\theta) = \sum_{i=1}^N (y_i - f(x_i; \theta))^2
+$$
+is minimized.
+
+- For **linear** model: direct, one-step solution
+- For **nonlinear** model: iterative algorithm. Typically:
+  1. Start with initial guess for $\hat{\theta}$
+  2. Slightly change $\hat{\theta}$ and compute $J(\hat{\theta})$ 
+  3. Repeat if $\hat{\theta}$ not good enough
+
+
+## Very simple algorithm: hill descender
+
+Objective function: $J(\theta) = (\theta - 1)^2$
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+
+\footnotesize
+```{r, echo=TRUE, eval=FALSE}
+# Initial guess
+theta <- 5.0
+
+for (i in 1:100) {
+  # Add random noise to theta
+  theta_new <- 
+    theta + 0.5 * rnorm(1)
+
+  # Accept if objective is lower
+  if (J(theta_new) < J(theta)) {
+    theta <- theta_new
+  }
+}
+```
+
+:::
+::: {.column width="50%"}
+
+```{r}
+#| out-width: 2in
+#| out-height: 2in
+#| fig-width: 3
+#| fig-height: 3
+#| fig-align: center
+
+# Run the algorithm again but now only plot output
+set.seed(1234)
+
+J <- function(theta) {
+  (theta - 1)^2
+}
+
+theta <- 5.0
+successful_thetas <- c(theta)
+for (i in 1:100) {
+  # Add some random noise to theta
+  theta_new <- theta + 0.5 * rnorm(1)
+
+  # Accept if objective is lower
+  if (J(theta_new) < J(theta)) {
+    theta <- theta_new
+    successful_thetas <- c(successful_thetas, theta)
+  }
+}
+
+trajectory <- tibble(
+  theta = successful_thetas,
+  J = J(successful_thetas),
+  i = seq(1, length(theta)))
+
+ggplot(trajectory) +
+  geom_function(fun = J, xlim = c(-4, 6)) +
+  geom_point(aes(x = theta, y = J), color = "red") +
+  geom_text(aes(x = theta, y = J, label = i),
+            color = "red", check_overlap = TRUE,
+            nudge_y = 2) +
+  xlab(TeX("\\theta")) +
+  ylab(TeX("J(\\theta)"))
+
+```
+
+:::
+::::
+
+
+
+
 
 ## Worked out example
 

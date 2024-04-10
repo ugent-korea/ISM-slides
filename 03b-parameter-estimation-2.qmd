@@ -78,7 +78,7 @@ M.merluccius |>
 ```
 
 
-## M. Merluccius: Beverton-Holt model
+## M. merluccius: Beverton-Holt model
 
 :::: {.columns}
 
@@ -536,12 +536,7 @@ s_k & = & -\nabla J(\theta^k) \\
 \end{eqnarray*}
 
 
-
-
-
 ## Method of steepest descent: Algorithm
-
-*Split algorithm and step size over 2 slides*
 
 Algorithm:
 
@@ -573,18 +568,18 @@ source("scripts/03a-parameter-estimation//01-rosenbrock.R", local = knitr::knit_
 
 ## Method of Newton: 1D case
 
-Find a minimum of $J(x)$ by solving $J'(x) = 0$.
+Find a minimum of $J(\theta)$ by solving $J'(\theta) = 0$.
 
 ::: columns
 ::: {.column width="60%"}
--   For a starting point $x_k$, look for a search direction $s_k$ such that $J'(x_k + s_k) \approx 0$.
+-   For a starting point $\theta_k$, look for a search direction $s_k$ such that $J'(\theta_k + s_k) \approx 0$.
 
--   Taylor: $J'(x_k + s_k)$ is approximately $$
-    J'(x_k + s_k) \approx J'(x_k) + s_k J''(x_k).
+-   Taylor: $J'(\theta_k + s_k)$ is approximately $$
+      J'(\theta_k + s_k) \approx J'(\theta_k) + s_k J''(\theta_k).
     $$
 
 -   Search direction: $$
-    s_k = -\frac{J'(x_k)}{J''(x_k)}
+    s_k = -\frac{J'(\theta_k)}{J''(\theta_k)}
     $$
 :::
 
@@ -596,8 +591,6 @@ Find a minimum of $J(x)$ by solving $J'(x) = 0$.
 Uses information from **first** and **second** derivatives.
 
 ## Method of Newton: properties
-
-*Split this over two slides: one with convergence and comparison with steepest descent, and one with geometric interpreation*
 
 For a quadratic function $J(x) = Ax^2 + Bx + C$, Newton's method finds the minimum in **one step**.
 
@@ -613,7 +606,7 @@ source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::k
 
 ## Method of Newton: higher dimensions
 
--   Search direction uses gradient and **Hessian** $$
+Search direction uses gradient and **Hessian** $$
     s_k = -\left[ H(\theta^k)\right]^{-1} \nabla J(\theta^k)
     $$ where $$
     H(\theta^k) = \nabla^2 J(\theta^k) =
@@ -625,7 +618,12 @@ source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::k
               \end{array}\right]
     $$
 
+- In practice, not necessary to invert $H(\theta)$
+- Still requires $\mathcal{O}(D^2)$ computation at each step (expensive)
+
 ## Method of Newton: advantages and disadvantages
+
+Advantages:
 
 -   Less iterations needed
 -   Choice direction more efficient: descent and curvature
@@ -663,6 +661,61 @@ Use `optim(par, fn)`, where
 - `method`: "Nelder-Mead" (default), "BFGS", "Brent", ...
 :::
 
+## Worked-out example: M. merluccius
+
+1. Define the objective function:
+
+```{r}
+beverton_holt <- function(S, theta) {
+  return(theta[[1]]*S/(1 + S/theta[[2]]))
+}
+```
+
+```{r, echo=TRUE}
+J <- function(theta, x, y) {
+  resid <- y - beverton_holt(x, theta)
+  return(sum(resid^2))
+}
+```
+
+2. Specify the initial parameters:
+
+```{r, echo=TRUE}
+theta0 <- c(6, 20)
+```
+
+##
+
+3. Run the optimizer
+
+\footnotesize
+```{r, echo=TRUE}
+fit <- optim(theta0, J, 
+             method = "BFGS",
+             x = M.merluccius$spawn.biomass,
+             y = M.merluccius$num.fish)
+fit 
+```
+
+##
+
+4. Evaluate the fit
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point() +
+  geom_function(
+    fun = \(S) beverton_holt(S, fit$par),
+    xlim = c(0, 80))
+```
+
+More sophisticated ways to look at the fit will come later.
 
 ## Gradient-free minimization algorithms
 

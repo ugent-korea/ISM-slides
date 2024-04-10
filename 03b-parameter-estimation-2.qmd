@@ -445,6 +445,15 @@ ggplot(trajectory) +
 :::
 ::::
 
+## Caveat: local and global minima
+
+- Linear problems: unique minium
+- Nonlinear problems: (typically) several local minima
+
+![](./images/03a-parameter-estimation/local-global-minimum.pdf)
+
+Most minimization algorithms only guarantee **convergence to a local minimum**.
+
 # Minimization algorithms
 
 ## Gradient-based minimization algorithms

@@ -936,16 +936,56 @@ Autocorrelation uncovers repeating patterns in signal:
 - Highly correlated over 12-month basis
 - Anticorrelated over 6-month basis
 
-```{r, include=FALSE}
-source("scripts/03a-parameter-estimation/energy.R", local = knitr::knit_global())
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+months <- c("Jan", "Feb", "Mar", "Apr", 
+            "May", "Jun", "Jul", "Aug", 
+            "Sep", "Oct", "Nov", "Dec")
+
+energy <- read.csv("scripts/03a-parameter-estimation/energy.csv") %>%
+  fill(Year) %>%
+  mutate(Date = make_date(Year, match(Month, months), 1))
+
+autocorr_plot <- function(x, plot_thresholds = FALSE, conf_level = 0.95) {
+  plotdata <- with(acf(x, plot = FALSE), 
+                   data.frame(lag, acf))
+
+  p <- ggplot(plotdata, aes(x = lag, y = acf)) +
+         geom_bar(stat = "identity", position = "identity") +
+    xlab("Lag") +
+    ylab("ACF")
+
+  if (plot_thresholds) {
+    threshold <- qnorm((1 - conf_level) / 2) / sqrt(length(x))
+    p <- p +
+        geom_hline(yintercept=c(threshold, -threshold),
+                   linetype="dashed", color = "red", linewidth = 1)
+  }
+  
+  p
+}
+
+p <- energy %>%
+  ggplot(aes(Date, Consumption)) +
+  geom_line() + geom_point() +
+  theme_classic() +
+  scale_x_date(NULL,
+               breaks = scales::breaks_width("3 months"),
+               labels = scales::label_date_short()) +
+  scale_y_continuous("Energy consumption (1000s of TOE)",
+                     breaks = scales::breaks_extended(8),
+  )
+
+q <- autocorr_plot(energy$Consumption, plot_thresholds = TRUE)
+
+grid.arrange(p, q, ncol = 2)
 ```
 
-\vspace*{0.5cm}
-
-```{r, echo=FALSE, warning=FALSE, fig.height=3}
-library(gridExtra)
-grid.arrange(p1, p2, ncol = 2)
-```
 
 Source: Korea Energy Economics Institute.
 
@@ -1022,25 +1062,6 @@ Lack of model fit, repeating pattern in the residuals can also be seen from the 
 #| fig-width: 4.5
 #| fig-height: 3
 #| fig-align: center
-
-autocorr_plot <- function(x, plot_thresholds = FALSE, conf_level = 0.95) {
-  plotdata <- with(acf(x, plot = FALSE), 
-                   data.frame(lag, acf))
-
-  p <- ggplot(plotdata, aes(x = lag, y = acf)) +
-         geom_bar(stat = "identity", position = "identity") +
-    xlab("Lag") +
-    ylab("ACF")
-
-  if (plot_thresholds) {
-    threshold <- qnorm((1 - conf_level) / 2) / sqrt(length(x))
-    p <- p +
-        geom_hline(yintercept=c(threshold, -threshold),
-                   linetype="dashed", color = "red", linewidth = 1)
-  }
-  
-  p
-}
 
 autocorr_plot(resids, plot_thresholds = TRUE)
 ```

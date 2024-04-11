@@ -900,7 +900,6 @@ source("scripts/03a-parameter-estimation/autocorrelation.R", local = knitr::knit
 \vspace*{1cm}
 
 ```{r, echo=FALSE, fig.height=3}
-library(gridExtra)
 grid.arrange(p1, p2, ncol = 2)
 ```
 
@@ -938,7 +937,6 @@ Autocorrelation uncovers repeating patterns in signal:
 - Anticorrelated over 6-month basis
 
 ```{r, include=FALSE}
-library(gridExtra)
 source("scripts/03a-parameter-estimation/energy.R", local = knitr::knit_global())
 ```
 
@@ -1109,8 +1107,6 @@ No residual pattern visible in residuals. The model is well fit.
 #| fig-width: 7
 #| fig-height: 3
 #| fig-align: center
-
-library(gridExtra)
 
 resids_full <- y_full - predict(fit_full)
 p <- tibble(t = t, resids = resids_full) |>

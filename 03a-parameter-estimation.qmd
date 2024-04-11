@@ -872,7 +872,7 @@ easy_qqplot <- function(data) {
     ylab(NULL)
 }
 
-p <- ggplot(tibble(x = 1:length(resids), y = resids), aes(x, y)) +
+p <- ggplot(tibble(x = seq_along(resids), y = resids), aes(x, y)) +
   geom_point() +
   xlab(NULL) +
   ylab("Residual")

@@ -5,6 +5,8 @@ format: html
 
 Based on Mayekar and Kodandaramaiah (2017), as discussed in Quinn and Keogh, p. 261.
 
+- Data is really unbalanced and not really well separated, hard to get a good classifier.
+
 
 # EDA
 
@@ -122,4 +124,37 @@ summary(m_simple)
 AIC(m_simple)
 ```
 
+
+```{r}
+pupal_low_humidity |>
+  mutate(pred = predict(m_simple, type = "response")) |>
+  ggplot() +
+  geom_line(aes(x = T, y = pred))
+```
+
+
+
+```{r}
+library(caret)
+
+pred_test <- predict(m_simple, pupal_low_humidity, type="response")
+class_test <- ifelse(pred_test >= 0.8, "brown", "green")
+
+conf_matrix <- confusionMatrix(as.factor(class_test), as.factor(pupal_low_humidity$PC), positive = "green")
+print(conf_matrix)
+
+
+```
+
+```{r}
+library(pROC)
+
+pred_test <- predict(m_simple, pupal_low_humidity, type="response")
+roc_logis <- roc(pupal_low_humidity$PC, pred_test)
+auc <- round(auc(pupal_low_humidity$PC, pred_test), 4)
+
+ggroc(roc_logis) +
+    ggtitle(paste0('ROC Curve ', '(AUC = ', auc, ')'))
+
+```
 

@@ -41,10 +41,10 @@ surf3D(x, y, z2, colkey = FALSE)
 ## Synthetic data
 
 Model: logistic curve
-\[
+$$
   y = \frac{A}{1 + \exp(k(x_\text{mid} - x))} + \epsilon,
-\]
-where $\epsilon \sim N(0, \sigma^2)$. 
+$$
+where $\epsilon \sim N(0, \sigma^2)$.
 
 - Parameters: $A = 5.6$, $k = 1.4$, $x_\text{mid} = 2.5$.
 - Measurement noise: $\sigma = 0.2$ (the measure).
@@ -71,7 +71,7 @@ plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
 
 ## Model fit
 
-- From now on, we "forget" the true parameters, and we will work with the data only. 
+- From now on, we "forget" the true parameters, and we will work with the data only.
 - Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
 
 \vspace*{0.5cm}
@@ -99,9 +99,9 @@ lines(xplot, yplot_optim, lty = 1)
 
 - Typically measurement variance is not known.
 - If model well-fitted: estimate from residuals:
-\[
+$$
   \sigma^2 \approx \frac{J(\theta_\text{best})}{N - p}.
-\]
+$$
 - Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
 
 \vspace*{0.5cm}
@@ -125,19 +125,14 @@ qqline(resids)
 - When more than 2 parameters: focus on subset of parameters.
 - **For visualization only.** (Higher dimensions: calculus)
 
-:::::: {.cols data-latex=""}
-::: {.col data-latex="{0.48\textwidth}"}
+:::: {.columns}
+::: {.column width="50%"}
 ![](./images/03a-parameter-estimation/loss-surface-3d.png)
 :::
-
-::: {.col data-latex="{0.05\textwidth}"}
-\mbox{}
-:::
-
-::: {.col data-latex="{0.48\textwidth}"}
+::: {.column width="50%"}
 ![](./images/03a-parameter-estimation/loss-surface-2d.png)
 :::
-::::::
+::::
 
 ## Exact confidence region
 
@@ -158,22 +153,21 @@ where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is signif
 ## Approximate confidence region
 
 Taylor expansion to second order:
-$$
 \begin{multline*}
-  J(\theta) \approx 
-    J(\theta_\text{best}) + 
+  J(\theta) \approx
+    J(\theta_\text{best}) +
     \sum_{i = 1}^N \underbrace{\frac{\partial J}{\partial \theta_i}(\theta_\text{best})}_{= 0}(\theta - \theta_\text{best})_i + \\
     \frac{1}{2} \sum_{i,j=1}^N \frac{\partial^2 J}{\partial \theta_i \partial \theta_j}
       (\theta - \theta_\text{best})_i(\theta - \theta_\text{best})_j.
 \end{multline*}
-$$
+
 Confidence region becomes
 $$
   (\theta - \theta_\text{best})^T \mathcal{I} (\theta - \theta_\text{best}) \le p F_{p, N-p, 1-\alpha}.
 $$
 with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
 $$
-  \mathcal{I}_{ij} = 
+  \mathcal{I}_{ij} =
     \frac{1}{\sigma^2} \sum_{k = 1}^N \left(
     \frac{\partial y}{\partial \theta_i}(x_k, \theta_\text{best})
     \frac{\partial y}{\partial \theta_j}(x_k, \theta_\text{best}) \right).
@@ -237,7 +231,7 @@ $$
 To compute the FIM:
 
 - Measurement noise: $\sigma^2 \approx 0.031$ (see earlier).
-- Sensitivity functions: 
+- Sensitivity functions:
 $$
   \frac{\partial y}{\partial A} = \frac{1}{1 + \exp(k(x_\text{mid} - x))}, \quad
   \frac{\partial y}{\partial k} = \ldots, \quad
@@ -252,7 +246,7 @@ $$
 $$
   \mathcal{I}^{-1} = \begin{bmatrix}
   0.0057 & -0.0034 & 0.0020 \\
- -0.0034 & 0.0169 & -0.0015 \\ 
+ -0.0034 & 0.0169 & -0.0015 \\
   0.0020 & -0.0015  & 0.0040 \\
   \end{bmatrix}.
 $$

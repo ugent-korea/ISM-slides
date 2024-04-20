@@ -47,6 +47,13 @@ ggplot(prostate, aes(x = Acid, y = Nodes, color = Nodes)) +
               method.args = list(family="binomial"))
 ```
 
+```{r}
+prostate |>
+  mutate(pred = predict(m_simple, type = "response")) |>
+  ggplot() +
+  geom_line(aes(x = Acid, y = pred))
+
+```
 
 
 # Simple model with quadratic term
@@ -69,3 +76,31 @@ ggplot(prostate) +
 
 
 # Multiple regression model
+
+```{r}
+m_multi <- glm(Nodes ~ Acid + Age, data = prostate, family = "binomial")
+summary(m_multi)
+```
+
+
+```{r}
+m_multi_interaction <- glm(Nodes ~ Acid*Age, data = prostate, family = "binomial")
+summary(m_multi_interaction)
+```
+
+
+# Classification
+
+```{r}
+library(caret)
+
+pred_test <- predict(m_simple, prostate, type="response")
+class_test <- ifelse(pred_test >= 0.5, 0, 1)
+
+conf_matrix <- confusionMatrix(as.factor(class_test),
+                               as.factor(prostate$Nodes), positive = "1")
+print(conf_matrix)
+
+
+```
+

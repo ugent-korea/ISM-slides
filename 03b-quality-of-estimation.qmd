@@ -1,19 +1,19 @@
 ---
-title: "Modeling and simulation of biosystems"
-subtitle: "Quality of parameter estimates"
-author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+title: "Quality of parameter estimates"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+
 ---
 
 ## Quality of estimation
@@ -41,10 +41,10 @@ surf3D(x, y, z2, colkey = FALSE)
 ## Synthetic data
 
 Model: logistic curve
-\[
+$$
   y = \frac{A}{1 + \exp(k(x_\text{mid} - x))} + \epsilon,
-\]
-where $\epsilon \sim N(0, \sigma^2)$. 
+$$
+where $\epsilon \sim N(0, \sigma^2)$.
 
 - Parameters: $A = 5.6$, $k = 1.4$, $x_\text{mid} = 2.5$.
 - Measurement noise: $\sigma = 0.2$ (the measure).
@@ -71,7 +71,7 @@ plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
 
 ## Model fit
 
-- From now on, we "forget" the true parameters, and we will work with the data only. 
+- From now on, we "forget" the true parameters, and we will work with the data only.
 - Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
 
 \vspace*{0.5cm}
@@ -99,9 +99,9 @@ lines(xplot, yplot_optim, lty = 1)
 
 - Typically measurement variance is not known.
 - If model well-fitted: estimate from residuals:
-\[
+$$
   \sigma^2 \approx \frac{J(\theta_\text{best})}{N - p}.
-\]
+$$
 - Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
 
 \vspace*{0.5cm}
@@ -125,26 +125,21 @@ qqline(resids)
 - When more than 2 parameters: focus on subset of parameters.
 - **For visualization only.** (Higher dimensions: calculus)
 
-:::::: {.cols data-latex=""}
-::: {.col data-latex="{0.48\textwidth}"}
+:::: {.columns}
+::: {.column width="50%"}
 ![](./images/03a-parameter-estimation/loss-surface-3d.png)
 :::
-
-::: {.col data-latex="{0.05\textwidth}"}
-\mbox{}
-:::
-
-::: {.col data-latex="{0.48\textwidth}"}
+::: {.column width="50%"}
 ![](./images/03a-parameter-estimation/loss-surface-2d.png)
 :::
-::::::
+::::
 
 ## Exact confidence region
 
 Confidence region: all $\theta$ such that
-\[
+$$
   J(\theta) \le \left(1 + \frac{p}{N-p}F_{p,N-p,1-\alpha} \right) \times J(\theta_\text{best}),
-\]
+$$
 where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is significance level.
 
 - Reasonably exact for models that are not too nonlinear.
@@ -159,24 +154,24 @@ where $F_{p,N-p,1-\alpha}$ is quantile from $F$-distribution, $\alpha$ is signif
 
 Taylor expansion to second order:
 \begin{multline*}
-  J(\theta) \approx 
-    J(\theta_\text{best}) + 
+  J(\theta) \approx
+    J(\theta_\text{best}) +
     \sum_{i = 1}^N \underbrace{\frac{\partial J}{\partial \theta_i}(\theta_\text{best})}_{= 0}(\theta - \theta_\text{best})_i + \\
     \frac{1}{2} \sum_{i,j=1}^N \frac{\partial^2 J}{\partial \theta_i \partial \theta_j}
       (\theta - \theta_\text{best})_i(\theta - \theta_\text{best})_j.
 \end{multline*}
 
 Confidence region becomes
-\[
+$$
   (\theta - \theta_\text{best})^T \mathcal{I} (\theta - \theta_\text{best}) \le p F_{p, N-p, 1-\alpha}.
-\]
+$$
 with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
-\[
-  \mathcal{I}_{ij} = 
+$$
+  \mathcal{I}_{ij} =
     \frac{1}{\sigma^2} \sum_{k = 1}^N \left(
     \frac{\partial y}{\partial \theta_i}(x_k, \theta_\text{best})
     \frac{\partial y}{\partial \theta_j}(x_k, \theta_\text{best}) \right).
-\]
+$$
 
 ## Interpretation of the FIM
 
@@ -184,9 +179,9 @@ with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
 
 - Alternatively, the FIM contains two ingredients:
   - The **sensitivity functions**, given by
-  \[
+$$
     s_i(x, \theta) = \frac{\partial y}{\partial \theta_i}.
-  \]
+$$
   Variables that are sensitive to perturbations in a parameter contain a lot of information about that parameter, and will contribute a lot to the FIM (and vice versa).
   - The **measurement noise** $\sigma^2$. Measurements with lots of noise contain less information about the parameters.
 
@@ -202,59 +197,59 @@ with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
 
 - Often, we want to know variance of individual parameters and covariance between parameters.
 - Encoded in the error covariance matrix:
-\[
+$$
   C = \begin{bmatrix}
       \sigma^2_{\theta_1} & \text{cov}(\theta_1,\theta_2) & \cdots & \text{cov}(\theta_1,\theta_p) \\
       \text{cov}(\theta_2,\theta_1) & \sigma^2_{\theta_2} & \cdots & \text{cov}(\theta_2,\theta_p) \\
       \vdots & \vdots & \ddots & \vdots \\
       \text{cov}(\theta_p,\theta_1) & \text{cov}(\theta_p,\theta_2) & \cdots & \sigma^2_{\theta_p}
   \end{bmatrix}.
-\]
+$$
 
 - Diagonal: variances, off-diagonal: covariances
 - Can be used to construct correlations between between parameters:
-\[
+$$
   R_{ij} = \frac{\text{cov}(\theta_i, \theta_j)}{\sigma_{\theta_i} \sigma_{\theta_j}}.
-\]
+$$
 
 
 ## Computing the error covariance matrix
 
 - The inverse of the FIM $\mathcal{I}$ is a lower bound for $C$:
-\[
+$$
   C \ge \mathcal{I}^{-1}.
-\]
+$$
 - **This is not an obvious result.**
 - In practice, we just take $\mathcal{I}^{-1}$ as an estimate for $C$.
 - Approximate confidence interval for parameter $\theta_i$:
-\[
+$$
   (\theta_\text{best})_i \pm t_{N-p, 1-\alpha/2} \sqrt{C_{ii}}.
-\]
+$$
 
 ## Worked-out example: logistic model
 
 To compute the FIM:
 
 - Measurement noise: $\sigma^2 \approx 0.031$ (see earlier).
-- Sensitivity functions: 
-\[
+- Sensitivity functions:
+$$
   \frac{\partial y}{\partial A} = \frac{1}{1 + \exp(k(x_\text{mid} - x))}, \quad
   \frac{\partial y}{\partial k} = \ldots, \quad
     \frac{\partial y}{\partial x_\text{mid}} = \ldots
-\]
+$$
   Often these functions have to be computed **numerically** (see next chapter).
 
 
 ## Logistic model with synthetic data
 
 - The inverse of the FIM is given by
-\[
+$$
   \mathcal{I}^{-1} = \begin{bmatrix}
   0.0057 & -0.0034 & 0.0020 \\
- -0.0034 & 0.0169 & -0.0015 \\ 
+ -0.0034 & 0.0169 & -0.0015 \\
   0.0020 & -0.0015  & 0.0040 \\
   \end{bmatrix}.
-\]
+$$
 
 - Parameter estimates: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
 

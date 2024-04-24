@@ -18,6 +18,7 @@ format:
 
 ```{r}
 library(tidyverse)
+library(gridExtra)
 
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
@@ -198,67 +199,177 @@ source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit
 
 ## Goodness-of-fit and complexity penalization
 
-- Select least complex model that describes data (sufficiently) well
-- Two basic forms:
+Select least complex model that describes data (sufficiently) well.
+
+Balance two terms:
+
+1. **Goodness of fit**, measured by sum-squared of residuals (SSR)
+2. **Complexity of the model**, as a function of number of parameters.
+
+Many different criteria to make this concrete.
+
+## Akaike Information Criterion (AIC)
+
+Model complexity penality: $2p$, with $p$ number of parameters:
 $$
-\left\{
-\begin{array}{l}
-\dfrac{SSR}{N}[1+\beta(N,p)] \\
-N\log\left( \dfrac{SSR}{N} \right) + \gamma(N,p)
-\end{array}
-\right.
+  AIC = N \ln\left( \frac{SSR}{N} \right) + 2p.
 $$
-with $SSR$ sum of squared residuals, measure for fit of candidate model to data, $N$ number of observations, and $p$ number of parameters
-- First term decreases with increase in parameters (increasing model complexity)
-- Second term penalizes too complex (overparametrisized) models
+Properties:
 
-## Goodness-of-fit and complexity penalization
-
-- Select model with lowest value of criterion
-- Different formulations
-    - _Final prediction error_ (FPE)
-    $$\beta(N,p)=\dfrac{2p}{N-p}$$
-    - _Akaike's information criterion_ (AIC)
-    $$\gamma(N,p)=2p$$
-- These mentioned criteria are not consistent, i.e., they do not guarantee that probability to select incorrect model converges to 0 for $N\to\infty$
-- But, FPE and AIC possess properties that allow to select a good model when true model is not in set of candidates
-
-## Goodness-of-fit and complexity penalization
-
-- Consistent criteria
-    - _Bayesian information criterion_ (BIC), also called Schwartz information criterion (SIC)
-    $$\gamma(N,p)=p\log(N)$$
-    - _Khinchin's law of iterated logarithm_ (LILC)
-    $$\gamma(N,p)=p\log(\log(N))$$
+- Sometimes preferred when prediction accuracy is important and sample size is small
+- Not necessarily consistent (will not select true model even if sample size is large)
 
 
-## Goodness-of-fit: illustration
+## Bayes Information Criterion (BIC)
 
-\begin{exampleblock}{Problem statement}
-Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for the dataset below.
-\end{exampleblock}
+Model complexity penalty: $p \ln N$
+$$
+  BIC = N \ln\left( \frac{SSR}{N} \right) + p \ln N.
+$$
+Properties:
 
-```{r, echo=FALSE, fig.height=5}
-source("scripts/03a-parameter-estimation/selection.R", local = knitr::knit_global())
-plot.data()
-```
+- Will select a simpler model than AIC.
+- Consistent (under some conditions)
 
-## Goodness-of-fit: illustration
+## AIC/BIC: Polynomial example
 
-- RSS \alert{always decreases} when number of parameters increases
+- SSR always decreases when number of parameters increases
 - Penalty terms cause goodness-of-fit to increase at a certain point
 
-```{r, echo=FALSE, fig.height=4}
-plot.gof()
+Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for given data.
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+set.seed(1234)
+
+# True model
+true_model <- function(x) {
+  sin(x) + sqrt(x)
+}
+sample_from_true_model <- function(n) {
+  x <- seq(0, 5, length.out = n)
+  data.frame(
+    x = x,
+    y = true_model(x) + 0.3*rnorm(n))
+}
+
+train <- sample_from_true_model(25)
+
+fit_model <- function(degree, data) {
+  if (degree > 0) {
+    m <- lm(y ~ poly(x, degree, raw = TRUE), data = data)
+  } else {
+    m <- lm(y ~ 1, data = data)
+  }
+  m
+}
+
+eval_model <- function(model, data) {
+  resid <- data$y - predict(model, newdata = data)
+  sum(resid^2)
+}
+
+fit_and_eval <- function(degree) {
+  n <- nrow(train)
+  model <- fit_model(degree, train)
+  SSR = eval_model(model, train)
+  data.frame(
+    degree = degree,
+    SSR = SSR,
+    AIC = 2 * degree,
+    BIC = degree * log(n))
+}
+
+degrees <- 0:6
+plot_data <- degrees |>
+  map(fit_and_eval) |>
+  bind_rows()
+
+p_ssr <- 
+  ggplot(plot_data, aes(x = degree, y = SSR)) +
+  geom_line() +
+  geom_point() +
+  xlab("Degree") + ylab(NULL) +
+  ggtitle("Sum of squared residuals") 
+  
+
+plot_data_penalty <- plot_data |>
+  select(degree, AIC, BIC) |>
+  pivot_longer(!degree)
+  
+p_penalty <- 
+  ggplot(plot_data_penalty, aes(x = degree, y = value, color = name)) +
+  geom_line() + 
+  geom_point() +
+  xlab("Degree") +
+  ylab(NULL) +
+  ggtitle("Complexity penalty")
+
+grid.arrange(p_ssr, p_penalty, ncol = 2)
+
 ```
 
-## Goodness-of-fit: illustration
 
-Optimal linear model (according to AIC/BIC) has 7 parameters.
+## AIC/BIC: Polynomial example
 
-```{r, echo=FALSE, fig.height=5}
-plot.optim()
+Optimal model provides a **good fit** (SSR low) and is **not too complex** (penalty low).
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+fit_and_eval <- function(degree) {
+  # TODO: should we evaluate on held-out test data? If I do that, then AIC/BIC rise monotonically. Not sure how to interpret.
+  n <- nrow(train)
+  model <- fit_model(degree, train)
+  SSR = eval_model(model, train)
+  data.frame(
+    degree = degree,
+    AIC = n * log(SSR / n) + 2 * degree,
+    BIC = n * log(SSR / n) + degree * log(n))
+}
+
+degrees <- 0:6
+plot_data <- degrees |>
+  map(fit_and_eval) |>
+  bind_rows() |>
+  pivot_longer(!degree)
+
+# Plot of AIC/BIC against degree
+p <- ggplot(plot_data, aes(x = degree, y = value, color = name)) +
+  geom_point() +
+  geom_line() +
+  xlab("Degree") +
+  ylab(NULL) +
+  ggtitle("AIC/BIC") +
+  theme(legend.title=element_blank()) +
+  scale_x_continuous(breaks = degrees)
+
+# Plot of data with best fit (degree 3)
+model3 <- fit_model(3, train)
+predict3 <- function(x) {
+  predict(model3, newdata = data.frame(x = x))
+}
+q <- ggplot(train) +
+  geom_point(aes(x = x, y = y)) +
+  geom_function(fun = predict3) +
+  ggtitle("Optimal fit")
+
+grid.arrange(p, q, ncol = 2)
 ```
+
+- Both AIC and BIC select fit of degree 3
+- In general AIC and BIC don't have to agree
+
+
 
 ## Statistical hypothesis test
 

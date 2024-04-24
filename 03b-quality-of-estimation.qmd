@@ -1,5 +1,5 @@
 ---
-title: "Quality of parameter estimates"
+title: "Nonlinear Modeling: Quality of parameter estimates"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
 pdf-engine: lualatex

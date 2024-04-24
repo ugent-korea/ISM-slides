@@ -1,0 +1,32 @@
+---
+title: "Nonlinear Modeling: Model selection"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+
+---
+
+
+# Model Selection
+
+## Model selection
+
+- Also called _structure characterisation_
+- Problem: "perfect" model and "true" parameters are unknown.
+- Goal:  __Select best model structure from set of candidate models, based on experimental data__
+
+## Which model fits the data the best?
+
+```{r, echo=FALSE, fig.height=6}
+source("scripts/03a-parameter-estimation/bias-variance-trials.R", local = knitr::knit_global())
+```

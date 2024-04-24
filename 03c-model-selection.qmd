@@ -16,6 +16,12 @@ format:
 
 ---
 
+```{r}
+library(tidyverse)
+
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+```
+
 
 # Model Selection
 
@@ -79,11 +85,21 @@ Goal model selection: select model with smallest total error = compromise betwee
 - Same data as before (slide 1)
 - Polynomial model $y \sim 1 + x + x^2 + \cdots + x^d$
 
-```{r, echo=FALSE, fig.height=4, fig.width=6}
+```{r, echo=FALSE}
+#| out-width: 3in
+#| out-height: 1.5in
+#| fig-width: 4.5
+#| fig-height: 2
+#| fig-align: center
+
 source("scripts/03a-parameter-estimation/bias-variance-curves.R", local = knitr::knit_global())
+
+poly_bias_variance
 ```
 
-Model of degree 2 (quadratic curve) gives best fit (not too complex, not too simple)
+- Model of degree 2 (quadratic curve) gives best fit (not too complex, not too simple)
+- Bias and variance in general **difficult to calculate**, need easier criteria.
+
 
 ## Case study: biodegradation test
 

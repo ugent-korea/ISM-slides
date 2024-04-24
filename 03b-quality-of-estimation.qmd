@@ -16,6 +16,23 @@ format:
 
 ---
 
+```{r, include=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+```
+
+## Learning outcomes
+
+You should be able to
+
+- Understand the interpretation of measurement noise
+- Explain the role of the Fisher information matrix in quantifying parameter uncertainty
+- Compute a confidence interval for a parameter
+- Compute the correlation between two parameters
+
+
 ## Quality of estimation
 
 - Apart from obtaining parameter estimates, we want to know a measure of uncertainty for these values.
@@ -263,11 +280,192 @@ $$
 
 - Correlation between $A$ and $k$: $R = -0.0034/\sqrt{0.057 \times 0.0169} = -0.110$.
 
+## Worked-out example: stock-recruitment model
+
+```{r, include=FALSE}
+load("datasets/03-parameter-estimation/M.merluccius.rda")
+```
+
+Optimal parameters:
+
+- $\alpha = 5.75$
+- $k = 33.16$
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+bh_fit <- nls(
+  num.fish ~ alpha * spawn.biomass / (1 + spawn.biomass / k),
+  data = M.merluccius,
+  start = list(alpha = 6, k = 20))
+
+ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point() +
+  geom_function(
+    fun = \(S) predict(bh_fit, newdata = data.frame(spawn.biomass = S)), 
+    xlim = c(0, 80))
+```
+
+## 
+
+```{r}
+J_sr <- function(theta) {
+  x <- M.merluccius$spawn.biomass
+  y <- M.merluccius$num.fish
+  f <- function(S, alpha, k) {
+    alpha * S / (1 + S / k)
+  }
+  resid <- y - f(x, theta[1], theta[2])
+  sum(resid^2)
+}
+
+J_theta_sr <- J_sr(coef(bh_fit))
+sigma2_sr <- J_theta_sr / 13
+
+round2 <- function(x) {
+  format(ceiling(x * 100) / 100,nsmall=2)
+}
+
+```
+
+
+1. Measurement noise:
+$$
+  \sigma^2 = 
+    \frac{J(\theta_\text{best})}{N - p} = 
+    \frac{`r round2(J_theta_sr)`}{13} = 
+    `r round2(sigma2_sr)`
+$$
+1. Sensitivity functions (for Beverton-Holt model):
+$$
+  \frac{\partial f}{\partial \alpha} = \frac{S}{1 + S/k}, \quad
+  \frac{\partial f}{\partial k} = - \frac{\alpha S^2}{(k + S)^2}.
+$$
+Again, typically you would compute these derivatives numerically.
+
+##
+
+```{r}
+# partial derivatives at optimal parameters
+S <- M.merluccius$spawn.biomass
+alpha_best <- coef(bh_fit)["alpha"]
+k_best <- coef(bh_fit)["k"]
+df_dalpha <- S / (1 + S / k_best)
+df_dk <- - alpha_best * S^2 / (k_best + S)^2
+df <- matrix(c(df_dalpha, df_dk), byrow = TRUE, nrow = 2)
+
+# Fisher matrix and inverse
+FIM_sr <- df %*% t(df) / sigma2_sr
+FIM_inv_sr <- solve(FIM_sr)
+```
+
+
+3. Fisher information matrix:
+$$
+  \mathcal{I} = \begin{bmatrix}
+    `r round2(FIM_sr[1,1])` & `r round2(FIM_sr[1,2])` \\
+    `r round2(FIM_sr[2,1])` & `r round2(FIM_sr[2,2])` \\    
+  \end{bmatrix}
+$$
+4. Error-covariance matrix:
+$$
+  C = \mathcal{I}^{-1} = \begin{bmatrix}
+    `r round2(FIM_inv_sr[1,1])` & `r round2(FIM_inv_sr[1,2])` \\
+    `r round2(FIM_inv_sr[2,1])` & `r round2(FIM_inv_sr[2,2])` \\    
+  \end{bmatrix}
+$$
+
+##
+
+```{r, include=FALSE}
+sigma2_alpha <- FIM_inv_sr[1, 1]
+sigma2_k <- FIM_inv_sr[2, 2]
+cov_alpha_k <- FIM_inv_sr[1, 2]
+R_alpha_k <- cov_alpha_k / sqrt(sigma2_alpha * sigma2_k)
+```
+
+
+From previous slide:
+$$
+  \sigma^2_\alpha = `r round2(sigma2_alpha)`, \quad 
+  \sigma^2_k = `r round2(sigma2_k)`, \quad 
+  \text{Cov}(\alpha, k) = `r round2(cov_alpha_k)`.
+$$
+
+5. 95% confidence intervals:
+
+  - For $\alpha$:
+    $$
+      \alpha_\text{best} \pm 2.16 \times \sigma_\alpha =
+      [`r round2(alpha_best - 2.16 * sqrt(sigma2_alpha))`,
+      `r round2(alpha_best + 2.16 * sqrt(sigma2_alpha))`]
+    $$
+  - For $k$:
+    $$
+      k_\text{best} \pm 2.16 \times \sigma_k =
+      [`r round2(k_best - 2.16 * sqrt(sigma2_k))`,
+      `r round2(k_best + 2.16 * sqrt(sigma2_k))`]
+    $$
+
+6. Parameter covariance:
+$$
+  R = \frac{\text{Cov}(\alpha, k)}{\sigma_\alpha \times \sigma_k} =
+  \frac{`r round2(cov_alpha_k)`}{`r round2(sqrt(sigma2_alpha))` \times  `r round2(sqrt(sigma2_k))`} = `r round2(R_alpha_k)`.
+$$
+
+## Spaghetti plot
+
+To get an idea of the variability in the confidence region, sample parameters from it, and plot resulting fitted curves.
+
+```{r}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+library(mvtnorm)
+
+parameters <-
+  rmvnorm(100, mean = c(alpha_best, k_best), sigma = FIM_inv_sr)
+
+beverton_holt <- function(S, theta) {
+  theta[1] * S / (1 + S / theta[2])
+}
+
+p <- ggplot(parameters, aes(x = alpha, y = k)) +
+  geom_point()
+
+q <- ggplot(M.merluccius, aes(spawn.biomass, num.fish)) +
+  geom_point()
+for (i in seq_along(numeric(nrow(parameters)))) {
+  q <- q +
+    geom_function(fun = beverton_holt,
+                  args = list(theta = parameters[i, ]),
+                  color = "red",
+                  alpha = 0.1)
+}
+q <- q +
+  geom_function(fun = beverton_holt,
+                args = list(theta = c(alpha_best, k_best)),
+                color = "red",
+                alpha = 1.0,
+                linewidth = 1.0)
+
+grid.arrange(p, q, ncol = 2)
+```
+
+
+
 ## Key takeaways
 
 - Quality of parameter estimates depends on **model** and **data**, encoded by the FIM.
 - The FIM provides a way of drawing elliptical confidence regions in parameter space.
 - The FIM gives a lower bound for the error-covariance matrix.
 
-# Bootstrap confidence intervals
+
 

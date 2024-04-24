@@ -163,6 +163,8 @@ Dataset (dots) and best fits (calibrated candidate models based on an SSE-based 
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
+
+run_all()
 ```
 
 # Methods for model selection
@@ -369,6 +371,15 @@ grid.arrange(p, q, ncol = 2)
 - Both AIC and BIC select fit of degree 3
 - In general AIC and BIC don't have to agree
 
+## AIC/BIC: Respirometric case study
+
+| Model        | p |   SSR   |    AIC    |    BIC    |
+|--------------|---|--------:|----------:|----------:|
+| Exponential  | 2 |   0.36  |  -303.67  |  -299.48  |
+| Single Monod | 3 |   0.16  |  -348.74  |  -342.45  |
+| Double Monod | 6 |   0.01  |  -508.87  |  -496.30  |
+
+<!-- See script "monod-plot.R" for code to compute these numbers -->
 
 
 ## Statistical hypothesis test
@@ -393,6 +404,7 @@ $$
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
+run_all()
 ```
 
 ## Autocorrelation test: Residuals as a function of time

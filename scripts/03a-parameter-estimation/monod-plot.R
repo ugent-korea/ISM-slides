@@ -73,4 +73,64 @@ run_all <- function() {
   legend(30, 1.0, legend = c("Double Monod", "Single Monod", "First Order"), col = c(2, 4, 3), lwd = 2)
 }
 
-run_all()
+#run_all()
+
+aic <- function(p, n, ssr) {
+  n * log(ssr / n) + 2 * p
+}
+
+bic <- function(p, n, ssr) {
+  n * log(ssr / n) + p * log(n)
+}
+
+model_eval_first_order <- function() {
+  ps <- c(0.1038534, 0.9184895)
+  fitted <- call_rhs(our.first.order, our.data[,1], ps)
+  resids <- our.data[,2] - fitted
+
+  n <- nrow(our.data)
+  p <- length(ps)
+  SSR <- sum(resids^2)
+  data.frame(
+    p = p,
+    SSR = SSR,
+    AIC = aic(p, n, SSR),
+    BIC = bic(p, n, SSR)
+  )
+}
+
+model_eval_single_monod <- function() {
+  ps <- c(1.128503, 3.468738, 7.827375)
+
+  fitted <- call_rhs(our.single.monod, our.data[,1], ps)
+  resids <- our.data[,2] - fitted
+
+  n <- nrow(our.data)
+  p <- length(ps)
+  SSR <- sum(resids^2)
+  data.frame(
+    p = p,
+    SSR = SSR,
+    AIC = aic(p, n, SSR),
+    BIC = bic(p, n, SSR)
+  )
+}
+
+model_eval_double_monod <- function() {
+  ps <- c(0.3440548, 1.6705150, 4.2286317,
+                        0.4717867, 0.1275079, 4.0865588)
+
+
+  fitted <- call_rhs(our.double.monod, our.data[,1], ps)
+  resids <- our.data[,2] - fitted
+
+  n <- nrow(our.data)
+  p <- length(ps)
+  SSR <- sum(resids^2)
+  data.frame(
+    p = p,
+    SSR = SSR,
+    AIC = aic(p, n, SSR),
+    BIC = bic(p, n, SSR)
+  )
+}

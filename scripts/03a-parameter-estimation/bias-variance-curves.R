@@ -1,3 +1,5 @@
+library(tidyverse)
+
 set.seed(1234)
 
 # True model
@@ -42,6 +44,17 @@ bias_variance <- sapply(degrees, run.experiment)
 b <- bias_variance["bias",]
 v <- bias_variance["variance",]
 
-plot(degrees, b, xlab = "Degree", ylab = "Error", type = "b", pch = 19, col = 2)
-lines(degrees, v, type = "b", pch = 19, col = 4)
-legend(4, 0.3, legend = c("Bias", "Variance"), col = c(2, 4), lwd = 2)
+plotdata <- data.frame(
+  degree = 0:6,
+  bias = bias_variance["bias",],
+  variance = bias_variance["variance",]
+) |> pivot_longer(!degree)
+
+poly_bias_variance <-
+  ggplot(plotdata, aes(x = degree, y = value, color = name)) +
+  geom_line() +
+  geom_point() +
+  xlab("Degree") +
+  ylab("Error") +
+  theme(legend.title=element_blank()) +
+  scale_x_continuous(breaks = degrees)

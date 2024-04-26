@@ -893,13 +893,33 @@ No pattern in residuals + normality: model appears well-fit.
 
 How can we detect patterns, correlations, ... in residuals?
 
-```{r, include=FALSE}
-source("scripts/03a-parameter-estimation/autocorrelation.R", local = knitr::knit_global())
-```
-
 \vspace*{1cm}
 
-```{r, echo=FALSE, fig.height=3}
+```{r, echo=FALSE}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+set.seed(1234)
+
+n <- 50
+x <- seq(1, n)
+resids_hetero <- sin(2*pi*x/n) + 1.1 * rnorm(n)
+resids_homo <- rnorm(n)
+
+data_plot <- function(id, col, title) {
+  df <- data.frame(id=id, col=col)
+  df %>% ggplot(aes(id, col)) +
+    geom_point() +
+    xlab("Time") + ylab("") +
+    ggtitle(title)
+}
+
+p1 <- data_plot(x, resids_homo, "Random residuals")
+p2 <- data_plot(x, resids_hetero, "Correlated residuals")
+
+
 grid.arrange(p1, p2, ncol = 2)
 ```
 
@@ -921,7 +941,7 @@ where $r_\varepsilon(0)=\sum_{k=1}^{N} \frac{\varepsilon^2(t_k)}{N}$
 
 If data is uncorrelated, then autocorrelation is normally distributed:
 $$
-  r_\varepsilon(\tau) \sim \mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right).
+  r_\varepsilon(\tau) \sim \mathcal{N}\left(0, \frac{1}{N}\right).
 $$
 Can be used to detect "abnormally high" correlations: 
 

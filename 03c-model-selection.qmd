@@ -371,7 +371,7 @@ grid.arrange(p, q, ncol = 2)
 - Both AIC and BIC select fit of degree 3
 - In general AIC and BIC don't have to agree
 
-## AIC/BIC: Respirometric case study
+## AIC/BIC: Biodegradation example
 
 | Model        | p |   SSR   |    AIC    |    BIC    |
 |--------------|---|--------:|----------:|----------:|
@@ -400,7 +400,7 @@ $$
     - Autocorrelation test (see Parameter Estimation)
     - Runs test (nonparametric test)
 
-## Autocorrelation test: Respirometric case study
+## Autocorrelation test: Biodegradation example
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())

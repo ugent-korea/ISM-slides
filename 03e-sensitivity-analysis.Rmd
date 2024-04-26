@@ -445,9 +445,9 @@ $$EE_{\theta_i} = \dfrac{y(\theta_i+\Delta)-y(\theta)}{\Delta}$$
 - Assume 2 parameters $\theta_1$ and $\theta_2$
 - Locations in parameters space chosen systematically
 
-\begin{figure}
-\includegraphics[width=.7\textwidth]{images/temp/052.pdf}
-\end{figure}
+<!-- \begin{figure} -->
+<!-- \includegraphics[width=.7\textwidth]{images/temp/052.pdf} -->
+<!-- \end{figure} -->
 
 ## GSA: Morris screening
 
@@ -462,9 +462,9 @@ $$EE_{\theta_i} = \dfrac{y(\theta_i+\Delta)-y(\theta)}{\Delta}$$
 - Normally 2 simulations needed per $EE$
 - 1991: Morris introduced more efficient way
 
-\begin{figure}
-\includegraphics[width=.7\textwidth]{images/temp/053.pdf}
-\end{figure}
+<!-- \begin{figure} -->
+<!-- \includegraphics[width=.7\textwidth]{images/temp/053.pdf} -->
+<!-- \end{figure} -->
 
 - Number of simulations: 
 \begin{center}

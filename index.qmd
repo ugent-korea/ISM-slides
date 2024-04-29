@@ -1,0 +1,24 @@
+---
+title: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+---
+
+## Presentations
+
+- 1 - Linear Regression (1/7): Introduction
+- 1 - Linear Regression (2/7): Simple linear regression
+- 1 - Linear Regression (3/7): Multiple linear regression
+- 1 - Linear Regression (4/7): Predictivity and variability
+- 1 - Linear Regression (5/7): Outliers
+- 1 - Linear Regression (6/7): Categorical variables
+- 1 - Linear Regression (7/7): Multicollinearity
+- [2 - Principal Component Analysis (1/3): Introduction](02a-pca-introduction.qmd)
+- [2 - Principal Component Analysis (2/3): Theory and concepts](02b-pca-theory.qmd)
+- [2 - Principal Component Analysis (3/3): Examples](02c-pca-examples.qmd)
+- [3 - Logistic regression](02d-logistic-regression.qmd)
+- [4 - Nonlinear regression (1/5): Parameter estimation](03a-parameter-estimation.qmd)
+- [4 - Nonlinear regression (2/5): Confidence intervals](03b-quality-of-estimation.qmd)
+- [4 - Nonlinear regression (3/5): Model selection](03c-model-selection.qmd)
+- 4 - Nonlinear regression (4/5): Sensitivity analysis
+- 4 - Nonlinear regression (5/5): Case study: Streeter-Phelps model
+

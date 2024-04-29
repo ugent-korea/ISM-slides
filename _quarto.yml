@@ -1,0 +1,8 @@
+project:
+  type: website
+  output-dir: pdfs
+  render:
+    - "*.qmd"
+
+execute:
+  freeze: auto  

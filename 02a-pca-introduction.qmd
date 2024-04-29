@@ -1,21 +1,19 @@
 ---
-title: "Chapter 2: Principal Component Analysis"
-subtitle: "PCA: Principles"
-author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \usepackage{amsmath}
-  - \graphicspath{{./images/02-pca}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+title: "PCA: Overview"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+      
 ---
 
 # What is dimensionality reduction?
@@ -34,8 +32,7 @@ output:
 
 ## Visualization
 
-\centering
-![](./images/02-pca/gene-expression-profiles.png){height=75%}
+![](./images/02-pca/gene-expression-profiles.png){height=75% fig-align="center"}
 
 From: Lever et al., *Principal component analysis*, Nature Methods, Vol. 14, p. 641–642, 2017.
 
@@ -43,8 +40,7 @@ From: Lever et al., *Principal component analysis*, Nature Methods, Vol. 14, p. 
 
 Genotype data 197,146 loci in 1387 Europeans, summarized in two principal components (left) and compared to geographical origin (right).
 
-\centering
-![](./images/02-pca/genetic-variation.png){height=50%}
+![](./images/02-pca/genetic-variation.png){height=50% fig-align="center"}
 
 From: Novembre et al., *Genes mirror geography within Europe*, Nature, Vol. 456, 6 November 2008.
 
@@ -55,8 +51,7 @@ Bodyfat dataset:
 - Suffered from high multicollinearity.
 - Conclusions from regression model are doubtful.
 
-\centering
-![](./images/02-pca/multicollinearity.png){height=50%}
+![](./images/02-pca/multicollinearity.png){height=50% fig-align="center"}
 
 ## Computational efficiency
 
@@ -64,8 +59,7 @@ Bodyfat dataset:
 - Not all pixels are equally informative.
 - Extract signal that is maximally informative, discard rest.
 
-\centering
-![](./images/02-pca/imagenet-cats.jpeg)
+![](./images/02-pca/imagenet-cats.jpeg){fig-align="center"}
 
 ## Principal component analysis
 
@@ -73,8 +67,7 @@ Bodyfat dataset:
 - Works by finding directions in which **variance is maximized**.
 - Good first choice, not so good if patterns are highly nonlinear.
 
-\centering
-![](./images/02-pca/max-variance-projection.png){height=50%}
+![](./images/02-pca/max-variance-projection.png){height=50% fig-align="center"}
 
 ## Other dimensionality reduction methods
 
@@ -84,6 +77,6 @@ t-SNE, UMAP:
 - "Deforms" data so that local structure is maintained.
 - Frequently used in single-cell RNA sequencing analysis.
 
-![](./images/02-pca/tsne-cells.png)
+![](./images/02-pca/tsne-cells.png){height=80% fig-align="center"}
 
 From: \url{https://www.cancer.gov/ccg/blog/2020/interview-t-sne}

@@ -131,30 +131,33 @@ Source: Images from _Fundamentals of Systems Biology_, M. Covert, CRC Press, 201
 
 ## Local sensitivity analysis
 
-- How sensitive is model output ($y$) to changes of model parameter ($\theta$) at one single point in parameter space
-- Mathematically: partial derivative of variable to parameter (_absolute sensitivity_, 1 number) at single point in parameter space
+How sensitive is model output ($y$) to changes of model parameter ($\theta$) *at one single point* in parameter space?
+
+- **(Absolute) local sensitivity**: partial derivative of variable with respect to parameter at single point in parameter space
 $$
-  \frac{\partial y}{\partial \theta}
-  $$
-- Dynamical models: $y$ varies over time, hence also sensitivity varies over time $\rightarrow$ *(absolute) sensitivity function*
+  S(\theta, x) = \frac{\partial y}{\partial \theta}(\theta, x)
 $$
-  \frac{\partial y(t)}{\partial \theta}=S(t)
-  $$
-- For a single output, sensitivity functions for each individual parameter $\theta_j$ can be determined
+- If $k$ parameters, then also $k$ sensitivity functions:
+$$
+  S_i(\theta, x) = \frac{\partial y}{\partial \theta_i}(\theta, x), \quad
+  i = 1, \ldots, k.
+$$
 
 ## Local sensitivity analysis: absolute sensitivity
 
-- Often $y(t)$ can only be numerically determined, then also $S(t)$
-- Finite difference method: **forward difference**
-$$
-\left.\frac{\Delta y(t)}{\Delta \theta_j}\right|_+  
-  =  \frac{y(t,\theta_j+\Delta\theta_j)-y(t,\theta_j)}{\Delta\theta_j}
-$$
+**Problem**: often very hard to compute partial derivative analytically.
 
-- Finite difference method: **backward difference**
+**Solution**: compute derivative **numerically** through finite difference method:
+
+- Forward difference:
 $$
-\left.\frac{\Delta y(t)}{\Delta \theta_j}\right|_-  
-  = \frac{y(t,\theta_j)-y(t,\theta_j-\Delta\theta_j)}{\Delta\theta_j}
+\left.\frac{\Delta y}{\Delta \theta_j}\right|_+  
+  =  \frac{y(x,\theta_j+\Delta\theta_j)-y(x,\theta_j)}{\Delta\theta_j}
+$$
+- Backward difference:
+$$
+\left.\frac{\Delta y}{\Delta \theta_j}\right|_-  
+  = \frac{y(x,\theta_j)-y(x,\theta_j-\Delta\theta_j)}{\Delta\theta_j}
 $$
 
 
@@ -162,7 +165,7 @@ $$
 
 - How to choose perturbation $\Delta\theta_j$?
   - Too large: approximation is not good
-  - Too small: numerical instabilities will set in.
+  - Too small: numerical instabilities.
 - In practice, choose $\Delta \theta_j$ **small** and **fixed**, e.g.
 $$
    \Delta \theta_j = 10^{-6}.
@@ -170,73 +173,90 @@ $$
 
 ::: {.callout-tip}
 ## Convergence
-  Both the forward and the backward difference agree with the derivative up to
-  order $\Delta \theta_j$:
+  Both the forward and the backward difference agree with the derivative up to **first order** in $\Delta \theta_j$:
 $$
-  \frac{\partial y(t)}{\partial \theta_j} = 
-    \left.\frac{\Delta y(t)}{\Delta \theta_j}\right|_+
+  \frac{\partial y(x)}{\partial \theta_j} = 
+    \left.\frac{\Delta y(x)}{\Delta \theta_j}\right|_+
     + \mathcal{O}(\Delta \theta_j), \quad
-  \frac{\partial y(t)}{\partial \theta_j} = 
-    \left.\frac{\Delta y(t)}{\Delta \theta_j}\right|_-  
+  \frac{\partial y(x)}{\partial \theta_j} = 
+    \left.\frac{\Delta y(x)}{\Delta \theta_j}\right|_-  
     + \mathcal{O}(\Delta \theta_j).
 $$
 :::
 
+
 ## Local sensitivity analysis: absolute sensitivity
 
-- Finite difference method: **central difference**
+- Third option: central difference
 $$
-\frac{\Delta y(t)}{\Delta \theta_j} =   
-    \frac{y(t,\theta_j+\Delta\theta_j) - y(t,\theta_j-\Delta\theta_j)}{2\Delta\theta_j}
+\frac{\Delta y(x)}{\Delta \theta_j} =   
+    \frac{y(x,\theta_j+\Delta\theta_j) - y(x,\theta_j-\Delta\theta_j)}{2\Delta\theta_j}
 $$
 
 ::: {.callout-tip}
 ## Convergence
-  The central difference agrees with the derivative up to
-  order $(\Delta \theta_j)^2$:
+  The central difference agrees with the derivative up to **second
+  order** in $\Delta \theta_j$:
   $$
-  \frac{\partial y(t)}{\partial \theta_j} = 
-    \frac{\Delta y(t)}{\Delta \theta_j}
+  \frac{\partial y(x)}{\partial \theta_j} = 
+    \frac{\Delta y(x)}{\Delta \theta_j}
     + \mathcal{O}((\Delta \theta_j)^2).
   $$
 :::
 
 ## Local sensitivity analysis: relative sensitivity
 
-- Want to compare sensitivities of different combinations of outputs and parameters 
-- Absolute sensitivity is influenced by magnitude of variable/parameter
-- Use **relative sensitivity**
+Absolute sensitivity is influenced by magnitude of variable and parameter. 
+
+- Problematic if we want to compare sensitivities of different combinations of outputs and parameters 
+- Use **relative sensitivity**.
 
 ## Local sensitivity analysis: relative sensitivity
 
-- Relative sensitivity w.r.t. parameter $\dfrac{\partial y(t)}{\partial \theta_j} \cdot \theta_j$ 
-Compare sensitivity of _same variable_ w.r.t. _different parameters_
-- Relative sensitivity w.r.t. variable $\dfrac{\partial y_i(t)}{\partial \theta} \cdot \dfrac{1}{y_i}$ 
-Compare sensitivity of _different variables_ w.r.t. _same parameter_
-- Total relative sensitivity $\dfrac{\partial y_i(t)}{\partial \theta_j} \cdot \dfrac{\theta_j}{y_i}$ \newline
-Compare all sensitivities, i.e., relative w.r.t. parameter and variable
+Different definitions, depending on what's important:
+
+1. Relative sensitivity w.r.t. parameter:
+  $$
+    \frac{\partial y(t)}{\partial \theta_j} \cdot \theta_j
+  $$
+  Compare sensitivity of same variable w.r.t. *different parameters*
+2. Relative sensitivity w.r.t. variable 
+  $$
+    \frac{\partial y_i(t)}{\partial \theta} \cdot \dfrac{1}{y_i}
+  $$ 
+Compare sensitivity of *different variables* w.r.t. same parameter
+
+## Local sensitivity analysis: relative sensitivity
+
+3. Total relative sensitivity 
+  $$
+    \frac{\partial y_i(t)}{\partial \theta_j} \cdot \dfrac{\theta_j}{y_i}
+  $$
+Compare all sensitivities (of *different variables* w.r.t. *different parameters*)
 
 ## Local sensitivity analysis
 
-- Relative sensitivities allow to **rank sensitivities**
+- Relative sensitivities allow to **rank sensitivities**. Important for:
     - Choice parameters for parameter estimation
     - Choice parameters for model reduction
     - Choice for additional measurement or experimental determination of parameter (reduce sources of uncertainty)
-- Ranking **depends on nominal value of parameter**, can be different at different position in parameter space
+- Ranking **depends on value of parameter**, can be different at different position in parameter space
 - How to compare continuous sensitivity functions?
-- Interest in specific time points
+- Interest in specific values of independent variable
     - Where measurements are available
     - Where measurements will be collected
     
 ## Local sensitivity analysis
 
 - Create generic model with
+    - Time $t$ as independent variable
     - Outputs $y_i$, $i=1,\ldots,v$
     - Parameters $\theta_j$, $j=1,\ldots,p$
     - Moments of measurements $t_k$, $k=1,\ldots,N$
 - Total relative sensitivity of variable $y_i$ w.r.t. parameter $\theta_j$ at moment $t_k$
 $$
-S_{i,j,k}=\dfrac{\partial y_i(t_k)}{\partial \theta_j} \cdot \dfrac{\theta_j}{y_i}
+  S_{i,j,k} = 
+    \frac{\partial y_i(t_k)}{\partial \theta_j} \cdot     \frac{\theta_j}{y_i}
 $$
 
 ## Local sensitivity analysis

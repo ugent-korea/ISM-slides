@@ -16,6 +16,14 @@ format:
 
 ---
 
+```{r, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(latex2exp)
+
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+```
+
 # Sensitivity Analysis
 
 ## Why sensitivity analysis?
@@ -352,3 +360,80 @@ Disadvantages:
 App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.fly.dev/monte-carlo/).
 
 
+# Global sensitivity analysis (GSA)
+
+## Global sensitivity analysis (GSA)
+
+- Measure for sensitivity in delimited area in parameter space
+- PDFs for parameters need to be chosen/found (same as for uncertainty analysis)
+
+3 techniques will be discussed:
+
+- Standardized regression coefficients
+- Screening techniques
+- Variance decomposition
+
+## GSA: Standardized regression coefficients
+
+- Linear regression of Monte Carlo simulations
+- Each line is simulation of variable $y$ for different parameter set $\Theta$, i.e., other point in parameter space
+
+```{r, include=FALSE}
+source("./scripts/03a-parameter-estimation/SP-GSA.R")
+```
+
+```{r, echo=FALSE}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
+
+plot_mc_do
+```
+
+- Figure: 100 simulations of dissolved oxygen, with $k_1, k_2$ sampled uniformly between $0.1$ and $0.8$.
+
+## GSA: Standardized regression coefficients
+
+- Consider outcomes at fixed time $T$
+- Quantify effect of parameters $\theta_1, \ldots \theta_p$ through linear model
+$$
+  y_{t = T} = b_1 \theta_1 + \cdots + b_p \theta_p + \epsilon
+$$
+- Regression coefficient $b_i$ gives contribution of parameter $\theta_i$ in explaining variance of $y_{t = T}$
+
+```{r, echo=FALSE}
+#| out-width: 4.5in
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
+p1 <- ggplot(curves_t15, aes(x = k1, y = DO)) + 
+  geom_point()
+p2 <- ggplot(curves_t15, aes(x = k2, y = DO)) + 
+  geom_point()
+grid.arrange(p1, p2, ncol = 2)
+```
+
+## GSA: Standardized regression coefficients
+
+- Correct for spread on both parameter and output
+- Recalculate coefficients $b_i$ to $SRC$s
+$$
+SRC_{\theta_i} = b_i \cdot \dfrac{\sigma_{\theta_i}}{\sigma_y}
+$$
+- Sample standard deviations from 
+  - vector $y_{t = T}$ for output
+  - parameter samples for parameter $\theta_i$.
+
+
+## GSA: Standardized regression coefficients
+
+- For linear model in parameters that were examined, the total variance is explained by $SRC$s
+$$\sum_i SRC_{\theta_i}^2=1$$
+- For nonlinear models (in the parameters) _not_ all variance will be explained. The part that is explained is given by determination coefficient
+$$R^2=\sum_{i=1}^n \dfrac{(\hat{y}_i-\overline{y})^2}{(y_i-\overline{y})^2}$$
+- $\hat{y}_i$: prediction by regression model
+- Technique only valid if $R^2 > 0.7$

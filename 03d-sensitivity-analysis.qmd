@@ -473,9 +473,7 @@ $$R^2=\sum_{i=1}^n \dfrac{(\hat{y}_i-\overline{y})^2}{(y_i-\overline{y})^2}$$
   - Naive: $(2 \times \text{\#EE})^p$
   - Morris: $(p + 1) \times \text{\#EE}$
 
-
 ![](./images/03e-sensitivity/morris-2.pdf){height="70%"}
-
 
 ## GSA: Variance decomposition
 

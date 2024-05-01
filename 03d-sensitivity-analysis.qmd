@@ -437,3 +437,74 @@ $$\sum_i SRC_{\theta_i}^2=1$$
 $$R^2=\sum_{i=1}^n \dfrac{(\hat{y}_i-\overline{y})^2}{(y_i-\overline{y})^2}$$
 - $\hat{y}_i$: prediction by regression model
 - Technique only valid if $R^2 > 0.7$
+
+## GSA: Screening techniques
+
+- Goal: obtain idea of importance of model parameters using only a limited number of simulations
+- Example of technique: Morris screening
+- Calculation of *elementary effect* for $\theta_i$
+  $$
+    EE_{\theta_i} = \dfrac{y(\theta_i+\Delta)-y(\theta)}{\Delta}
+  $$
+- $\Delta$ is a predetermined step size in parameter
+- Remark analogy with local sensitivity, however, step size much larger
+
+## GSA: Morris screening
+
+- Assume 2 parameters $\theta_1$ and $\theta_2$
+- Choose regions in parameter space to compute elementary effects
+- Summarize EE using mean and variance
+
+![](./images/03e-sensitivity/morris.pdf){fig-align="center"}
+
+## GSA: Morris screening
+
+- Vector of $EE$ (in this case 3)
+- Statistical analysis of this vector
+    - $\mu_{EE_{\theta_i}}$: indication on average effect of this parameter over entire parameter space; large value means important parameter and vice versa
+    - $\sigma_{EE_{\theta_i}}$: information about linear behavior of parameter; large value means nonlinear parameter or parameter involved in interactions with other parameters
+- Do same for $\theta_2$
+
+## GSA: Morris screening
+
+- Normally 2 simulations needed per $EE$
+- 1991: Morris introduced more efficient way
+- Number of simulations needed for $p$ parameters:
+  - Naive: $(2 \times \text{\#EE})^p$
+  - Morris: $(p + 1) \times \text{\#EE}$
+
+
+![](./images/03e-sensitivity/morris-2.pdf){height="70%"}
+
+
+## GSA: Variance decomposition
+
+- Goal: find share of each model parameter in variance of model output
+- Used for models that are strongly nonlinear or nonmonotonous
+- Example of model with 3 paramaters:
+$$
+  \sigma_y^2=\sigma_1^2+\sigma_2^2+\sigma_3^2+\sigma_{12}^2+\sigma_{13}^2+\sigma_{23}^2+\sigma_{123}^2
+$$
+- Normalisation (i.e., divide by $\sigma_y^2$) gives _sensitivity indices_
+$$
+  1=S_1+S_2+S_3+S_{12}+S_{13}+S_{23}+S_{123}
+$$
+- Indicate which fraction of total variance is determined by certain parameter or parameter combination
+
+## GSA: Variance decomposition
+
+- _Total sensitivity indices_
+\begin{eqnarray*}
+S_{T1} & = & S_1 + S_{12} + S_{13} + S_{123} \\
+S_{T2} & = & S_2 + S_{12} + S_{23} + S_{123} \\
+S_{T3} & = & S_3 + S_{13} + S_{23} + S_{123} 
+\end{eqnarray*}
+- Give total contribution of a certain parameter, including interaction effects
+- Watch out: some contributions are counted multiple times, hence sum of all total sensitivity indices is no longer 1
+
+## GSA: Variance decomposition
+
+- Two techniques:
+    - FAST (Fourier Amplitude Sensitivity Test): uses Fourier decomposition of model output; can determine first order effects (total effects $\rightarrow$ extendedFAST); computationally intensive ((ten) thousands of simulations)
+    - Sobol indices: uses multiple integrals, both first order and higher order effects; computationally expensive; less efficient than FAST
+

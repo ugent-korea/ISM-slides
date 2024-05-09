@@ -1,34 +1,40 @@
 ---
-title: "Modeling and simulation of biosystems"
-subtitle: "Case study: river discharge"
-author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \usepackage{siunitx}
-  - \usepackage{numprint}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+title: "Nonlinear modeling: Case study: river discharge"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+      \usepackage{siunitx}
+      \usepackage{numprint}
+      \newcommand{\BOD}{\mathsf{BOD}}
+      \newcommand{\DO}{\mathsf{DO}}
+
 ---
 
+```{r, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(latex2exp)
 
-  
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
+```
 # Model overview
-  
----
   
 ## Setting
 
-\begin{exampleblock}{Streeter-Phelps model}
+::: {.callout-tip}
+## Streeter-Phelps model
 Use water pollution as water quality monitoring tool. Describes how dissolved oxygen decreases in a river along a certain distance by degradation of biological oxygen demand.
-\end{exampleblock}
+:::
 
 - Aerobic bacteria gradually remove organic pollution downstream of pollution source
 - Reactions
@@ -51,10 +57,7 @@ Typical values for rivers
 
 ## Model
 
-\newcommand{\BOD}{\mathsf{BOD}}
-\newcommand{\DO}{\mathsf{DO}}
-
-Constant flow rate: location doesn't matter, dynamic model \alert{in time}
+Constant flow rate: location doesn't matter, dynamic model **in time**
 
 \begin{align*}
   \frac{d \BOD}{dt} & = \BOD_{in} - k_1 \BOD \\
@@ -76,8 +79,8 @@ where
 - Initial model inputs:
   - $\BOD_{in} = 1$mg$\cdot$l$^{-1}$ $\cdot$min$^{-1}$
   - $\DO_{sat} = 8.5$mg$\cdot$l$^{-1}$
-  - $k_1 = 0.3$min$^{-1}$ (\alert{unknown})
-  - $k_2 = 0.4$min$^{-1}$ (\alert{unknown})
+  - $k_1 = 0.3$min$^{-1}$ (**unknown**)
+  - $k_2 = 0.4$min$^{-1}$ (**unknown**)
 
 ## Model trajectories
 
@@ -158,42 +161,46 @@ source("scripts/03a-parameter-estimation/SP-fisher.R", local = knitr::knit_globa
 ```
 
 Fisher information matrix:
-\[
+$$
   \mathsf{FIM} = \sum_{i=1}^N 
     \left(\frac{\partial y}{\partial \theta}(t_i)\right)^T Q_i 
     \left(\frac{\partial y}{\partial \theta}(t_i)\right)
-\]
+$$
 
 - Measurement noise $\sigma_{DO} = 0.05 \si{mg.l^{-1}}$
 - Weight "matrix" in the objective function $Q = \sigma_{DO}^{-2}$.
 
 Gives: 
-\[
+$$
   \mathsf{FIM} = \left[\begin{matrix}
     \phantom{-} 3.91 \cdot 10^{4} & -2.96 \cdot 10^{4} \\
     -2.96 \cdot 10^{4} & \phantom{-} 4.56 \cdot 10^{5}
   \end{matrix}\right]
-\]
+$$
 
 ## Quality of estimation: confidence intervals
 
 Error covariance matrix:
-\[
+$$
   \mathsf{C} = \mathsf{FIM}^{-1} = \left[
     \begin{matrix}
       2.69 \cdot 10^{-5} & 1.75 \cdot 10^{-6} \\
       1.75 \cdot 10^{-6} & 2.31 \cdot 10^{-6}
     \end{matrix}
   \right]
-\]
+$$
 
-95% confidence intervals and covariance:
+95% confidence intervals:
 
 \begin{align*}
   k_1 & :  0.353 \pm 0.011\\
-  k_2 & :  0.389 \pm 0.003\\
-  \mathsf{cor}(k_1, k_2) & = 0.22
+  k_2 & :  0.389 \pm 0.003
 \end{align*}
+
+Covariance:
+$$
+  \mathsf{cor}(k_1, k_2)  = 0.22
+$$
 
 ## Quantitative analysis
 
@@ -226,6 +233,7 @@ $k_2$ & `r round(d1_k2, 2)` & `r f(d2_k2)` & `r f(d3_k2)` & `r f(d4_k2)` \\
 \end{tabular}
 \normalsize
 \end{center}
+
 
 ## GSA: Morris screening: parameter ranges
 
@@ -287,16 +295,16 @@ Previous plots show:
 - $DO$ is sensitive to $k_2$ at $t = 15$ (and somewhat at $t = 2$)
 
 Regression coefficients for $DO$ at $t = 15$:
-\[
+$$
   \begin{bmatrix}
     b_1 \\ b_2 
   \end{bmatrix} = 
     \begin{bmatrix}
       -0.342 \\ 6.374
     \end{bmatrix}.
-\]
+$$
 
 Standardized regression coefficients (using $\sigma_{k_1} = 0.211$ and $\sigma_{DO} = 1.887$):
-\[
+$$
   SRC_{k_1} = -0.038, \quad \text{and} \quad SRC_{k_2} = 0.713.
-\]
+$$

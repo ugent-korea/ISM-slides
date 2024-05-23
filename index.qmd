@@ -14,7 +14,7 @@ author: Prof. Joris Vankerschaver
 - 1 - Linear Regression (7/7): Multicollinearity
 - [2 - Principal Component Analysis (1/3): Introduction](02a-pca-introduction.qmd)
 - [2 - Principal Component Analysis (2/3): Theory and concepts](02b-pca-theory.qmd)
-- [2 - Principal Component Analysis (3/3): Examples](02c-pca-examples.qmd)
+- [2 - Principal Component Analysis (3/3): Examples](02c-pca-applications.qmd)
 - [3 - Logistic regression](02d-logistic-regression.qmd)
 - [4 - Nonlinear regression (1/5): Parameter estimation](03a-parameter-estimation.qmd)
 - [4 - Nonlinear regression (2/5): Confidence intervals](03b-quality-of-estimation.qmd)

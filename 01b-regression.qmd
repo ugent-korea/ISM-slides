@@ -530,23 +530,19 @@ $$
   \sum_{i=1}^n (Y_i-\alpha-\beta X_i-\gamma X_i^2)^2
 $$
 
-\vfill
-```{r eval=FALSE}
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
-summary(model3)
-```
 
 ## Quadratic regression
 
 \footnotesize
-```{r echo=FALSE}
+```{r}
 model3 <- lm(log(CWD.BASA) ~ RIP.DENS + I(RIP.DENS^2))
 summary(model3)
 ```
 
 ## Residual plots
 
-```{r echo=FALSE}
+```{r}
+#| fig-align: center
 par(mfrow=c(2,2))
 plot(model3)
 ```
@@ -554,7 +550,7 @@ plot(model3)
 ## Building model proceeds hierarchically
 
 \small
-```{r echo=FALSE}
+```{r}
 summary(model3)$coefficients
 ```
 \normalsize

@@ -1,20 +1,15 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Simple Linear Regression"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \graphicspath{{./images/01-linear-regression}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
 
 

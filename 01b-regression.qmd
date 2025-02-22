@@ -577,23 +577,40 @@ $$
 
 ## Inference for mean outcome 
 
-- $\hat{Y}_h=\hat{\alpha}+\hat{\beta}X_h$ is unbiased estimator of $E(Y|X_h)=\alpha+\beta X_h$.
+Given an input $X = x_h$, what do we expect the outcome $Y$ to be on average?
+
+Use the regression equation:
+
+- $\hat{y}_h = \hat{\alpha} + \hat{\beta} x_h$ is unbiased estimator of $E(Y|X = x_h) = \alpha+\beta x_h$.
+
+What is the uncertainty of this estimator?
+
+For this we need the standard error of $\hat{Y}_h$.
+
+## Inference for mean outcome: uncertainty
+
 - Standard error of $\hat{Y}_h$ is
 $$
   SE(\hat{Y}_h)=\sqrt{MSE\left\{\frac{1}{n}+\frac{(X_h-\bar X)^2}{\sum_i (X_i-\bar X)^2}\right\}}.
 $$
-- Highest precision for predictions in $X_h=\bar X$.
 - Tests and CI for $E(Y|X_h)$ based on
 $$
   \frac{\hat{Y}_h-E(Y|X_h)}{SE(\hat{Y}_h)}\sim t_{n-p}
 $$
 with $p$ number of unknown parameters in model.
 
+## Inference for mean outcome: intuition
+
+- Highest precision for predictions in $X_h=\bar X$: relative confidence in predictions for $X$ **close to mean**.
+- Lower precision as predictions have $X$ further **away from the mean**.
+
+
 
 ## Prediction in R
 
 \small
 ```{r}
+#| echo: true
 model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
 p <- predict(model3,
              newdata = data.frame(RIP.DENS=c(1000, 1500)), 
@@ -605,12 +622,18 @@ p
 
 Predictions and lower/upper bound of the CI are for `log(CWD.BASA)` and need to be transformed back:
 ```{r}
+#| echo: true
 exp(p)
 ```
 
 ## Expected outcome with 95\% CI
 
-```{r echo=FALSE, fig.align='center'}
+```{r}
+#| out-width: 4in
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
 p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
              interval = "confidence")
 plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", ylim = c(0, max(exp(p[,3]))))
@@ -621,7 +644,8 @@ lines(800:2200, exp(p[,3]), lty=2)
 ```
 
 
-## Inference for $\beta$
+## Inference for slope $\beta$
+
 
 - The regression coefficient $\hat{\beta}$ is an (unbiased) estimator of $\beta$, the population regression coefficient.
 - It comes with a measure of uncertainty: standard error of $\hat{\beta}$:
@@ -633,7 +657,12 @@ with $MSE=\frac{1}{n-2}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
 
 ## Spread and precision
 
-```{r, echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 4in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
 
 set.seed(1234)
 n <- 50
@@ -668,16 +697,18 @@ $$
   \frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-2}
 $$
 
-\vfill
+
 
 \small
 ```{r}
+#| echo: true
 summary(model)$coefficients
 ```
 
 ## Association tree density vs.\ CWD
 
-95\% CI for $\beta$ needs $t_{14,0.975} = 2.14$
+- 95\% CI for $\beta$ needs $t_{14,0.975} = 2.14$
+- CI is given by
 $$
   [0.116 - 2.14\times 0.0234,0.116 + 2.14\times 0.0234]=[0.066,0.166]
 $$
@@ -686,5 +717,6 @@ $$
 
 \small
 ```{r}
+#| echo: true
 confint(model)
 ```

@@ -55,9 +55,9 @@ $$
 $$
 only allow to predict based on 1 mineral.
 - More accurate predictions based on all minerals simultaneously.
-- Separate models might \alert{not} show \alert{pure effect}
+- Separate models might not show **pure effect**
   - $\beta_P$ is mean difference in length between trees that differ 1 unit in proportion phosphorus.
-  - \alert{Confounding}: even if phosphorus would not have influence on length, trees with higher level of phosphorus might be taller because they contain, for example, more potassium.
+  - **Confounding**: even if phosphorus would not have influence on length, trees with higher level of phosphorus might be taller because they contain, for example, more potassium.
   - Necessity to compare trees with different level of phosphorus, but same level of potassium.
 
 ## Multiple linear regression
@@ -66,10 +66,10 @@ only allow to predict based on 1 mineral.
 $$
   E(Y|X_N,X_P,X_K,X_r)=\alpha + \beta_N X_N+ \beta_P X_P + \beta_K X_K +\beta_r X_r
 $$
-for unknown \alert{intercept} $\alpha$ and \alert{slopes} $\beta_N, \beta_P, \beta_K, \beta_r$.
+for unknown **intercept** $\alpha$ and **slopes** $\beta_N, \beta_P, \beta_K, \beta_r$.
 
 - Now prediction based on multiple minerals possible.
-- Confounding \alert{partially circumvented}: 
+- Confounding partially circumvented: 
 \begin{eqnarray*}
 &&E(Y|X_N,X_P=x_P+\delta,X_K,X_r)-E(Y|X_N,X_P=x_P,X_K,X_r)\\
 &&=\alpha + \beta_N X_N + \beta_P (x_P+\delta)+ \beta_K X_K +\beta_r X_r\\
@@ -183,7 +183,7 @@ E(Y| & X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
  &=\beta_N+\beta_{NP}X_P.
 \end{align*}
 
-- $\beta_{NP}$ is difference in nitrogen \alert{effect} between trees that differ 1 percentage in phosphorus.
+- $\beta_{NP}$ is difference in nitrogen **effect** between trees that differ 1 percentage in phosphorus.
 - Decide whether nitrogen effect depends on quantity phosphorus can be done by testing if $\beta_{NP}=0$.
 - $\beta_N$ is effect of 1 percentage increase in nitrogen when percentage phosphorus is 0.
 
@@ -316,15 +316,15 @@ Statistical models are built hierarchically by adding or removing one predictor 
 
 **Forward** model construction:
 
-- Include predictors \alert{1 by 1}
+- Include predictors **1 by 1**
 - After each inclusion:
   - Verify if certain predictors in the model are no longer significantly associated with outcome.
-  - Remove those \alert{1 by 1} until model contains only significant predictors.
+  - Remove those **1 by 1** until model contains only significant predictors.
 - Repeat until no inclusion is significant
 
 **Backward** model construction: 
 
-- Exclude \alert{1 by 1} the **nonsignificant** predictors.
+- Exclude 1 by 1 the **nonsignificant** predictors.
 - Until model only contains significant predictors.
 
 In either case, the included (excluded) predictor is ideally the one that is most (least) strongly associated with outcome, after verification for the other predictors in the model.
@@ -335,7 +335,7 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 - Once all **first order terms** have been verified, investigate **higher order terms** (interactions, quadratic effects, ...)
 - This is **not** done in exhaustive way:
   - Because number of higher order terms can get very large.
-  - Because \alert{problem of multiple testing} might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant.
+  - Because problem of multiple testing might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant.
 
 - Higher order terms considered for inclusion based on:
   - Biological judgment
@@ -364,13 +364,13 @@ F-statistic: 30.83 on 6 and 19 DF,  p-value: 8.159e-09
 ## Constructing statistical models
 
 
-- How to build statistical models \alert{depends ideally from goal} of these models:
+- How to build statistical models **depends ideally on goal** of these models:
   - Making predictions
   - Determining effect of an exposure on an outcome.
 
 - To make predictions, previous strategy is sensible since it aims at avoiding overfitting.
-- To determine effect of an exposure on an outcome, must make sure above all to adjust for all \alert{confounders}
+- To determine effect of an exposure on an outcome, must make sure above all to adjust for all confounders
 - Recall: Confounder are factors
   - that are not comparable between exposure groups
-  - in particular, that are associated with outcome and exposure, but are \alert{not influenced by either}.
+  - in particular, that are associated with outcome and exposure, but are not influenced by either.
 

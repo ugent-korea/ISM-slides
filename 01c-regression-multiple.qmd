@@ -71,7 +71,7 @@ for unknown **intercept** $\alpha$ and **slopes** $\beta_N, \beta_P, \beta_K, \b
 - Now prediction based on multiple minerals possible.
 - Confounding partially circumvented: 
 \begin{eqnarray*}
-&&E(Y|X_N,X_P=x_P+\delta,X_K,X_r)-E(Y|X_N,X_P=x_P,X_K,X_r)\\
+&&E(Y|X_N,X_P=x_P+\delta,X_K,X_r) \\ && \hspace*{1cm} -E(Y|X_N,X_P=x_P,X_K,X_r)\\
 &&=\alpha + \beta_N X_N + \beta_P (x_P+\delta)+ \beta_K X_K +\beta_r X_r\\
 &&\hspace*{1cm}-\alpha - \beta_N X_N- \beta_P x_P- \beta_K X_K -\beta_r X_r = \beta_P\delta
 \end{eqnarray*}
@@ -79,20 +79,15 @@ $\beta_P=$ difference in mean length between trees that differ 1 unit in proport
 
 ## Analysis of larches
 
-```{r eval = FALSE}
+\small
+```{r}
+#| echo: true
 model_l <- lm(length ~ phosphor)
-summary(model_l)
+summary(model_l)$coefficients
 ```
+\normalsize
 
 We call in this case the association between phosphorus and length **unadjusted**.
-
-## Analysis of larches
-
-\footnotesize
-```{r echo = FALSE}
-model_l <- lm(length ~ phosphor)
-summary(model_l)
-```
 
 ## Analysis of larches
 
@@ -120,13 +115,16 @@ $$
 $$
 with $p$ number of unknown parameters in model.
 - Or directly using
-```{r eval = FALSE} 
+```{r} 
+#| eval: false
+#| echo: true
 confint(model_l2)
 ```
 
 ## Analysis of larches 
 \small
-```{r echo = FALSE}
+```{r}
+#| echo: false
 summary(model_l2)$coefficients
 ```
 \normalsize
@@ -143,7 +141,8 @@ $$
 
 ## Analysis of larches: individual residual plots
 
-```{r echo = FALSE}
+```{r}
+#| echo: false
 par(mfrow = c(2,2))
 plot(nitrogen, resid(model_l2))
 lines(lowess(nitrogen,resid(model_l2)))
@@ -157,7 +156,8 @@ lines(lowess(residu,resid(model_l2)))
 
 ## Analysis of larches: residual plots
 
-```{r echo = FALSE}
+```{r}
+#| echo: false
 par(mfrow=c(2,2))
 plot(model_l2)
 ```
@@ -190,18 +190,13 @@ E(Y| & X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
 
 ## Analysis of larches with interaction
 
-```{r eval = FALSE}
-model_l3 <- lm(length ~ nitrogen * phosphor)
-summary(model_l3)
-```
-
-## Analysis of larches with interaction
-
 \scriptsize
-```{r echo = FALSE}
+```{r}
+#| echo: true
 model_l3 <- lm(length ~ nitrogen * phosphor)
 summary(model_l3)
 ```
+\normalsize
 
 ## Predicted association (full model, interaction)
 
@@ -212,7 +207,14 @@ Interactive visualization at
 
 ## Predicted association (left) and effect (right)
 
-```{r, echo=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| out-width: 4in
+#| out-height: 4in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
 model <- lm(length ~ nitrogen*phosphor, data = needles)
 cs <- coef(model)
 
@@ -237,31 +239,27 @@ for (ph in phosphor_plot) {
 text(2.55, 150, 0.15, adj = 0)
 text(2.55, 200, 0.20, adj = 0)
 text(2.55, 250, 0.25, adj = 0)
-text(2.10, 280, 0.30, adj = 0)
+text(2.00, 280, 0.30, adj = 0)
 
 phosphor_plot <- seq(0.15, 0.40, by = 0.1)
 nitrogen_effect <- cs[2] + cs[4]*phosphor_plot
 plot(phosphor_plot, nitrogen_effect, type = "l", lwd = 2,
      xlab = "Phosphorus", ylab = "Nitrogen effect",
-     main = "Influence of one unit of nitrogen")
+     main = "Influence of one unit of N")
 ```
 
 
-
-## Analysis of larches without interaction
-
-```{r eval = FALSE}
-model_l4 <- lm(length ~ nitrogen + phosphor)
-summary(model_l4)
-```
 
 ## Analysis of larches without interaction
 
 \scriptsize
-```{r echo = FALSE}
+```{r}
+#| echo: true
 model_l4 <- lm(length ~ nitrogen + phosphor)
 summary(model_l4)
 ```
+\normalsize
+
 
 ## Predicted association (full model, no interaction)
 
@@ -269,7 +267,13 @@ summary(model_l4)
 
 ## Predicted association (left) and effect (right)
 
-```{r, echo=FALSE, fig.height=6}
+```{r}
+#| out-width: 4in
+#| out-height: 4in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
 model <- lm(length ~ nitrogen + phosphor, data = needles)
 cs <- coef(model)
 
@@ -300,7 +304,7 @@ phosphor_plot <- seq(0.15, 0.40, by = 0.1)
 nitrogen_effect <- cs[2] + 0*phosphor_plot
 plot(phosphor_plot, nitrogen_effect, type = "l", lwd = 2,
      xlab = "Phosphorus", ylab = "Nitrogen effect",
-     main = "Influence of one unit of nitrogen")
+     main = "Influence of one unit of N")
 ```
 
 ## Constructing statistical models
@@ -351,7 +355,8 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
                + phosphor * residu)
 ```
-```{r echo = FALSE}
+```{r}
+#| echo: false
 summary(model_l5)$coefficients
 ```
 

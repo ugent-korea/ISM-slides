@@ -1,20 +1,15 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Multiple Linear Regression"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \graphicspath{{./images/01-linear-regression}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
 
 
@@ -34,8 +29,8 @@ attach(needles)
 
 ## Example: Mineral composition versus growth
 
-::::::: {.cols data-latex=""}
-:::: {.col data-latex="{0.75\textwidth}"}
+:::: {.columns}
+::: {.column width="50%"}
 - Case study: 26 8-year-old Japanese larches
 - **Goal**: study association between height $Y$ of tree (in cm) and mineral composition of needles:
   - Nitrogen $X_N$
@@ -43,25 +38,21 @@ attach(needles)
   - Potassium $X_K$
   - Residual ash $X_r$
 - Independent variables expressed in percentage observed in dried needles.
-::::
+:::
 
-:::: {.col data-latex="{0.05\textwidth}"}
-\mbox{}
-::::
-:::: {.col data-latex="{0.2\textwidth}"}
+::: {.column width="50%"}
 ![](./images/01-linear-regression/Larix-kaempferi.jpeg)
 \scriptsize
 Image source: [Wikipedia](https://en.wikipedia.org/wiki/Larix_kaempferi).
+:::
 ::::
-:::::::
-
 
 ## Simple linear regression not possible
 
 - Separate linear regression models
-\[
+$$
   E(Y|X_P)=\alpha+\beta_P X_P
-\]
+$$
 only allow to predict based on 1 mineral.
 - More accurate predictions based on all minerals simultaneously.
 - Separate models might \alert{not} show \alert{pure effect}
@@ -72,9 +63,9 @@ only allow to predict based on 1 mineral.
 ## Multiple linear regression
 
 - Assume that 
-\[
+$$
   E(Y|X_N,X_P,X_K,X_r)=\alpha + \beta_N X_N+ \beta_P X_P + \beta_K X_K +\beta_r X_r
-\]
+$$
 for unknown \alert{intercept} $\alpha$ and \alert{slopes} $\beta_N, \beta_P, \beta_K, \beta_r$.
 
 - Now prediction based on multiple minerals possible.
@@ -124,9 +115,9 @@ We say in this case that the association between phosphorus and length is **adju
 ## Tests and confidence intervals 
 
 - Tests and confidence intervals for parameter $\beta$ based on
-\[
+$$
   \frac{\hat{\beta}-\beta}{SE(\hat{\beta})}\sim t_{n-p}
-\]
+$$
 with $p$ number of unknown parameters in model.
 - Or directly using
 ```{r eval = FALSE} 
@@ -141,13 +132,13 @@ summary(model_l2)$coefficients
 \normalsize
 
 - **95\% CI** for $\beta_N$ needs $t_{21,0.975}=2.08$
-\[
+$$
   [97.76 \pm 2.08\times 24.57]=[46.66, 148.86].
-\]
+$$
 - **95\% CI** for $\beta_P$
-\[
+$$
   [256.97 \pm 2.08\times 169.91]=[-96.36, 610.31].
-\]
+$$
 
 
 ## Analysis of larches: individual residual plots
@@ -179,9 +170,9 @@ plot(model_l2)
   - Pharmacogenetics: effect of steroids for asthma on lung function depends on certain genes.
   - Gene-environment interactions: effect of certain genes on COPD depends on history of smoking.
 - Model interactions through **cross-product term**:
-\[
+$$
   E(Y|X_N,X_P)=\alpha + \beta_N X_N+ \beta_P X_P+ \beta_{NP} X_NX_P.
-\]
+$$
 
 ## Interpretation
 
@@ -274,7 +265,7 @@ summary(model_l4)
 
 ## Predicted association (full model, no interaction)
 
-![](./images/01-linear-regression/needles-no-interaction)
+![](./images/01-linear-regression/needles-no-interaction.png)
 
 ## Predicted association (left) and effect (right)
 

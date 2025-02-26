@@ -1,21 +1,15 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Predictivity and variability"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \usepackage{amsmath}
-  - \graphicspath{{./images/01-linear-regression}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
 
 ```{r include = FALSE}
@@ -74,9 +68,9 @@ To determine the accuracy of a prediction, we need to take into account the
 - Larches: 35.55 on 21 degrees of freedom.
 
 Residual standard deviation tells that 95\% of lengths, given nitrogen, phosphorus and potassium percentages of 1.9, 0.2 and 0.7, are expected to lie within a distance
-\[
+$$
   2\times 35.55=71.1
-\]
+$$
 of the mean.
 
 ## Residual standard error in \texttt{R}
@@ -90,17 +84,18 @@ summary(model_l8)
 ## Residual standard error (by hand)
 
 RSE can be calculated as
-\[
+$$
   RSE = \sqrt{\frac{SSE}{n - p}} = \sqrt{MSE}
-\]
+$$
 with SSE, the sum-squared of the residuals, given by
-\[
+$$
   SSE = \sum_{i = 1}^n(y_i - \hat{y}_i)^2 = \sum_{i = 1}^n e_i^2.
-\]
+$$
 and $p$ the number of parameters in the model.
 
 For example (larches, $p = 5$):
 ```{r}
+#| echo: true
 SSE <- sum(model_l8$residuals^2)
 RSE <- sqrt(SSE/(26 - 5))
 RSE
@@ -120,24 +115,26 @@ RSE
 
 \small
 ```{r}
+#| echo: true
 p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
              interval = "confidence")
+p[1:3,]  # print first 3 predictions
+
 ```
-```{r echo=FALSE}
-p[1:3,]
-```
+
 ```{r}
+#| echo: true
 p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
              interval = "prediction")
+p[1:3,]  # print first 3 predictions
 ```
-```{r echo=FALSE}
-p[1:3,]
-```
+
 
 ## Prediction intervals in \texttt{R}: Larches
 
 \small
 ```{r}
+#| echo: true
 newdata <- data.frame(nitrogen = 1.9, phosphor = 0.2, 
                       potassium = 0.7)
 newdata
@@ -150,23 +147,27 @@ predict.lm(model_l8, newdata, interval = "prediction")
 ## Predictivity 
 
 Another way to gain insight in predictivity compares 
-\begin{itemize}
-\item variability \alert{around} regression line
-\item with variability \alert{on} the regression line, explained by the regression line
-\end{itemize}
+
+- variability **around** regression line
+- with variability **on** the regression line, explained by the regression line.
 
 ## Total and residual variability
 
 Idea: compare variability of residuals and variability of (centered) predictions.
 
-```{r, echo=FALSE, out.height="50%", fig.align="center"}
+```{r}
+#| out-width: 4.5in
+#| out-height: 4.5in
+#| fig-width: 6.5
+#| fig-height: 4.5
+#| fig-align: center
 set.seed(123)
 x <- seq(-5, 5, length.out=20) + 0.2 * rnorm(20)
 y <- x + 2 * rnorm(20)
 m <- lm(y ~ x)
 y_pred <- predict(m, newdata = data.frame(x = x))
 
-par(mfrow = c(1, 2), cex = 1.5)
+par(mfrow = c(1, 2))
 
 plot(NULL, xlim=c(min(x), max(x)), 
      ylim = c(min(y, y_pred), max(y, y_pred)), xlab = "", ylab = "")
@@ -180,20 +181,26 @@ plot(NULL, xlab = "", ylab = "",
      xlim = c(-0.5, 1.5), ylim = c(min(res, y_pred), max(res, y_pred)), xaxt = "n")
 points(rep(0, length(res)), res, pch = 19, col = "lightblue")
 points(rep(1, length(y_pred)), y_pred - mean(y_pred), pch = 19, col = "red")
-axis(1, at = c(0, 1), labels = c("Residuals", "cPredictions"))
+axis(1, at = c(0, 1), labels = c("Residuals", "Preds"))
 ```
 
 
 ## High predictivity: low variability around line 
 
-```{r, echo=FALSE, out.height="50%", fig.align="center"}
+```{r}
+#| out-width: 4.5in
+#| out-height: 4.5in
+#| fig-width: 6.5
+#| fig-height: 4.5
+#| fig-align: center
+
 set.seed(123)
 x <- seq(-5, 5, length.out=20) + 0.2 * rnorm(20)
 y <- x + 0.5 * rnorm(20)
 m <- lm(y ~ x)
 y_pred <- predict(m, newdata = data.frame(x = x))
 
-par(mfrow = c(1, 2), cex = 1.5)
+par(mfrow = c(1, 2))
 
 plot(NULL, xlim=c(min(x), max(x)), 
      ylim = c(min(y, y_pred), max(y, y_pred)), xlab = "", ylab = "")
@@ -207,21 +214,27 @@ plot(NULL, xlab = "", ylab = "",
      xlim = c(-0.5, 1.5), ylim = c(min(res, y_pred), max(res, y_pred)), xaxt = "n")
 points(rep(0, length(res)), res, pch = 19, col = "lightblue")
 points(rep(1, length(y_pred)), y_pred - mean(y_pred), pch = 19, col = "red")
-axis(1, at = c(0, 1), labels = c("Residuals", "cPredictions"))
+axis(1, at = c(0, 1), labels = c("Residuals", "Preds"))
 ```
 
 **High predictivity**: variability of residuals is much **lower** than variability of predictions.
 
 ## Low predictivity: small variability on line
 
-```{r, echo=FALSE, out.height="50%", fig.align="center"}
+```{r}
+#| out-width: 4.5in
+#| out-height: 4.5in
+#| fig-width: 6.5
+#| fig-height: 4.5
+#| fig-align: center
+
 set.seed(123)
 x <- seq(-5, 5, length.out=20) + 0.2 * rnorm(20)
 y <- 0.01*x + 4*rnorm(20)
 m <- lm(y ~ x)
 y_pred <- predict(m, newdata = data.frame(x = x))
 
-par(mfrow = c(1, 2), cex = 1.5)
+par(mfrow = c(1, 2))
 
 plot(NULL, xlim=c(min(x), max(x)), 
      ylim = c(min(y, y_pred), max(y, y_pred)), xlab = "", ylab = "")
@@ -235,7 +248,7 @@ plot(NULL, xlab = "", ylab = "",
      xlim = c(-0.5, 1.5), ylim = c(min(res, y_pred), max(res, y_pred)), xaxt = "n")
 points(rep(0, length(res)), res, pch = 19, col = "lightblue")
 points(rep(1, length(y_pred)), y_pred - mean(y_pred), pch = 19, col = "red")
-axis(1, at = c(0, 1), labels = c("Residuals", "cPredictions"))
+axis(1, at = c(0, 1), labels = c("Residuals", "Preds"))
 ```
 
 **Low predictivity**: variability of residuals is much **higher** than variability of predictions.
@@ -256,11 +269,11 @@ Residual sum of squares (SSE).
 ## Multiple correlation coefficient
 
 - **Multiple correlation coefficient** or coefficient of determination:
-\[
+$$
   R^2 = \frac{SSR}{SST}.
-\] 
+$$ 
 - Expresses the proportion of variability in data is captured by their association with explanatory variable.
-- Measure for \alert{predictive value} of explanatory variable.
+- Measure for **predictive value** of explanatory variable.
 - Always between 0 and 1.
 - Simple linear regression: the square of the correlation between $X$ and $Y$.
 
@@ -280,28 +293,34 @@ Multiple R-squared:  0.8836,	Adjusted R-squared:  0.8614
 ```
 88.36\% of variability on tree length is explained by mineral composition of needles.
 
-\alert{Be careful!} High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
+**Note:** High $R^2$ only demanded for prediction, not to estimate effect of $X$ on $Y$
 
 ## Aside: adjusted multiple correlation coefficient
 
 - $R^2$ always increases (gets closer to 1) when model becomes more complex
 - To "punish" complexity, use adjusted $R^2$:
-\[
+$$
   R^2_\mathrm{adj} = 1 - \frac{n-1}{n - p}(1 - R^2).
-\]
+$$
 - Adjusted $R^2$ is always lower than $R^2$.
 - Interpretation not so straightforward, used mainly for **model comparison**.
 
 Larches: $n = 26$, $p = 5$, $R^2 = 0.8836$, so
-\[
+$$
   R^2_\mathrm{adj} = 1 - \frac{25}{21}(1 - 0.8836) = 0.8614.
-\]
+$$
 
 # Comparing simple vs. complex models
 
 ## Example
 
-```{r, echo=FALSE, out.height="50%", fig.align='center'}
+```{r}
+#| out-width: 4in
+#| out-height: 4in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
 set.seed(123)
 x <- seq(-5, 5, length.out = 20)
 y_weak <- 0.1 * x + 1 * rnorm(20)
@@ -309,7 +328,7 @@ y_strong <- 0.7 * x + 1 * rnorm(20)
 m_weak <- lm(y_weak ~ x)
 m_strong <- lm(y_strong ~ x)
 
-par(mfrow=c(1, 2), cex=1.5)
+par(mfrow=c(1, 2))
 plot(x, y_weak, xlab = "", ylab = "", main = "Weak")
 abline(m_weak)
 abline(h = mean(y_weak), lty = "dashed")
@@ -382,6 +401,7 @@ Conclusion: complex model is significantly better.
 
 \footnotesize
 ```{r}
+#| echo: true
 model_l1 <- lm(length ~ phosphor)
 model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu)
 anova(model_l1, model_l2)

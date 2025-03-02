@@ -192,49 +192,52 @@ points(x1_outlier, x2_outlier, pch = 15, col = "red")
 
 ## Leverage
 
-\begin{block}{Leverage (influence)} 
-\begin{itemize}
-\item Diagnostic measure to identify influential predictor-observations
-\item Leverage of $i^{th}$ observation is: 
-\begin{itemize}
-\item measure for distance of predictor for $i^{th}$ observation to average predictor value
-\item $i^{th}$ diagonal element of \alert{hat matrix} $H$: function of predictors $X$ that maps outcome on predictions
+- Diagnostic measure to identify influential predictor-observations
+- Data point has high leverage if it has "extreme" predictor values (low or high)
+
+
+Mathematically: 
+
+- Weighted distance between predictor for observation $i$ and mean predictor.
+- How much the $i$th observed value affects the $i$th fitted value:
 $$
-  \textrm{prediction}=HY
+  h_{ii} = \frac{\partial \hat{y}_i}{\partial y_i}.
 $$
-\end{itemize}
-\end{itemize}
-\end{block}
-The larger the leverage for $i^{th}$ observation, the closer $i^{th}$ prediction is to $i^{th}$ outcome
+
 
 ## Interpretation of leverage
 
-- If leverage for $i^{th}$ observation large, then
+- If high leverage for $i^{th}$ observation, then
   - it has predictor values that deviate strongly from the mean
-  - it \alert{possibly} has large influence on regression coefficients and predictions
+  - it **possibly** has large influence on regression coefficients and predictions
 
 - Leverage is on average $p/n$ with $p$ number of unknown parameters
-- \alert{Extreme leverage}: larger than $2p/n$
+- **Extreme leverage**: larger than $2p/n$
 
 ## Leverage in analysis of larches
 
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 p=7
 n=26
 lev5 <- hatvalues(model_l5)
 cutoff <- 2*p/n
 plot(lev5, pch = 20, xlab = "", ylab = "Leverage")
 abline(h=cutoff)
-text(1.3, 0.91, 1)
-text(4.3, 0.59, 4)
+text(1.5, 0.91, 1)
+text(4.5, 0.59, 4)
 ```
 Note: larches model has $p = 7$, so $2p/n = 0.54$.
 
 ## Cook's distance
 
-- Diagnostic measure for influence of $i^{th}$ observation on all predictions
-- Equivalent, for influence of $i^{th}$ observation on all estimated coefficients
-- Cook's distance for $i^{th}$ observation is obtained by comparing each prediction $\hat{Y}_j$ with prediction $\hat{Y}_{j(i)}$ that would be obtained \alert{if $i^{th}$ observation was deleted}
+- Diagnostic measure for influence of $i^{th}$ observation on all predictions / estimated coefficients.
+- Cook's distance for $i^{th}$ observation is obtained by comparing each prediction $\hat{Y}_j$ with prediction $\hat{Y}_{j(i)}$ that would be obtained **if $i^{th}$ observation was deleted**:
 $$
   D_i=\frac{\sum_{j=1}^n(\hat{Y}_j-\hat{Y}_{j(i)})^2}{p \cdot\mathrm{MSE}}
 $$ 
@@ -242,65 +245,71 @@ $$
 ## Interpretation Cook's distance
 
 - If Cook's distance $D_i$ large, then $i^{th}$ observation has large influence on predictions and coefficients
-- \alert{Extreme Cook's distance}: exceeds  50\% percentile of $F_{p,n-p}$-distribution
+- **Extreme Cook's distance**: exceeds  50\% percentile of $F_{p,n-p}$-distribution
 
-\begin{exampleblock}{Example} 
-\begin{itemize}
-\item In analysis of larches is $p=7, n=26$ and the 50\% percentile of $F_{p,n-p}$-distribution 0.94
-\item Cook's distance of first observation is 1.5 and corresponds to 77\% percentile
-\item Conclusion: first observation has large influence on estimated regression coefficients 
-\end{itemize}
-\end{exampleblock}
+Example:
 
+- In analysis of larches is $p=7, n=26$ and the 50\% percentile of $F_{p,n-p}$-distribution 0.94
+- Cook's distance of first observation is 1.5 and corresponds to 77\% percentile
+- Conclusion: first observation has large influence on estimated regression coefficients 
 
 ## Cook's distance in analysis of larches
 
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 cd5 <- cooks.distance(model_l5)
 plot(cd5, type = "h", ylab = "Cook's distance", xlab = "")
-text(1.2, 1.5, 1)
-text(6.2, 0.22, 6)
-text(7.2, 0.24, 7)
+text(1.5, 1.5, 1)
+text(6.5, 0.22, 6)
+text(7.5, 0.24, 7)
 ```
 
 ## Analysis of larches: residual plots
 
-\centering
-```{r echo = FALSE}
+```{r}
 par(mfrow=c(2,2))
 plot(model_l5)
 ```
 
-## DFBETAS
+## DFBETAs
 
 On what coefficient(s) will first observation have large influence?
 
-\begin{block}{DFBETAS} 
-\begin{itemize}
-\item Diagnostic measure for influence of $i^{th}$ observation \alert{on each regression coefficient separately}
-\item DFBETAS for $i^{th}$ observation and $j^{th}$ coefficient is obtained by comparing $j^{th}$ coefficient $\hat{\beta}_j$ with coefficient $\hat{\beta}_{j(i)}$ from model \alert{if $i^{th}$ observation would have been deleted}
-$$\textrm{DFBETAS}_{j(i)}=\frac{\hat{\beta}_{j}-\hat{\beta}_{j(i)}}{\textrm{SD}(\hat{\beta}_{j})}$$ 
-\end{itemize}
-\end{block}
+- Diagnostic measure for influence of $i^{th}$ observation **on each regression coefficient separately**
+- DFBETAs for $i^{th}$ observation and $j^{th}$ coefficient is obtained by comparing $j^{th}$ coefficient $\hat{\beta}_j$ with coefficient $\hat{\beta}_{j(i)}$ from model **if $i^{th}$ observation would have been deleted**
+$$
+  \textrm{DFBETA}_{j(i)}=\frac{\hat{\beta}_{j}-\hat{\beta}_{j(i)}}{\textrm{SD}(\hat{\beta}_{j})}
+$$ 
 
-## Interpretation DFBETAS
 
-- Sign indicates if deleting observation $i$ causes an increase (DFBETAS$<0$) or decrease (DFBETAS$>0$) in each coefficient
-- \alert{Extreme DFBETAS}: exceeds 1 in small to moderate datasets, and $2/\sqrt{n}$ in large datasets
+## Interpretation DFBETAs
 
-## DFBETAS in analysis of larches
+- Sign indicates if deleting observation $i$ causes an increase (DFBETA$<0$) or decrease (DFBETA$>0$) in each coefficient
+- **Extreme DFBETAs**: exceeds 1 in small to moderate datasets, and $2/\sqrt{n}$ in large datasets
 
-```{r echo = FALSE}
+## DFBETAs in analysis of larches
+
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 dfb5 <- dfbetas(model_l5)[1,]
-plot(dfb5, pch = 20, ylab = "DFBETAS for observation 1", xlab = "Parameter number")
+plot(dfb5, pch = 20, ylab = "DFBETA for observation 1", xlab = "Parameter number")
 ```
 
-## DFBETAS in analysis of larches
+## DFBETAs in analysis of larches
 
-First observation has \alert{large influence on interaction between phosphorus and residual ash}:
+First observation has **large influence on interaction between phosphorus and residual ash**:
 
 - current coefficient is -598.08 (SE 290.02);
-- DFBETAS is 2.17;
+- DFBETA is 2.17;
 - after deletion of first observation, interaction between phosphorus and residual ash will be around
 $$
   -598.08-2.17\times 290.02=-1227.42
@@ -309,7 +318,12 @@ $$
 
 ## Histogram and QQ-plot of interaction
 
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 inter5 <- phosphor * residu
 par(mfrow=c(1,2))
 hist(inter5, xlab = "phosphor * residual ash", main = "Histogram of phosphor * residu")
@@ -355,30 +369,39 @@ summary(model_l8)$coefficients
 
 ## Final analysis: leverage
 
-\centering
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 p2=5
 lev8 <- hatvalues(model_l8)
 cutoff2 <- 2*p2/n
 par(mfrow=c(1,2))
 plot(lev5, pch = 20, xlab = "", ylab = "Leverage")
 abline(h=cutoff)
-text(1.5, 0.91, 1)
-text(4.5, 0.59, 4)
+text(3, 0.91, 1)
+text(6, 0.59, 4)
 plot(lev8, pch = 20, xlab = "", ylab = "Leverage", ylim = c(0.0,0.9))
 abline(h=cutoff2)
-text(4.5, 0.59, 4)
+text(6, 0.59, 4)
 ```
 
 ## Final analysis: Cook's distance
 
-\centering
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 cd8 <- cooks.distance(model_l8)
 plot(cd8, type = "h", ylab = "Cook's distance", xlab = "")
-text(4.2, 0.12, 4)
-text(6.2, 0.17, 6)
-text(7.2, 0.37, 7)
+text(4.5, 0.12, 4)
+text(6.5, 0.17, 6)
+text(7.5, 0.37, 7)
 ```
 
 ## Final analysis: residual plots

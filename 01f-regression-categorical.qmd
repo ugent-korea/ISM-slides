@@ -1,24 +1,16 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Categorical variables"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \usepackage{amsmath}
-  - \graphicspath{{./images/01-linear-regression}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
-
-
 
 ```{r include = FALSE}
 birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep = "\t", dec = ".")
@@ -38,7 +30,7 @@ attach(birnh)
 
 ## A first analysis ...
 
-\small
+\footnotesize
 ```{r echo=FALSE}
 model_birnh <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX + PROVINCE)
 summary(model_birnh)$coefficients
@@ -88,58 +80,59 @@ P_8 & =  \left\{\begin{array}{ll}
 - Each categorical variable with $k$ levels can be transformed into $k-1$ dummy variables by choosing 1 level as **reference**:
 - In \texttt{R}:
 
-```{r eval=FALSE}
+```{r}
+#| echo: true
 m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
         + SEX + factor(PROVINCE))
 ```
 
 ## Analysis with dummy variables
 
-\footnotesize
+\scriptsize
 ```{r echo=FALSE}
 m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
         + SEX + factor(PROVINCE))
 summary(m)$coefficients
 ```
 
-\phantom{Necessity to test if multiple coefficients are zero}
+\phantom{Necessary to test if multiple coefficients are zero}
 
 ## How to test for effect of province?
 
-\footnotesize
+\scriptsize
 ```{r echo=FALSE}
 m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
         + SEX + factor(PROVINCE))
 summary(m)$coefficients
 ```
 \normalsize
-Necessity to test if multiple coefficients are zero
+Necessary to test if multiple coefficients are zero
 
 ## Partial F-test
 
-Assume we want to compare \alert{2 nested models}:
+Assume we want to compare 2 **nested models**:
 
 - **Complete model (C)** with $p_C$ parameters; e.g., $p_C=10$ and
-\[
+$$
   E(Y|X,P)=\beta_0+\beta_1X+\beta_2P
-\]
+$$
 - **Reduced model (R)** with $p_R$ parameters; e.g., $p_R=6$ and
-\[
+$$
   E(Y|X,P)=\beta^*_0+\beta^*_1X
-\]
+$$
 - Testing $H_0:\beta_2=0$ is equivalent to testing if complete and reduced model are equal.
 
 ## Partial F-test
 
 - Under null hypothesis, residual sums of squares of both models will be approximately same.
 - **Test statistic**:
-\[
+$$
   SSE(R) - SSE(C).
-\]
+$$
 - What is distribution under null hypothesis?
-\[
+$$
   \frac{SSE(R) - SSE(C)}{p_C-p_R}\div \frac{SSE(C)}{n-p_C}\sim F_{p_C-p_R,n-p_C}.
-\]
+$$
 under null hypothesis
 
 ## Partial F-test in \texttt{R}

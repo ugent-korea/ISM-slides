@@ -804,7 +804,7 @@ summary(model_12)
 Reminder: principal components are uncorrelated by definition, so all the VIFs will be equal to 1.
 
 ```{r}
-library(faraway)
+library(car)
 plot(vif(model_12))
 ```
 

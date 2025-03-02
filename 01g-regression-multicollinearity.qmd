@@ -1,21 +1,15 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Multicollinearity"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-  - \usepackage{amsmath}
-  - \graphicspath{{./images/01-linear-regression}}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
 
 ```{r include = FALSE}
@@ -35,7 +29,7 @@ attach(body.fat)
 - \alert{Can possibly cause problems}: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
 \begin{exampleblock}{Example} 
 If $X_1=X_2$, then 
-\[E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1\]
+$$E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1$$
 \end{exampleblock}
 
 \begin{exampleblock}{Consequences}
@@ -58,9 +52,9 @@ Multicollinearity can be recognized through:
 - **Strong correlation** between predictors:
   - Example: usually strong correlation between $X_f$ and $X_fX_s$
   - Can sometimes be eliminated by **centering** (subtracting the mean): 
-\[
+$$
   X \to X-\bar X.
-\]
+$$
 
 
 ## Impact of centering
@@ -114,7 +108,7 @@ Previous diagnostics are \alert{limited}:
 \end{itemize}
 \end{exampleblock}
 \begin{block}{Variance inflation factor for $k^{th}$ coefficient}
-\[\textrm{VIF}_k=\left(1-R_k^2\right)^{-1}\]
+$$\textrm{VIF}_k=\left(1-R_k^2\right)^{-1}$$
 with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predictors.
 \end{block}
 

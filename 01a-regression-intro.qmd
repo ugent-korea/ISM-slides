@@ -1,21 +1,16 @@
 ---
-title: "Chapter 1: Linear regression"
+title: "Introduction to Statistical Modeling"
 subtitle: "Introduction"
 author: "Joris Vankerschaver"
-header-includes:
-  - \useinnertheme[shadow=true]{rounded}
-  - \usecolortheme{rose}
-  - \setbeamertemplate{footline}[frame number]
-  - \usepackage{color}
-  - \usepackage{graphicx}
-output: 
-  beamer_presentation:
-    theme: "default"
-    keep_tex: true
-    includes:
-      in_header: columns.tex
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    include-in-header:
+      - file: header.tex
 ---
-
 
 ```{r, include=F}
 heights <- read.csv("./datasets/01-linear-regression/heights-2022.csv", stringsAsFactors = T)
@@ -25,17 +20,17 @@ m <- lm(Height ~ Palm.width, data=heights)
 ## Problem setting
 
 - 26 observations from class of 2021-22 (19 female and 7 male) + 1 professor (**27 total**)
-- Measurement of right \alert{palm width} and \alert{height} (both in cm).
+- Measurement of right **palm width** and **height** (both in cm).
 - Random sample? From which population?
 - Sources of bias, error?
 
-\begin{block}{Research questions}
-\begin{enumerate}
-\item Is there an association between height and palm width?
-\item Can we predict a person's height from their palm width?
-\item If yes, how confident are we in these results?
-\end{enumerate}
-\end{block}
+::: {.callout-note}
+## Research questions
+
+- Is there an association between height and palm width?
+- Can we predict a person's height from their palm width?
+- If yes, how confident are we in these results?
+:::
 
 ## Simple and multiple linear regression
 
@@ -45,8 +40,13 @@ m <- lm(Height ~ Palm.width, data=heights)
 
 ## The raw data
 
-```{r, echo=FALSE, fig.height=5, fig.width=6}
-par(mfrow=c(1, 1))
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 plot(heights$Palm.width, heights$Height, 
      xlab = "Palm Width", ylab = "Height",
      pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
@@ -58,8 +58,13 @@ legend(x = "topleft", legend = levels(heights$Gender),
 
 ## Associating height with palm width
 
-```{r, echo=FALSE, fig.height=5, fig.width=6}
-par(mfrow=c(1, 1))
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 plot(heights$Palm.width, heights$Height, 
      xlab = "Palm Width", ylab = "Height",
      pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
@@ -81,7 +86,9 @@ legend(8.5, 163, paste("H =", a, "+", b, "W"), bg="white", box.col="white", adj=
 ## Via R
 
 \footnotesize
-```{r, echo=FALSE}
+```{r}
+#| echo: true
+m <- lm(Height ~ Palm.width, data=heights)
 summary(m)
 ```
 \normalsize
@@ -127,8 +134,13 @@ For prediction $E(H|W = 8.75) =  174.17 \,\text{cm}$:
 
 ## What is the uncertainty in our prediction?
 
-```{r, echo=FALSE, fig.height=5, fig.width=6}
-par(mfrow=c(1, 1))
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 plot(heights$Palm.width, heights$Height, 
      xlab = "Palm Width", ylab = "Height",
      pch = 21, bg = c("Pink", "Lightblue")[heights$Gender])
@@ -156,7 +168,9 @@ The regression slope $\beta = 9.91$ measures the strength of the  association be
 
 How do we test whether $\beta$ is 0? 
 
-```{r, echo=TRUE}
+\footnotesize
+```{r}
+#|echo: true
 summary(m)$coefficients
 ```
-
+\normalsize

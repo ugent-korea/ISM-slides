@@ -26,24 +26,22 @@ attach(body.fat)
 ## Multicollinearity 
 
 - There is **multicollinearity** when 2 or more predictors are correlated
-- \alert{Can possibly cause problems}: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
-\begin{exampleblock}{Example} 
-If $X_1=X_2$, then 
-$$E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1$$
-\end{exampleblock}
+- **Can possibly cause problems**: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
 
-\begin{exampleblock}{Consequences}
-\begin{itemize}
-\item Numerically instable estimates
-\item Estimates with large standard errors
-\item Difficult interpretation of coefficients
-\end{itemize}
-\end{exampleblock}
+Example: If $X_1=X_2$, then 
+$$
+  E(Y|X_1,X_2)=\beta_0+\beta_1X_1+\beta_2X_2=\beta_0+(\beta_1+\beta_2)X_1
+$$
+
+Consequences
+
+- Numerically instable estimates
+- Estimates with large standard errors
+- Difficult interpretation of coefficients
 
 ## Diagnosing multicollinearity
 
 Multicollinearity can be recognized through:
-
 
 - **Instability**:
   - Large changes in coefficients after adding a predictor
@@ -59,8 +57,13 @@ $$
 
 ## Impact of centering
 
-\centering
-```{r echo=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 x <- rnorm(100, 5, 1)
 cx <- x - mean(x)
 y <- x^2
@@ -76,8 +79,7 @@ abline(lm(cy ~ cx), col = "blue")
 
 ## Scatterplot matrix - before centering
 
-\centering
-```{r echo=FALSE}
+```{r}
 nitrogenphospor <- nitrogen * phosphor 
 minerals <- cbind(nitrogen, phosphor, potassium, nitrogenphospor)
 colnames(minerals)[4] <- "nitrogen*phosphor"
@@ -86,8 +88,7 @@ pairs(minerals)
 
 ## Scatterplot matrix - after centering
 
-\centering
-```{r echo=FALSE}
+```{r}
 cnitrogen <- nitrogen - mean(nitrogen)
 cphosphor <- phosphor - mean(phosphor)
 cpotassium <- potassium - mean(potassium)
@@ -100,30 +101,33 @@ pairs(minerals2)
 
 ## Diagnosing multicollinearity
 
-Previous diagnostics are \alert{limited}:
-\begin{exampleblock}{Example} 
-\begin{itemize}
-\item Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity.
-\item E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ and $X_3$.
-\end{itemize}
-\end{exampleblock}
-\begin{block}{Variance inflation factor for $k^{th}$ coefficient}
-$$\textrm{VIF}_k=\left(1-R_k^2\right)^{-1}$$
+Previous diagnostics are limited:
+
+- Even if pairwise correlations between predictors $X_1,X_2,X_3$ low, there can be strong multicollinearity.
+- E.g., when strong correlation between $X_1$ and a linear combination of $X_2$ and $X_3$.
+
+**Variance inflation factor** for $k^{th}$ coefficient:
+$$
+  \textrm{VIF}_k=\left(1-R_k^2\right)^{-1}
+$$
 with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predictors.
-\end{block}
 
 ## Interpretation VIF
 
-- $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor \alert{not} linearly associated with other predictors.
+- $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor not linearly associated with other predictors.
 - Expresses how much larger variance on $k^{th}$ coefficient is than when all predictors were independent.
 - Average quadratic distance between estimated and true coefficients is proportionate with average VIF.
 - Critical multicollinearity: maximum VIF of at least 10.
 
-
 ## Variance inflation factors
 
-\centering
-```{r echo=FALSE, message=FALSE}
+```{r}
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 library(car)
 model_l8b <- lm(length ~ cnitrogen *  cphosphor + cpotassium)
 model_l5b <- lm(length ~ cnitrogen * cphosphor + cpotassium + cphosphor * cresidu)
@@ -139,53 +143,47 @@ plot(v2, pch = 20, main = "After centering", ylab = "VIF", xlab = "Parameter num
 ## Simpler interpretation of coefficients
 
 Coefficients (without centering)
-\small
+\footnotesize
 ```{r echo=FALSE}
 summary(model_l8)$coefficients
 ```
 \normalsize
 Coefficients (with centering)
-\small
+\footnotesize
 ```{r echo=FALSE}
 summary(model_l8b)$coefficients
 ```
 
 ## Example: Prediction body fat
 
-\begin{exampleblock}{}
-\begin{itemize}
-\item Determining percentage body fat difficult and expensive
-\item Study investigates association between
-\begin{itemize}
-\item $Y$: body fat
-\item $X_1$: triceps skinfold thickness
-\item $X_2$: thigh circumference
-\item $X_3$: midarm circumference
-\end{itemize}
-\item 20 healthy women between 25 and 34 years old
-\end{itemize}
-\end{exampleblock}
+- Determining percentage body fat difficult and expensive
+- Study investigates association between
+  - $Y$: body fat
+  - $X_1$: triceps skinfold thickness
+  - $X_2$: thigh circumference
+  - $X_3$: midarm circumference
+- 20 healthy women between 25 and 34 years old
 
-## Analysis in \texttt{R}
+## Analysis in R
 
 \footnotesize
 ```{r echo=FALSE}
-model_bf <- lm(bodyfat ~ triceps.skinfold.thickness 
-               + thigh.circumference + midarm.circumference)
+model_bf <- lm(bodyfat ~ triceps.skinfold.thickness + 
+                         thigh.circumference +
+                         midarm.circumference)
 summary(model_bf)
 ```
 
 ## Scatterplot matrix
 
-\centering
-```{r echo=FALSE}
+```{r}
 pairs(body.fat[,-4])
 ```
 
 ## Variance inflation factors
 
 \small
-```{r echo=FALSE, warning=FALSE}
+```{r}
 library(car)
 vif_bodyfat <- vif(model_bf)
 as.data.frame(vif_bodyfat)

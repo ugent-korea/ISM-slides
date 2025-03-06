@@ -284,7 +284,7 @@ On what coefficient(s) will first observation have large influence?
 - Diagnostic measure for influence of $i^{th}$ observation **on each regression coefficient separately**
 - DFBETAs for $i^{th}$ observation and $j^{th}$ coefficient is obtained by comparing $j^{th}$ coefficient $\hat{\beta}_j$ with coefficient $\hat{\beta}_{j(i)}$ from model **if $i^{th}$ observation would have been deleted**
 $$
-  \textrm{DFBETA}_{j(i)}=\frac{\hat{\beta}_{j}-\hat{\beta}_{j(i)}}{\textrm{SD}(\hat{\beta}_{j})}
+  \textrm{DFBETA}_{j(i)}=\frac{\hat{\beta}_{j}-\hat{\beta}_{j(i)}}{\textrm{SE}(\hat{\beta}_{j})}
 $$ 
 
 

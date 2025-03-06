@@ -228,7 +228,7 @@ n=26
 lev5 <- hatvalues(model_l5)
 cutoff <- 2*p/n
 plot(lev5, pch = 20, xlab = "", ylab = "Leverage")
-abline(h=cutoff)
+abline(h=cutoff, lty = "dashed")
 text(1.5, 0.91, 1)
 text(4.5, 0.59, 4)
 ```
@@ -264,6 +264,7 @@ Example:
 
 cd5 <- cooks.distance(model_l5)
 plot(cd5, type = "h", ylab = "Cook's distance", xlab = "")
+abline(h = qf(0.5, 7, 19), lty = "dashed")
 text(1.5, 1.5, 1)
 text(6.5, 0.22, 6)
 text(7.5, 0.24, 7)
@@ -301,7 +302,9 @@ $$
 #| fig-height: 4.5
 #| fig-align: center
 dfb5 <- dfbetas(model_l5)[1,]
+
 plot(dfb5, pch = 20, ylab = "DFBETA for observation 1", xlab = "Parameter number")
+abline(h = c(-1, 1), lty = "dashed")
 ```
 
 ## DFBETAs in analysis of larches

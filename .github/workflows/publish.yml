@@ -22,6 +22,9 @@ jobs:
       - name: Install rsvg-convert
         run: sudo apt-get update && sudo apt-get install librsvg2-bin
 
+      - name: Install R packages
+        run: Rscript install-requirements.R
+
       - name: Render and Publish
         uses: quarto-dev/quarto-actions/publish@v2
         with:

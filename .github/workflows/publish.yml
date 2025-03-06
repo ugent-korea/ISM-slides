@@ -19,8 +19,8 @@ jobs:
         with:
           tinytex: true
 
-      - name: Install rsvg-convert
-        run: sudo apt-get update && sudo apt-get install librsvg2-bin
+      - name: Install rsvg-convert and R
+        run: sudo apt-get update && sudo apt-get install librsvg2-bin && sudo apt-get install r-base
 
       - name: Install R packages
         run: Rscript install-requirements.R

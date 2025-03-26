@@ -20,4 +20,4 @@ packages <- c(
     "scales",
     "tidyverse"
 )
-install.packages(packages, dependencies = TRUE)
+install.packages(packages, dependencies = TRUE, lib = pkgs_dir)

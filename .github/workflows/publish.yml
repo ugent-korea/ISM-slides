@@ -14,15 +14,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install rsvg-convert
+        run: sudo apt-get update && sudo apt-get install librsvg2-bin
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           tinytex: true
 
-      - name: Install rsvg-convert and R
-        run: sudo apt-get update && sudo apt-get install librsvg2-bin && sudo apt-get install r-base
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v1
 
-      - name: Install R packages
+      - name: Install dependencies
         run: Rscript install-requirements.R
 
       - name: Render and Publish

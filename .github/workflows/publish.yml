@@ -27,8 +27,25 @@ jobs:
         with:
           r-version: '4.3'
 
-      - name: Install dependencies
-        run: Rscript install-requirements.R
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1
+          packages:
+            GGally
+            MASS
+            car
+            caret
+            faraway
+            ggplot2
+            glmnet
+            gridExtra
+            latex2exp
+            mvtnorm
+            pROC
+            plot3D
+            pls
+            scales
+            tidyverse"
 
       - name: Render and Publish
         uses: quarto-dev/quarto-actions/publish@v2

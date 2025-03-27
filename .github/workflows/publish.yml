@@ -45,7 +45,7 @@ jobs:
             plot3D
             pls
             scales
-            tidyverse"
+            tidyverse
 
       - name: Render and Publish
         uses: quarto-dev/quarto-actions/publish@v2

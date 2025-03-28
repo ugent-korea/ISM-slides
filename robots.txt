@@ -1,1 +1,1 @@
-Sitemap: https://jvkersch.github.io/ISM-slides/sitemap.xml
+Sitemap: https://ugent-korea.github.io/ISM-slides/sitemap.xml

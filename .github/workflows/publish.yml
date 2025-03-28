@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update && 
-          sudo apt-get install -y librsvg2-bin libcurl4-openssl-dev
+          sudo apt-get install -y librsvg2-bin libcurl4-openssl-dev libfontconfig1-dev
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2

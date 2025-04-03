@@ -203,10 +203,6 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
 
 ```
 
-
-
-
-
 # Logistic regression
 
 ## Reminder: odds
@@ -244,7 +240,11 @@ $$
 Logits are unbounded: $\text{logit} \to \pm\infty$ for $p \to 0, 1$
 
 ```{r}
-#| fig-height: 3
+#| out-width: 4in
+#| out-height: 1.5in
+#| fig-width: 6
+#| fig-height: 2.25
+#| fig-align: center
 ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
   geom_function(fun = plogis) +
   xlab("Logit") +
@@ -272,9 +272,12 @@ ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
 - Assume $\pi(X) = \alpha + \beta X$ and determine $\alpha, \beta$ through linear regression.
 
 ```{r}
-#| out-width: 2in
+#| out-width: 3in
 #| out-height: 1.5in
+#| fig-width: 6
+#| fig-height: 3
 #| fig-align: center
+
 ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
   geom_point(aes(color = diagnosis)) +
   stat_smooth(method="lm", se=FALSE, color = "gray40") +
@@ -528,6 +531,12 @@ pred_probs
 ## Making predictions
 
 ```{r}
+#| out-width: 4in
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
 ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
   geom_vline(xintercept = 13, linetype = "dashed", color = "gray60") +
   geom_hline(yintercept = 0.1247961, linetype = "dashed", color = "gray60") +
@@ -586,8 +595,6 @@ $$
 | texture_mean |   0.2175 |     0.0403 |   5.391  |   7.01e-08   |
 :::
 
-
-
 ## Testing an association: Likelihood ratio test
 
 Useful for:
@@ -634,7 +641,6 @@ anova(m_simple, m_multi)
 
 Compare with critical values for $\chi^2_1$ to draw conclusion
 
-
 ## Likelihood ratio test in R (groups of variables)
 
 Nested models:
@@ -643,7 +649,7 @@ Nested models:
 - Complex: adds `concavity_mean` and `symmetry_mean`.
 
 R output:
-
+\scriptsize
 ```{r}
 #| include: false
 m_multi_4 <- glm(
@@ -652,12 +658,12 @@ m_multi_4 <- glm(
 
 ```
 
-
+\scriptsize
 ```{r}
 #| echo: true
 anova(m_multi, m_multi_4)
 ```
-
+\normalsize
 Compare with critical value $\chi^2_{2; 0.95} = 5.991465$ to conclude that complex model is better.
 
 ## Confidence interval for regression parameters
@@ -796,9 +802,6 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
   theme(legend.position = "none")
 ```
 
-
-
-
 ## Classification
 
 - Once we have a (logistic) model for $\pi(X)$, we can use it to classify new data $X$ as negative ($Y = 0$) or positive ($Y = 1$), by comparing $\pi(X)$ with a fixed threshold $C$:
@@ -885,9 +888,11 @@ By changing the threshold, sensitivity and specificity can be traded against one
 ## Sensitivity and specificity as a function of threshold
 
 ```{r}
-#| fig-align: center
 #| out-width: 3in
 #| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
+#| fig-align: center
 
 pred_test <- predict(m_simple, test, type="response")
 se_sp_for_C <- function(C) {
@@ -925,8 +930,10 @@ As threshold increases:
 - Can be used to compare classifiers
 
 ```{r}
-#| out-width: 2.5in
-#| out-height: 2.5in
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4.5
+#| fig-height: 3
 #| fig-align: center
 
 library(pROC)
@@ -942,14 +949,17 @@ ggroc(roc_logis) +
 ## ROC: KNN versus logistic regression
 
 ```{r}
-# ROC for KNN
+#| out-width: 4in
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
 pred_test_knn <- predict(model_knn_5, newdata = test, type = "prob")[, 2]
 roc_knn <- roc(test$diagnosis_binary, pred_test_knn)
 
 ggroc(list(knn=roc_knn, logis=roc_logis)) +
   scale_color_hue(labels = c(knn = "KNN", logis = "Logistic regression"), name = NULL)
-  
-
 ```
 
 
@@ -975,17 +985,15 @@ Important for model calibration:
 - Often, we don't care much about probability $\pi$ to belong to the positive class
 - But, want negative samples to have lower probability than positive samples
 
-## In clinical research
+## Example: clinical research
 
 The ROC and AUC are often reported in clinical research.
 
 ![](./images/02-logistic-regression/di-donna-roc.png){fig-align=center width=75%}
 
 
-## 
+## Example: clinical research
 
 ![](./images/02-logistic-regression/di-donna-auc.png){fig-align=center width=75%}
 \scriptsize
 Figure and text from Di Donna *et al.*, Concordance of Radiological, Laparoscopic and Laparotomic Scoring to Predict Complete Cytoreduction in Women with Advanced Ovarian Cancer. Cancers (2023)
-
-

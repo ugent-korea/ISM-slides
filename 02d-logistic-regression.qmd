@@ -101,7 +101,11 @@ test <- bdiag[-train_ind, ]
 ## A first look at the data
 
 ```{r}
-#| echo: false
+#| out-width: 4in
+#| out-height: 3.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 
 p_scatter <- ggplot(train, 
                     aes(x = radius_mean, y = texture_mean, color = diagnosis)) +
@@ -111,12 +115,12 @@ p_scatter <- ggplot(train,
 p_box_radius <- ggplot(train, 
                        aes(y = radius_mean, x = diagnosis, fill = diagnosis)) +
   geom_boxplot(show.legend = FALSE) +
-  ggtitle("radius_mean") + xlab("") + ylab(NULL)
+  ggtitle("radius") + xlab("") + ylab(NULL)
 
 p_box_texture <- ggplot(train, 
                         aes(y = texture_mean, x = diagnosis, fill = diagnosis)) +
   geom_boxplot(show.legend = FALSE) +
-  ggtitle("texture_mean") + xlab("") + ylab(NULL)
+  ggtitle("texture") + xlab("") + ylab(NULL)
 
 
 grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 1))

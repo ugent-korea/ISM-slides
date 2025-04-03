@@ -131,8 +131,8 @@ grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 
 
 ![](./images/02-logistic-regression/knearest.pdf)
 
-- $P(\text{red}|X = x) = \frac{3}{5} = 60\%$
-- $P(\text{green} | X = x) = \frac{2}{5} = 40\%$
+- $P(Y = B |X = x) = \frac{3}{5} = 60\%$
+- $P(Y = M | X = x) = \frac{2}{5} = 40\%$
 
 ## Properties
 

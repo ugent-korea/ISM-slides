@@ -142,11 +142,11 @@ grid.arrange(p_scatter, p_box_radius, p_box_texture, nrow = 1, widths = c(2, 1, 
 
 K-nearest neighbor (KNN) classification estimates probabilities
 $$
-  P(Y = j | X = x) = \frac{1}{|\mathcal{N}_K(x)|} \sum_{i = 1}^{|\mathcal{N}_K(x)|} I(y_i = j)
+  P(Y = j | X = x) = \frac{1}{K} \sum_{i = 1}^{K} I(y_i = j)
 $$
 Here:
 
-- $\mathcal{N}_K(x)$ is the set of $K$ nearest datapoints to $x$
+- The sum is over the $K$ nearest datapoints $y_1, \ldots, y_K$ to $x$
 - $I(y_i = j)$ is equal to $1$ if $y_i = j$ and to $0$ otherwise
 
 ## Advantages and disadvantages

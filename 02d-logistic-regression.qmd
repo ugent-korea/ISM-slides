@@ -2,14 +2,14 @@
 title: "Logistic Regression and Classification"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
 format:
   beamer:
     theme: Pittsburgh
     colortheme: default
     fonttheme: default
-    header-includes: |
-      \setbeamertemplate{frametitle}[default][left]
-      \setbeamertemplate{footline}[frame number]
+    include-in-header:
+      - file: header.tex
 
 ---
 

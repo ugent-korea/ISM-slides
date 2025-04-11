@@ -268,9 +268,9 @@ $$
 $$
 - Simplifies to $\hat{\pi} = \bar{Y}$.
 
-# Logistic regression
+# Aside: odds, odds ratios, and logits
 
-## Reminder: odds
+## Odds
 
 - If $\pi$ is the probability of having a malignant tumor, then the **odds** are defined as
 $$
@@ -280,7 +280,7 @@ For example: if $\pi = 0.8$ then $\text{Odds} = 4$, meaning that for every benig
 
 - Odds range from 0 (impossible event) to $+\infty$ (almost certain).
 
-## Reminder: odds ratio
+## Odds ratio
 
 - **Odds ratio** (OR): indicates by how much the odds change between two treatments. For example: suppose in the treatment group the probability of a malignant tumor drops to $\pi_T = 0.75$ (compared to $\pi_C = 0.8$ in the untreated group). Then
 $$
@@ -315,6 +315,9 @@ ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
   xlab("Logit") +
   ylab("Probability")
 ```
+
+
+# Logistic regression
 
 ## Regression for classification
 

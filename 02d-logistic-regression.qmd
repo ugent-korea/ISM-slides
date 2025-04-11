@@ -15,10 +15,7 @@ format:
 
 ## Overview
 
-1. Introduction: what are classification problems?
-2. K-nearest neighbors classification
-3. Logistic regression
-4. Classification 
+\tableofcontents 
 
 # Introduction
 
@@ -203,9 +200,77 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
 
 ```
 
-# Logistic regression
+# Aside: maximum likelihood estimation (MLE)
 
-## Reminder: odds
+## Maximum likelihood estimation: core idea
+
+- Method for estimating the parameters of a distribution.
+- Find parameter values that make the observed data most likely to occur.
+
+Applications:
+
+- Find mean/variance of normal distribution
+- Determine (logistic) regression coefficients
+- ...
+
+## The (log) likelihood function
+
+Finding parameters that make data most likely:
+
+- For $n$ independent draws $y_1, \ldots, y_n$ from a distribution $\mathcal{D}$ with unknown parameter(s) $\theta$, maximize the **likelihood function**
+\begin{align*}
+  \mathcal{L}(\theta) & = P(y_1, \ldots, y_n \mid \theta) \\
+                      & = P(y_1 \mid \theta) \cdots P(y_n \mid \theta).
+\end{align*}
+- Equivalent to maximizing **log-likelihood**:
+$$
+  \ell(\theta) = \ln \mathcal{L}(\theta) = \sum_{i=1}^n \ln P(y_i \mid \theta)
+$$
+
+## Maximizing the log-likelihood
+
+Set the partial derivatives to 0 and solve for $\theta$:
+$$
+  \frac{\partial \ell}{\partial \theta}(\hat{\theta}) = 0.
+$$
+
+- Sometimes analytically solvable
+- Most times, only numerically solvable.
+
+## Example: MLE for binomial variable
+
+- Suppose we have $n$ observations from a binomial distribution with unknown probability $\pi = P(Y = 1)$:
+$$
+  Y = (0, 0, 1, 0, 1, 0, \ldots, 1, 1, 0, 0, 1)
+$$
+
+- In semester 1 we saw that a good estimate for the probability $\pi$ is given by the proportion of 1s in the data:
+$$
+  \hat{\pi} = \frac{1}{N} \sum_{i = 1}^N Y_i = \bar{Y}.
+$$
+
+- We'll use MLE to re-derive this result.
+
+## Example: MLE for binomial variable
+
+- Likelihood
+\begin{align*}
+  \mathcal{L}(\pi) 
+    & = \Pi_{i = 1}^n P(Y = y_i) \\
+    & = \pi^{n\bar{Y}} (1 - \pi)^{n(1 - \bar{Y})}
+\end{align*}
+
+- Log likelihood: $\ell(\pi) = n \bar{Y} \ln \pi + n(1-\bar{Y})\ln(1 - \pi)$.
+
+- Maximum occurs when first derivative vanishes:
+$$
+  \frac{d \ell}{d \pi} = \frac{n \bar{Y}}{\pi} - \frac{n(1 - \bar{Y})}{1 - \pi} = 0.
+$$
+- Simplifies to $\hat{\pi} = \bar{Y}$.
+
+# Aside: odds, odds ratios, and logits
+
+## Odds
 
 - If $\pi$ is the probability of having a malignant tumor, then the **odds** are defined as
 $$
@@ -215,7 +280,7 @@ For example: if $\pi = 0.8$ then $\text{Odds} = 4$, meaning that for every benig
 
 - Odds range from 0 (impossible event) to $+\infty$ (almost certain).
 
-## Reminder: odds ratio
+## Odds ratio
 
 - **Odds ratio** (OR): indicates by how much the odds change between two treatments. For example: suppose in the treatment group the probability of a malignant tumor drops to $\pi_T = 0.75$ (compared to $\pi_C = 0.8$ in the untreated group). Then
 $$
@@ -250,6 +315,9 @@ ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
   xlab("Logit") +
   ylab("Probability")
 ```
+
+
+# Logistic regression
 
 ## Regression for classification
 
@@ -305,6 +373,8 @@ $$
 
 ## Determining the regression parameters: MLE
 
+
+
 - **Likelihood function** $\mathcal{L}$: probability of observing the data given the parameters $\alpha$, $\beta$:
 $$
   \mathcal{L}(\alpha, \beta) = \prod_{i = 1}^n P(Y = Y_i | X = X_i),
@@ -331,36 +401,7 @@ $$
 - Complicated equations, usually maximum cannot be found analytically (unlike least squares)
 - Use numerical methods to find maximum (R does this automatically with the `glm` command)
 
-## Simplified example: MLE for binomial variable
 
-- Suppose there are *no* predictors. We just have a bunch of categorical outcomes $Y_i = 0, 1$, e.g.
-$$
-  Y = (0, 0, 1, 0, 1, 0, \ldots, 1, 1, 0, 0, 1)
-$$
-
-- In semester 1 we saw that a good estimate for the probability $\pi = P(Y = 1)$ is given by the proportion of 1s in the data:
-$$
-  \hat{\pi} = \frac{1}{N} \sum_{i = 1}^N Y_i = \bar{Y}.
-$$
-
-- We'll use MLE to re-derive this result.
-
-## Simplified example: MLE for binomial variable
-
-- Likelihood
-\begin{align*}
-  \mathcal{L}(\pi) 
-    & = \Pi_{i = 1}^n P(Y = Y_i) \\
-    & = \pi^{n\bar{Y}} (1 - \pi)^{n(1 - \bar{Y})}
-\end{align*}
-
-- Log likelihood: $\ell(\pi) = n \bar{Y} \ln \pi + n(1-\bar{Y})\ln(1 - \pi)$.
-
-- Maximum occurs when first derivative vanishes:
-$$
-  \frac{d \ell}{d \pi} = \frac{n \bar{Y}}{\pi} - \frac{n(1 - \bar{Y})}{1 - \pi} = 0.
-$$
-- Simplifies to $\hat{\pi} = \bar{Y}$.
 
 
 ## MLE for logistic regression in R

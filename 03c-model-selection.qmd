@@ -34,8 +34,58 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 
 ## Which model fits the data the best?
 
+- True model: $y = \sin(x) + \sqrt{x} + 0.3 \epsilon$, where $\epsilon \sim N(0, 1)$
+- Four datasets, fit polynomial of degree 1, 2, or 8
+
 ```{r, echo=FALSE, fig.height=6}
-source("scripts/03a-parameter-estimation/bias-variance-trials.R", local = knitr::knit_global())
+set.seed(1234)
+
+# True model
+true_model <- function(x) {
+  sin(x) + sqrt(x)
+}
+
+# Sample data from true model + noise
+n <- 100
+x <- seq(0, 5, length.out = n)
+y <- true_model(x) + 0.3*rnorm(n)
+
+
+# Fit polynomial
+run_experiment <- function() {
+  ss_mask <- sample(1:length(x), 25)
+  x_ss <- x[ss_mask]
+  y_ss <- y[ss_mask]
+  x_rest <- x[-ss_mask]
+  y_rest <- y[-ss_mask]
+  
+  plot(x_ss, y_ss, pch=19, col=1, xlim=c(0, 3), ylim=c(-0.4, 3.1), 
+       axes=FALSE, frame.plot=TRUE, xlab="", ylab="")
+  
+  fit_model <- function(n, col) {
+    if (n > 0) {
+      m <- lm(y_ss ~ poly(x_ss, n, raw=TRUE))
+    } else {
+      m <- lm(y_ss ~ 1)
+    }
+    x_plot <- seq(min(x), max(x), length.out = 100)
+    y_plot <- predict(m, data.frame(x_ss=x_plot))
+    lines(x_plot, y_plot, col = col, lwd = 2)
+  }
+    
+  fit_model(1, col = 3)
+  fit_model(2, col = 4)
+  fit_model(8, col = 6)
+  legend(2, 1, legend = c("Deg. 1", "Deg. 2", "Deg. 8"),
+         col = c(3, 4, 6), lwd = 2)
+}
+
+# Run 4 experiments
+par(mfrow = c(2, 2), mar = c(0.5, 0.5, 0.5, 0.5))
+run_experiment()
+run_experiment()
+run_experiment()
+run_experiment()
 ```
 
 ## Two sources of error
@@ -99,7 +149,7 @@ poly_bias_variance
 ```
 
 - Model of degree 2 (quadratic curve) gives best fit (not too complex, not too simple)
-- Bias and variance in general **difficult to calculate**, need easier criteria.
+- Bias and variance in general **difficult to calculate**
 
 
 ## Case study: biodegradation test

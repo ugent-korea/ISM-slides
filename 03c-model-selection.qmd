@@ -110,13 +110,11 @@ run_experiment()
 
 ::: {.column width="40%"}
 
-![](images/03a-parameter-estimation/bullseye_75.png)
+![](images/03c-model-selection/bias-variance-metaphor.svg)
 
 :::
 
 ::::
-
-\scriptsize Figure adapted from \url{http://scott.fortmann-roe.com/docs/BiasVariance.html}
 
 ## Bias and variance are complementary
 

@@ -125,9 +125,8 @@ $$
 $$
 Goal model selection: select model with smallest total error = compromise between bias error and variance error
 
-![](images/03a-parameter-estimation/biasvariance_30.png){fig-align="center"}
+![](images/03c-model-selection/bias-variance-tradeoff.svg){fig-align="center"}
 
-\scriptsize Figure adapted from \url{http://scott.fortmann-roe.com/docs/BiasVariance.html}
 
 ## Model selection for linear models
 

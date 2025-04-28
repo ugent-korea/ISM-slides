@@ -295,72 +295,9 @@ $$
 
 # Side track: Monte Carlo simulation
 
-## Monte Carlo simulation technique
+## 
 
-:::: {.columns}
-::: {.column width="60%"}
-
-\vspace*{1cm}
-
-- Computational algorithm, based on 
-  - Large number of simulations (thousands to millions)
-  - Repeated random sampling
-- Used for modeling of
-  - Climate and environment
-  - Nuclear reactions
-  - Financial systems
-  - Molecular dynamics
-  - ...
-- In this course:
-  - Global sensitivity analysis
-  - Uncertainty analysis
-    
-:::
-
-::: {.column width="40%"}
-![](./images/03e-sensitivity/mc-casino.png){fig-align="center"}
-![](./images/03e-sensitivity/mc-atomic-bomb.png){fig-align="center"}
-:::
-::::
-    
-## Principles behind Monte Carlo
-
-Algorithm:
-
-1. Draw random parameter samples
-2. For each sample, run simulation
-3. Aggregate results of simulations into quantity of interest (e.g. mean)
-    
-Advantages:
-
-- Easy to implement/understand
-- Applicable to wide range of problems (model-agnostic)
-
-Disadvantages:
-
-- Relatively slow convergence (many simulations needed)
-- Requires information about parameter distributions
-    
-## Example: computing $\pi$
-
-- Drop points uniformly at random in the square $[-1, 1] \times [-1, 1]$
-- Count fraction for which $x^2 + y^2 < 1$
-- As $N \to \infty$, gives approximation for $\pi/4$.
-
-:::: {.columns}
-::: {.column width="40%"}
-![](./images/03e-sensitivity/mc-circle.png)
-:::
-
-::: {.column width="60%"}
-![](./images/03e-sensitivity/mc-pi-over-4.png)
-:::
-::::
-
-App available at [https://shiny-stats.fly.dev/monte-carlo/](https://shiny-stats.fly.dev/monte-carlo/).
-
-
-# Global sensitivity analysis (GSA)
+These slides have been moved to the slide deck `03f-monte-carlo.pdf`
 
 ## Global sensitivity analysis (GSA)
 

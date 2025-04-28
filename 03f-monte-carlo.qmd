@@ -1,0 +1,340 @@
+---
+title: "Nonlinear Modeling: Monte Carlo simulation"
+subtitle: Introduction to Statistical Modelling
+author: Prof. Joris Vankerschaver
+pdf-engine: lualatex
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    header-includes: |
+      \setbeamertemplate{frametitle}[default][left]
+      \setbeamertemplate{footline}[frame number]
+      \usepackage{emoji}
+      \usepackage{luatexko}
+
+---
+
+```{r, include=FALSE}
+library(colorspace)
+library(dplyr)
+library(gridExtra)
+library(scales)
+library(tibble)
+library(tidyverse)
+library(gridExtra)
+library(latex2exp)
+
+theme_set(theme_bw())
+
+colors2 <- hue_pal()(2)
+
+set.seed(1234)  # important for MC
+```
+
+## Monte Carlo simulation technique
+
+:::: {.columns}
+::: {.column width="60%"}
+
+\vspace*{1cm}
+
+- Computational algorithm, based on 
+  - Large number of simulations (thousands to millions)
+  - Repeated random sampling
+- Used for modeling of
+  - Climate and environment
+  - Nuclear reactions
+  - Financial systems
+  - Molecular dynamics
+  - ...
+- In this course:
+  - Global sensitivity analysis
+  - Uncertainty analysis
+    
+:::
+
+::: {.column width="40%"}
+![](./images/03e-sensitivity/mc-casino.png){fig-align="center"}
+![](./images/03e-sensitivity/mc-atomic-bomb.png){fig-align="center"}
+:::
+::::
+    
+## Principles behind Monte Carlo
+
+Algorithm:
+
+1. Draw random parameter samples
+2. For each sample, run simulation
+3. Aggregate results of simulations into quantity of interest (e.g. mean)
+    
+Advantages:
+
+- Easy to implement/understand
+- Applicable to wide range of problems (model-agnostic)
+
+Disadvantages:
+
+- Relatively slow convergence (many simulations needed)
+- Requires information about parameter distributions
+
+
+
+## Example: computing your savings    
+
+You just started work and you want to compute your financial situation in 12 months from now.
+
+Income \emoji{rocket}:
+
+- Salary: Between 2,400,000 KRW and 2,600,000 per month (uniformly distributed).
+- Tuition income:
+  - Attendance: binomial distribution with $n = 5$ and $p = 0.4$
+  - Each attending student pays you 100,000 KRW per month.
+
+Expenditure \emoji{cry}:
+
+- Variable costs: normally distributed with mean 2,000,000 KRW and standard deviation 500,000 KRW
+- Occasional large expense: 10% chance of extra 1,000,000 KRW expense
+
+## Simulating your income
+
+\scriptsize
+```{r}
+#| echo: true
+simulate_income <- function() {
+  salary <- runif(1, min = 2400, max = 2600)
+  tuition <- 100 * rbinom(1, size = 5, prob = 0.4)
+  return(salary + tuition)
+}
+```
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+incomes <- as_tibble_col(replicate(10000, simulate_income()))
+
+plot_incomes <- ggplot(incomes, aes(x = value)) +
+  geom_histogram(color = colors2[2], fill = lighten(colors2[2], amount = 0.5)) +
+  xlab("Monthly income (1000s of KRW)") +
+  ylab(NULL) +
+  ggtitle("Monthly income: 10,000 simulations")
+
+plot_incomes
+```
+
+## Simulating your expenditure
+
+\scriptsize
+```{r}
+#| echo: true
+simulate_expenditure <- function() {
+  costs <- rnorm(1, mean = 2000, sd = 500)
+  if (runif(1) < 0.10) {
+    costs <- costs + 1000
+  }
+  return(costs)
+}
+```
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+expenditures <- as_tibble_col(replicate(10000, simulate_expenditure()))
+
+plot_expenditures <- ggplot(expenditures, aes(x = value)) +
+  geom_histogram(color = colors2[1], fill = lighten(colors2[1], amount = 0.5)) +
+  xlab("Monthly expenditure (1000s of KRW)") +
+  ylab(NULL) +
+  ggtitle("Monthly expenditure: 10,000 simulations")
+
+plot_expenditures
+```
+
+## Comparing income and expenditure
+
+```{r}
+#| out-width: 4in
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
+
+joint <- bind_rows(
+  incomes |> mutate(which = "income"),
+  expenditures |> mutate(which = "expenditure")
+)
+
+outline_colors <- c(
+  income = colors2[2],
+  expenditure = colors2[1]
+)
+fill_colors <- lighten(outline_colors, amount = 0.5)
+
+ggplot(joint, aes(x = value, color = which)) +
+  geom_histogram(aes(fill = which, color = which)) +
+  facet_grid(which ~ ., scales = "free_y") +
+  scale_color_manual(values = outline_colors) +
+  scale_fill_manual(values = fill_colors) +
+  xlab("Amount (1000s of KRW)") +
+  ylab(NULL) +
+  theme(legend.position = "none")
+```
+
+
+## Simulating your savings over 12 months
+
+\scriptsize
+```{r}
+#| echo: true
+
+simulate_monthly_savings <- function() {
+  return(simulate_income() - simulate_expenditure())
+}
+simulate_yearly_savings <- function() {
+  return(cumsum(replicate(12, simulate_monthly_savings())))
+}
+```
+
+## 
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+simulate_many <- function(n) {
+  data <- replicate(n, simulate_yearly_savings())
+  colnames(data) <- 1:n
+  df <- as_tibble(data)
+  df$month <- 1:12
+  df
+}
+
+simulations <- simulate_many(1)
+
+p <- simulations |>
+  pivot_longer(!month, cols_vary = "slowest") |>
+  ggplot(aes(x = month, y = value, group = name)) +
+  geom_line(alpha = 0.5) +
+  scale_x_continuous(breaks = 1:12,
+                     limits = c(1, 12),
+                     expand = c(0, 0.2)) +
+  xlab("Month") +
+  ylab("Accumulated Savings (1000s of KRW)") +
+  ggtitle("Number of trajectories: 1")
+p
+```
+
+## 
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+simulations <- simulate_many(100)
+
+p <- simulations |>
+  pivot_longer(!month, cols_vary = "slowest") |>
+  ggplot(aes(x = month, y = value, group = name)) +
+  geom_line(alpha = 0.5) +
+  scale_x_continuous(breaks = 1:12,
+                     limits = c(1, 12),
+                     expand = c(0, 0.2)) +
+  xlab("Month") +
+  ylab("Accumulated Savings (1000s of KRW)") +
+  ggtitle("Number of trajectories: 100")
+p
+
+```
+
+## 
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+simulations <- simulate_many(1000)
+
+p <- simulations |>
+  pivot_longer(!month, cols_vary = "slowest") |>
+  ggplot(aes(x = month, y = value, group = name)) +
+  geom_line(alpha = 0.1) +
+  scale_x_continuous(breaks = 1:12,
+                     limits = c(1, 12),
+                     expand = c(0, 0.2)) +
+  xlab("Month") +
+  ylab("Accumulated Savings (1000s of KRW)") +
+  ggtitle("Number of trajectories: 1000")
+p
+
+```
+
+## Savings after 12 months
+
+```{r}
+#| out-width: 3in
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
+simulations |>
+  filter(month == 12) |>
+  select(!month) |>
+  pivot_longer(everything()) |>
+  ggplot(aes(x = value)) +
+  geom_histogram(color = "darkgray", fill = "gray") +
+  xlab("Accumulated savings after 12 months (1000 KRW)")
+
+```
+
+## Probability of bankruptcy
+
+Bankruptcy: your savings go below zero for at least one month.
+
+\scriptsize
+```{r}
+#| echo: true
+simulate_bankruptcy <- function() {
+  savings <- cumsum(replicate(12, simulate_monthly_savings()))
+  return(any(savings < 0))
+}
+
+n <- 1000
+bankruptcies <- replicate(n, simulate_bankruptcy())
+```
+
+\normalsize
+
+- Out of `r n` simulations, `r sum(bankruptcies)` end in bankruptcy.
+- Probability of bankruptcy: `r round(sum(bankruptcies) / n * 100, digits = 1)`%
+
+
+## Summary
+
+Monte Carlo simulations involve:
+
+- Repeatedly simulating the process for various initial conditions or parameters
+- Aggregating the results
+
+Monte Carlo simulations are:
+
+- Easy to implement but computationally intensive
+- Very powerful

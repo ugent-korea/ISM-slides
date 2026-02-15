@@ -124,7 +124,7 @@ Hence, can be used to identify extreme outcomes:
 - 95% of residuals expected in interval $[-2\sigma, 2\sigma]$
 - Observations where residual is much larger are probably outliers.
 
-## Exteme outcomes in analysis larches?
+## Extreme outcomes in analysis of larches?
 
 ```{r}
 #| out-width: 4in
@@ -245,7 +245,7 @@ $$
 ## Interpretation Cook's distance
 
 - If Cook's distance $D_i$ large, then $i^{th}$ observation has large influence on predictions and coefficients
-- **Extreme Cook's distance**: exceeds  50\% percentile of $F_{p,n-p}$-distribution
+- **Extreme Cook's distance**: exceeds the 50th percentile (median) of the $F_{p,n-p}$-distribution
 
 Example:
 

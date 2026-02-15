@@ -339,7 +339,7 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 - Once all **first order terms** have been verified, investigate **higher order terms** (interactions, quadratic effects, ...)
 - This is **not** done in exhaustive way:
   - Because number of higher order terms can get very large.
-  - Because problem of multiple testing might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant.
+  - Because multiple testing can, by mere coincidence, lead to incorrect conclusions that certain higher-order terms are significant.
 
 - Higher order terms considered for inclusion based on:
   - Biological judgment
@@ -348,7 +348,7 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 - Once final model is obtained, verify through residual plots.
 
 
-## Analysis of larches: provisonally `final' model
+## Analysis of larches: provisionally `final' model
 
 \small
 ```{r}
@@ -375,7 +375,7 @@ F-statistic: 30.83 on 6 and 19 DF,  p-value: 8.159e-09
 
 - To make predictions, previous strategy is sensible since it aims at avoiding overfitting.
 - To determine effect of an exposure on an outcome, must make sure above all to adjust for all confounders
-- Recall: Confounder are factors
+- Recall: Confounders are factors
   - that are not comparable between exposure groups
   - in particular, that are associated with outcome and exposure, but are not influenced by either.
 

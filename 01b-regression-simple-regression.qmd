@@ -307,7 +307,7 @@ plot(model)
 
 - Assumption: outcomes normally distributed **for fixed values of explanatory variable**:
 $$
-  Y|X \sim N(a + bX, \sigma^2).
+  Y|X \sim N(\alpha + \beta X, \sigma^2).
 $$
 - Can be checked using QQ-plot of the residuals.
 

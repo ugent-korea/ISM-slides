@@ -38,11 +38,11 @@ Basal area of coarse woody debris (CWD) versus tree density along 16 North Ameri
 ## CWD versus tree density
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
 lines(lowess(CWD$RIP.DENS, CWD$CWD.BASA, f=3/4), lty = 2)
 abline(model)
@@ -109,10 +109,9 @@ with $\mathrm{Cor}(x, y)$ the sample correlation between $x$ and $y$ and $S_x$, 
 ## Residuals plot
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 a <- -77.10
@@ -177,10 +176,9 @@ $$
 ## Verifying linearity assumption
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
@@ -206,7 +204,11 @@ plot(model)
 ## Verifying linearity assumption
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
+
 model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
@@ -237,10 +239,9 @@ $$
 ## Homoscedasticity versus heteroscedasticity
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(1234)
@@ -266,11 +267,11 @@ abline(a, b)
 Hard to check on regression plot directly!
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
 lines(lowess(CWD$RIP.DENS, CWD$CWD.BASA, f=3/4), lty = 2)
 abline(model)
@@ -283,11 +284,11 @@ abline(model)
 - Scatterplot of $e_i^2$ or $\sqrt{|e_i|}$ versus $x_i$ or predictions.
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4
 #| fig-align: center
+
 plot(CWD$RIP.DENS, abs(residuals(model))^0.5, xlab = "Riparian tree density", ylab = "Square root of residuals", pch = 19)
 lines(lowess(CWD$RIP.DENS, abs(residuals(model))^0.5, f=3/4))
 ```
@@ -295,7 +296,11 @@ lines(lowess(CWD$RIP.DENS, abs(residuals(model))^0.5, f=3/4))
 ## Assumption of homoscedasticity
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
@@ -314,11 +319,11 @@ $$
 ## Normality assumption valid
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 200
@@ -340,10 +345,9 @@ residuals <- y - a - b*x
 ## Normality assumption not valid
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(456)
@@ -371,11 +375,11 @@ boxplot(y ~ bin, xlab = "", ylab = "", side="right")
 ## QQ plot of residuals (Y|X normal)
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 100
@@ -398,11 +402,11 @@ qqline(residuals)
 ## QQ plot of residuals (Y|X not normal)
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 200
@@ -430,11 +434,11 @@ qqline(residuals)
 ## Do not use QQ-plot of Y!
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 100
@@ -457,7 +461,11 @@ qqline(y)
 ## Checking for normality with R diagnostic plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
@@ -466,7 +474,7 @@ plot(model)
 ## What if homoscedasticity or normality false?
 
 - Transformation of **dependent variable** can help to obtain normality and homoscedasticity.
-- Example transformations: $\sqrt{Y}, Y^2, 1/Y, \exp{Y}, \exp{(-Y)}, \ln{Y}$.
+- Example transformations: $\sqrt{Y}, Y^2, 1/Y, \ln{Y}$.
 
 - Transformation of **independent variable** does not change distribution of $Y$ for given $X$:
   - does not help in obtaining normality or homoscedasticity.
@@ -495,7 +503,11 @@ summary(model2)
 ## Residual plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 par(mfrow=c(2,2))
 plot(model2)
 ```
@@ -541,7 +553,11 @@ summary(model3)
 ## Residual plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 par(mfrow=c(2,2))
 plot(model3)
 ```
@@ -610,7 +626,8 @@ with $p$ number of unknown parameters in model.
 \small
 ```{r}
 #| echo: true
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2),
+             data = CWD)
 p <- predict(model3,
              newdata = data.frame(RIP.DENS=c(1000, 1500)), 
              interval = "confidence")
@@ -628,11 +645,11 @@ exp(p)
 ## Expected outcome with 95\% CI
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
              interval = "confidence")
 plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", ylim = c(0, max(exp(p[,3]))))
@@ -657,10 +674,9 @@ with $MSE=\frac{1}{n-2}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
 ## Spread and precision
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(1234)

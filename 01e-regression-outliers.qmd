@@ -14,25 +14,21 @@ format:
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
 
-model <- lm(CWD.BASA ~ RIP.DENS)
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
 summary(model)
 confint(model)
 
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
-attach(needles)
-model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
-               + phosphor * residu)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles)
 
 library(car)
 
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
-attach(body.fat)
 
 birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep = "\t", dec = ".")
-attach(birnh)
 ```
 
 ## Outliers / Influential observations 
@@ -327,7 +323,7 @@ $$
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
-inter5 <- phosphor * residu
+inter5 <- needles$phosphor * needles$residu
 par(mfrow=c(1,2))
 hist(inter5, xlab = "phosphor * residual ash", main = "Histogram of phosphor * residu")
 qqnorm(inter5)
@@ -337,13 +333,9 @@ qqnorm(inter5)
 
 \small
 ```{r}
-nitrogen2 <- nitrogen[-1]
-phosphor2 <- phosphor[-1]
-potassium2 <- potassium[-1]
-residu2 <- residu[-1]
-length2 <- length[-1]
-model_l6 <- lm(length2 ~ nitrogen2 *  phosphor2 + potassium2 
-               + phosphor2 * residu2)
+needles2 <- needles[-1, ]
+model_l6 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles2)
 ```
 ```{r echo=FALSE}
 summary(model_l6)$coefficients
@@ -353,8 +345,8 @@ summary(model_l6)$coefficients
 
 \small
 ```{r}
-model_l7 <- lm(length ~ nitrogen *  phosphor + potassium 
-               + residu)
+model_l7 <- lm(length ~ nitrogen * phosphor + potassium
+               + residu, data = needles)
 ```
 ```{r echo=FALSE}
 summary(model_l7)$coefficients
@@ -364,7 +356,7 @@ summary(model_l7)$coefficients
 
 \small
 ```{r}
-model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
+model_l8 <- lm(length ~ nitrogen * phosphor + potassium, data = needles)
 ```
 ```{r echo=FALSE}
 summary(model_l8)$coefficients

@@ -14,13 +14,11 @@ format:
 
 ```{r include = FALSE}
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
-attach(needles)
-model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
-               + phosphor * residu)
-model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles)
+model_l8 <- lm(length ~ nitrogen * phosphor + potassium, data = needles)
 
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
-attach(body.fat)
 ```
 
 ## Multicollinearity 
@@ -80,8 +78,9 @@ abline(lm(cy ~ cx), col = "blue")
 ## Scatterplot matrix - before centering
 
 ```{r}
-nitrogenphospor <- nitrogen * phosphor 
-minerals <- cbind(nitrogen, phosphor, potassium, nitrogenphospor)
+nitrogenphospor <- needles$nitrogen * needles$phosphor
+minerals <- cbind(needles$nitrogen, needles$phosphor, needles$potassium, nitrogenphospor)
+colnames(minerals)[1:3] <- c("nitrogen", "phosphor", "potassium")
 colnames(minerals)[4] <- "nitrogen*phosphor"
 pairs(minerals)
 ```
@@ -89,10 +88,10 @@ pairs(minerals)
 ## Scatterplot matrix - after centering
 
 ```{r}
-cnitrogen <- nitrogen - mean(nitrogen)
-cphosphor <- phosphor - mean(phosphor)
-cpotassium <- potassium - mean(potassium)
-cresidu <- residu - mean(residu)
+cnitrogen <- needles$nitrogen - mean(needles$nitrogen)
+cphosphor <- needles$phosphor - mean(needles$phosphor)
+cpotassium <- needles$potassium - mean(needles$potassium)
+cresidu <- needles$residu - mean(needles$residu)
 cnitrogenphospor <- cnitrogen * cphosphor 
 minerals2 <- cbind(cnitrogen, cphosphor, cpotassium, cnitrogenphospor)
 colnames(minerals2)[4] <- "cnitrogen*cphosphor"
@@ -129,8 +128,11 @@ with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predi
 #| fig-align: center
 
 library(car)
-model_l8b <- lm(length ~ cnitrogen *  cphosphor + cpotassium)
-model_l5b <- lm(length ~ cnitrogen * cphosphor + cpotassium + cphosphor * cresidu)
+needles_c <- data.frame(length = needles$length, cnitrogen = cnitrogen,
+                        cphosphor = cphosphor, cpotassium = cpotassium,
+                        cresidu = cresidu)
+model_l8b <- lm(length ~ cnitrogen * cphosphor + cpotassium, data = needles_c)
+model_l5b <- lm(length ~ cnitrogen * cphosphor + cpotassium + cphosphor * cresidu, data = needles_c)
 v1 <- vif(model_l5)
 v2 <- vif(model_l5b)
 par(mfrow=c(1,2))
@@ -168,9 +170,9 @@ summary(model_l8b)$coefficients
 
 \footnotesize
 ```{r echo=FALSE}
-model_bf <- lm(bodyfat ~ triceps.skinfold.thickness + 
+model_bf <- lm(bodyfat ~ triceps.skinfold.thickness +
                          thigh.circumference +
-                         midarm.circumference)
+                         midarm.circumference, data = body.fat)
 summary(model_bf)
 ```
 

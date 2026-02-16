@@ -14,23 +14,20 @@ format:
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
 
-model <- lm(CWD.BASA ~ RIP.DENS)
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
 summary(model)
 confint(model)
 
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
-attach(needles)
-model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
-               + phosphor * residu)
-model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles)
+model_l8 <- lm(length ~ nitrogen * phosphor + potassium, data = needles)
 
 library(car)
 
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
-attach(body.fat)
 ```
 
 # Prediction
@@ -402,8 +399,8 @@ Conclusion: complex model is significantly better.
 \footnotesize
 ```{r}
 #| echo: true
-model_l1 <- lm(length ~ phosphor)
-model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu)
+model_l1 <- lm(length ~ phosphor, data = needles)
+model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu, data = needles)
 anova(model_l1, model_l2)
 ```
 \normalsize

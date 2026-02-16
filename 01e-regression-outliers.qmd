@@ -39,8 +39,7 @@ birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -74,8 +73,7 @@ plot_data_outliers()
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -87,8 +85,7 @@ plot_data_outliers(c(3, 4))
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -99,8 +96,7 @@ plot_data_outliers(c(0, 4))
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -123,8 +119,7 @@ Hence, can be used to identify extreme outcomes:
 ## Extreme outcomes in analysis of larches?
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -140,8 +135,7 @@ qqnorm(model_l5$resid, pch = 19)
 ## Multivariate outliers: $Y$ versus $X_1$ or $X_2$
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -175,8 +169,7 @@ points(x2_outlier, y_outlier, pch = 15, col = "red")
 ## Multivariate outliers: $X_1$ versus $X_2$
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -213,8 +206,7 @@ $$
 ## Leverage in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -252,8 +244,7 @@ Example:
 ## Cook's distance in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -292,8 +283,7 @@ $$
 ## DFBETAs in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -318,8 +308,7 @@ $$
 ## Histogram and QQ-plot of interaction
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -365,8 +354,7 @@ summary(model_l8)$coefficients
 ## Final analysis: leverage
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -386,8 +374,7 @@ text(6, 0.59, 4)
 ## Final analysis: Cook's distance
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center

@@ -24,7 +24,7 @@ body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header
 ## Multicollinearity 
 
 - There is **multicollinearity** when 2 or more predictors are correlated
-- **Can possibly cause problems**: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern effect of $X_1$ of effect of $X_2$
+- **Can possibly cause problems**: if there is strong correlation between 2 predictors $X_1$ and $X_2$, it becomes difficult to discern the effect of $X_1$ from the effect of $X_2$
 
 Example: If $X_1=X_2$, then 
 $$
@@ -33,7 +33,7 @@ $$
 
 Consequences
 
-- Numerically instable estimates
+- Numerically unstable estimates
 - Estimates with large standard errors
 - Difficult interpretation of coefficients
 
@@ -46,7 +46,7 @@ Multicollinearity can be recognized through:
   - Very wide confidence intervals
   - Unexpected results 
 - **Strong correlation** between predictors:
-  - Example: usually strong correlation between $X_f$ and $X_fX_s$
+  - Example: usually strong correlation between $X_1$ and $X_1X_2$
   - Can sometimes be eliminated by **centering** (subtracting the mean): 
 $$
   X \to X-\bar X.
@@ -115,7 +115,7 @@ with $R_k^2$ the $R^2$ of linear regression of $k^{th}$ predictor on other predi
 
 - $\textrm{VIF}_k \geq 1$; $\textrm{VIF}_k=1$ if $k^{th}$ predictor not linearly associated with other predictors.
 - Expresses how much larger variance on $k^{th}$ coefficient is than when all predictors were independent.
-- Average quadratic distance between estimated and true coefficients is proportionate with average VIF.
+- Average quadratic distance between estimated and true coefficients is proportional to the average VIF.
 - Critical multicollinearity: maximum VIF of at least 10.
 
 ## Variance inflation factors
@@ -138,7 +138,6 @@ v2 <- vif(model_l5b)
 par(mfrow=c(1,2))
 plot(v1, pch = 20, main = "Before centering", ylab = "VIF", xlab = "Parameter number")
 abline(h=10, lty = 2, col = "blue")
-z <- seq(1.4,2.8,0.2)
 plot(v2, pch = 20, main = "After centering", ylab = "VIF", xlab = "Parameter number", yaxp = c(1.4, 2.8, 7))
 ```
 

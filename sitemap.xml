@@ -2,18 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ugent-korea.github.io/ISM-slides/index.html</loc>
-    <lastmod>2025-04-28T02:09:03.177Z</lastmod>
+    <lastmod>2026-03-02T01:43:18.614Z</lastmod>
   </url>
   <url>
     <loc>https://ugent-korea.github.io/ISM-slides/case-studies/logistic-regression/prostate-cancer/prostate-cancer.html</loc>
-    <lastmod>2025-04-28T02:09:03.138Z</lastmod>
+    <lastmod>2026-03-02T01:43:18.575Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ugent-korea.github.io/ISM-slides/case-studies/linear-regression/riparian-density/riparian.html</loc>
+    <lastmod>2026-03-02T01:43:18.575Z</lastmod>
   </url>
   <url>
     <loc>https://ugent-korea.github.io/ISM-slides/case-studies/logistic-regression/breast-cancer/breast-cancer.html</loc>
-    <lastmod>2025-04-28T02:09:03.138Z</lastmod>
+    <lastmod>2026-03-02T01:43:18.575Z</lastmod>
   </url>
   <url>
     <loc>https://ugent-korea.github.io/ISM-slides/case-studies/logistic-regression/pupal-color/pupal-color.html</loc>
-    <lastmod>2025-04-28T02:09:03.138Z</lastmod>
+    <lastmod>2026-03-02T01:43:18.576Z</lastmod>
   </url>
 </urlset>

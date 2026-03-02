@@ -15,9 +15,8 @@ format:
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
 
-model <- lm(CWD.BASA ~ RIP.DENS)
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 
 ```
 
@@ -39,13 +38,13 @@ Basal area of coarse woody debris (CWD) versus tree density along 16 North Ameri
 ## CWD versus tree density
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
-plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
-lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
+
+plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
+lines(lowess(CWD$RIP.DENS, CWD$CWD.BASA, f=3/4), lty = 2)
 abline(model)
 ```
 
@@ -110,10 +109,9 @@ with $\mathrm{Cor}(x, y)$ the sample correlation between $x$ and $y$ and $S_x$, 
 ## Residuals plot
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 a <- -77.10
@@ -140,7 +138,7 @@ See also: [residuals animation](https://yihui.org/animation/example/least-square
 \footnotesize
 ```{r}
 #| echo: true
-model <- lm(CWD.BASA ~ RIP.DENS)
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 summary(model)$coefficients
 ```
 \normalsize
@@ -178,14 +176,13 @@ $$
 ## Verifying linearity assumption
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
-plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
-lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
+plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
+lines(lowess(CWD$RIP.DENS, CWD$CWD.BASA, f=3/4), lty = 2)
 abline(model)
 ```
 
@@ -199,7 +196,7 @@ $$
 - If linear model correct, then scatterplot of $e_i$ versus $x_i$ or predictions $\hat{\alpha}+\hat{\beta}x_i$ shows no pattern
 
 ```{r eval = FALSE}
-model <- lm(CWD.BASA ~ RIP.DENS)
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
 ```
@@ -207,8 +204,12 @@ plot(model)
 ## Verifying linearity assumption
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
-model <- lm(CWD.BASA ~ RIP.DENS)
+
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
 ```
@@ -238,10 +239,9 @@ $$
 ## Homoscedasticity versus heteroscedasticity
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(1234)
@@ -267,13 +267,13 @@ abline(a, b)
 Hard to check on regression plot directly!
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
-plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
-lines(lowess(RIP.DENS, CWD.BASA,f=3/4), lty = 2)
+
+plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", pch = 19)
+lines(lowess(CWD$RIP.DENS, CWD$CWD.BASA, f=3/4), lty = 2)
 abline(model)
 ```
 
@@ -284,20 +284,24 @@ abline(model)
 - Scatterplot of $e_i^2$ or $\sqrt{|e_i|}$ versus $x_i$ or predictions.
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4
 #| fig-align: center
-plot(RIP.DENS, abs(residuals(model))^0.5, xlab = "Riparian tree density", ylab = "Square root of residuals", pch = 19)
-lines(lowess(RIP.DENS, abs(residuals(model))^0.5,f=3/4))
+
+plot(CWD$RIP.DENS, abs(residuals(model))^0.5, xlab = "Riparian tree density", ylab = "Square root of residuals", pch = 19)
+lines(lowess(CWD$RIP.DENS, abs(residuals(model))^0.5, f=3/4))
 ```
 
 ## Assumption of homoscedasticity
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
-model <- lm(CWD.BASA ~ RIP.DENS)
+
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
 ```
@@ -307,7 +311,7 @@ plot(model)
 
 - Assumption: outcomes normally distributed **for fixed values of explanatory variable**:
 $$
-  Y|X \sim N(a + bX, \sigma^2).
+  Y|X \sim N(\alpha + \beta X, \sigma^2).
 $$
 - Can be checked using QQ-plot of the residuals.
 
@@ -315,11 +319,11 @@ $$
 ## Normality assumption valid
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 200
@@ -341,10 +345,9 @@ residuals <- y - a - b*x
 ## Normality assumption not valid
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(456)
@@ -372,11 +375,11 @@ boxplot(y ~ bin, xlab = "", ylab = "", side="right")
 ## QQ plot of residuals (Y|X normal)
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 100
@@ -399,11 +402,11 @@ qqline(residuals)
 ## QQ plot of residuals (Y|X not normal)
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 200
@@ -431,11 +434,11 @@ qqline(residuals)
 ## Do not use QQ-plot of Y!
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 set.seed(456)
 
 n <- 100
@@ -458,8 +461,12 @@ qqline(y)
 ## Checking for normality with R diagnostic plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
-model <- lm(CWD.BASA ~ RIP.DENS)
+
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
 par(mfrow=c(2,2))
 plot(model)
 ```
@@ -467,7 +474,7 @@ plot(model)
 ## What if homoscedasticity or normality false?
 
 - Transformation of **dependent variable** can help to obtain normality and homoscedasticity.
-- Example transformations: $\sqrt{Y}, Y^2, 1/Y, \exp{Y}, \exp{(-Y)}, \ln{Y}$.
+- Example transformations: $\sqrt{Y}, Y^2, 1/Y, \ln{Y}$.
 
 - Transformation of **independent variable** does not change distribution of $Y$ for given $X$:
   - does not help in obtaining normality or homoscedasticity.
@@ -480,7 +487,7 @@ plot(model)
 - **Solution**: transform outcome such that it can take on all real values
 - Example: `CWD.BASA` is always positive: take $\ln$ to make outcome real-valued:
 ```{r eval=FALSE}
-model2 <- lm(I(log(CWD.BASA)) ~ RIP.DENS)
+model2 <- lm(I(log(CWD.BASA)) ~ RIP.DENS, data = CWD)
 summary(model2)
 ```
 
@@ -489,14 +496,18 @@ summary(model2)
 \footnotesize
 ```{r}
 #| echo: true
-model2 <- lm(log(CWD.BASA) ~ RIP.DENS)
+model2 <- lm(log(CWD.BASA) ~ RIP.DENS, data = CWD)
 summary(model2)
 ```
 
 ## Residual plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 par(mfrow=c(2,2))
 plot(model2)
 ```
@@ -535,14 +546,18 @@ $$
 
 \footnotesize
 ```{r}
-model3 <- lm(log(CWD.BASA) ~ RIP.DENS + I(RIP.DENS^2))
+model3 <- lm(log(CWD.BASA) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
 summary(model3)
 ```
 
 ## Residual plots
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 5
 #| fig-align: center
+
 par(mfrow=c(2,2))
 plot(model3)
 ```
@@ -611,7 +626,8 @@ with $p$ number of unknown parameters in model.
 \small
 ```{r}
 #| echo: true
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2),
+             data = CWD)
 p <- predict(model3,
              newdata = data.frame(RIP.DENS=c(1000, 1500)), 
              interval = "confidence")
@@ -629,14 +645,14 @@ exp(p)
 ## Expected outcome with 95\% CI
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
+
 p <- predict(model3, newdata = data.frame(RIP.DENS=800:2200), 
              interval = "confidence")
-plot(RIP.DENS, CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", ylim = c(0, max(exp(p[,3]))))
+plot(CWD$RIP.DENS, CWD$CWD.BASA, xlab = "Riparian tree density", ylab = "CWD basal area", ylim = c(0, max(exp(p[,3]))))
 abline(model, lty=3)
 lines(800:2200, exp(p[,1]))
 lines(800:2200, exp(p[,2]), lty=2)
@@ -658,10 +674,9 @@ with $MSE=\frac{1}{n-2}\sum_{i=1}^n(Y_i-\hat{Y}_i)^2$
 ## Spread and precision
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 set.seed(1234)

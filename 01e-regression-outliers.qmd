@@ -14,25 +14,21 @@ format:
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
 
-model <- lm(CWD.BASA ~ RIP.DENS)
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
 summary(model)
 confint(model)
 
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
-attach(needles)
-model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
-               + phosphor * residu)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles)
 
 library(car)
 
 body.fat <- read.table("./datasets/01-linear-regression/bodyfatNKNW.txt", header = T, dec = ".")
-attach(body.fat)
 
 birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep = "\t", dec = ".")
-attach(birnh)
 ```
 
 ## Outliers / Influential observations 
@@ -43,8 +39,7 @@ attach(birnh)
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -78,8 +73,7 @@ plot_data_outliers()
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -91,8 +85,7 @@ plot_data_outliers(c(3, 4))
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -103,8 +96,7 @@ plot_data_outliers(c(0, 4))
 ## Influence of influential observations 
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -124,11 +116,10 @@ Hence, can be used to identify extreme outcomes:
 - 95% of residuals expected in interval $[-2\sigma, 2\sigma]$
 - Observations where residual is much larger are probably outliers.
 
-## Exteme outcomes in analysis larches?
+## Extreme outcomes in analysis of larches?
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -144,8 +135,7 @@ qqnorm(model_l5$resid, pch = 19)
 ## Multivariate outliers: $Y$ versus $X_1$ or $X_2$
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -179,8 +169,7 @@ points(x2_outlier, y_outlier, pch = 15, col = "red")
 ## Multivariate outliers: $X_1$ versus $X_2$
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -217,8 +206,7 @@ $$
 ## Leverage in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -245,7 +233,7 @@ $$
 ## Interpretation Cook's distance
 
 - If Cook's distance $D_i$ large, then $i^{th}$ observation has large influence on predictions and coefficients
-- **Extreme Cook's distance**: exceeds  50\% percentile of $F_{p,n-p}$-distribution
+- **Extreme Cook's distance**: exceeds the 50th percentile (median) of the $F_{p,n-p}$-distribution
 
 Example:
 
@@ -256,8 +244,7 @@ Example:
 ## Cook's distance in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -296,8 +283,7 @@ $$
 ## DFBETAs in analysis of larches
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -322,12 +308,11 @@ $$
 ## Histogram and QQ-plot of interaction
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
-inter5 <- phosphor * residu
+inter5 <- needles$phosphor * needles$residu
 par(mfrow=c(1,2))
 hist(inter5, xlab = "phosphor * residual ash", main = "Histogram of phosphor * residu")
 qqnorm(inter5)
@@ -337,13 +322,9 @@ qqnorm(inter5)
 
 \small
 ```{r}
-nitrogen2 <- nitrogen[-1]
-phosphor2 <- phosphor[-1]
-potassium2 <- potassium[-1]
-residu2 <- residu[-1]
-length2 <- length[-1]
-model_l6 <- lm(length2 ~ nitrogen2 *  phosphor2 + potassium2 
-               + phosphor2 * residu2)
+needles2 <- needles[-1, ]
+model_l6 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles2)
 ```
 ```{r echo=FALSE}
 summary(model_l6)$coefficients
@@ -353,8 +334,8 @@ summary(model_l6)$coefficients
 
 \small
 ```{r}
-model_l7 <- lm(length ~ nitrogen *  phosphor + potassium 
-               + residu)
+model_l7 <- lm(length ~ nitrogen * phosphor + potassium
+               + residu, data = needles)
 ```
 ```{r echo=FALSE}
 summary(model_l7)$coefficients
@@ -364,7 +345,7 @@ summary(model_l7)$coefficients
 
 \small
 ```{r}
-model_l8 <- lm(length ~ nitrogen *  phosphor + potassium)
+model_l8 <- lm(length ~ nitrogen * phosphor + potassium, data = needles)
 ```
 ```{r echo=FALSE}
 summary(model_l8)$coefficients
@@ -373,8 +354,7 @@ summary(model_l8)$coefficients
 ## Final analysis: leverage
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -394,8 +374,7 @@ text(6, 0.59, 4)
 ## Final analysis: Cook's distance
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center

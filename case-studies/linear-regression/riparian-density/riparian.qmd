@@ -1,0 +1,98 @@
+---
+title: "CWD Basal Area vs. Riparian Tree Density"
+format: html
+---
+
+Please refer to the lecture presentations and course notes for more information.
+
+## Data and exploratory plot
+
+```{r}
+cwd <- read.csv("christ.csv")
+```
+
+```{r}
+plot(CWD.BASA ~ RIP.DENS, data = cwd, pch = 19,
+     xlab = "Riparian tree density", ylab = "CWD basal area")
+```
+
+## Simple linear regression
+
+```{r}
+m <- lm(CWD.BASA ~ RIP.DENS, data = cwd)
+summary(m)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(m)
+```
+
+## Log-transformed outcome
+
+```{r}
+m_log <- lm(log(CWD.BASA) ~ RIP.DENS, data = cwd)
+summary(m_log)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(m_log)
+```
+
+## Higher-order regression
+
+```{r}
+m_quad <- lm(log(CWD.BASA) ~ RIP.DENS + I(RIP.DENS^2),
+             data = cwd)
+summary(m_quad)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(m_quad)
+```
+
+```{r}
+m_cubic <- lm(log(CWD.BASA) ~ RIP.DENS + I(RIP.DENS^2) 
+              + I(RIP.DENS^3),
+             data = cwd)
+summary(m_cubic)
+```
+
+Note that the cubic term ($\mathrm{RIP.DENS}^3$) is not significant, so we don't include it (or any higher-order terms) in the model.
+
+## Predictions and confidence intervals
+
+```{r}
+p <- predict(m_quad,
+             newdata = data.frame(RIP.DENS = c(1000, 1500)),
+             interval = "confidence")
+p
+```
+
+```{r}
+exp(p)
+```
+
+```{r}
+p <- predict(m_quad, 
+             newdata = data.frame(RIP.DENS=800:2200), 
+             interval = "confidence")
+
+plot(CWD.BASA ~ RIP.DENS,
+     data = cwd,
+     xlab = "Riparian tree density", 
+     ylab = "CWD basal area",
+     ylim = c(0, 600))
+
+abline(m, lty=3)
+lines(800:2200, exp(p[,1]))
+lines(800:2200, exp(p[,2]), lty=2)
+lines(800:2200, exp(p[,3]), lty=2)
+```
+
+```{r}
+confint(m_quad)
+```
+

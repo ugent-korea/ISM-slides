@@ -41,8 +41,7 @@ m <- lm(Height ~ Palm.width, data=heights)
 ## The raw data
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -59,8 +58,7 @@ legend(x = "topleft", legend = levels(heights$Gender),
 ## Associating height with palm width
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -95,7 +93,13 @@ summary(m)
 
 ## Model diagnostics
 
-```{r, echo=FALSE}
+```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+#| echo: false
+
 par(mfrow=c(2, 2))
 plot(m)
 ```
@@ -135,8 +139,7 @@ For prediction $E(H|W = 8.75) =  174.17 \,\text{cm}$:
 ## What is the uncertainty in our prediction?
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-width: 4.5in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center

@@ -14,7 +14,6 @@ format:
 
 ```{r include = FALSE}
 birnh <- read.table("./datasets/01-linear-regression/birnh.txt", header = T, sep = "\t", dec = ".")
-attach(birnh)
 ```
 ## Example: BIRNH study
 
@@ -32,7 +31,7 @@ attach(birnh)
 
 \footnotesize
 ```{r echo=FALSE}
-model_birnh <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX + PROVINCE)
+model_birnh <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX + PROVINCE, data = birnh)
 summary(model_birnh)$coefficients
 ```
 \normalsize
@@ -82,16 +81,16 @@ P_8 & =  \left\{\begin{array}{ll}
 
 ```{r}
 #| echo: true
-m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
-        + SEX + factor(PROVINCE))
+m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3)
+        + SEX + factor(PROVINCE), data = birnh)
 ```
 
 ## Analysis with dummy variables
 
 \scriptsize
 ```{r echo=FALSE}
-m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
-        + SEX + factor(PROVINCE))
+m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3)
+        + SEX + factor(PROVINCE), data = birnh)
 summary(m)$coefficients
 ```
 
@@ -101,8 +100,8 @@ summary(m)$coefficients
 
 \scriptsize
 ```{r echo=FALSE}
-m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) 
-        + SEX + factor(PROVINCE))
+m <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3)
+        + SEX + factor(PROVINCE), data = birnh)
 summary(m)$coefficients
 ```
 \normalsize
@@ -139,8 +138,8 @@ under null hypothesis
 
 \footnotesize
 ```{r}
-mC <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX 
-         + factor(PROVINCE))
-mR <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX)
+mC <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX
+         + factor(PROVINCE), data = birnh)
+mR <- lm(TCHOL ~ SMOKING + AGE + I(AGE^2) + I(AGE^3) + SEX, data = birnh)
 anova(mR,mC)
 ```

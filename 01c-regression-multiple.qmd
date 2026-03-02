@@ -15,15 +15,13 @@ format:
 
 ```{r include = FALSE}
 CWD <- read.table("./datasets/01-linear-regression/christ.csv", header = T, sep = ",", dec = ".")
-attach(CWD)
 
-model <- lm(CWD.BASA ~ RIP.DENS)
-model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2))
+model <- lm(CWD.BASA ~ RIP.DENS, data = CWD)
+model3 <- lm(I(log(CWD.BASA)) ~ RIP.DENS + I(RIP.DENS^2), data = CWD)
 summary(model)
 confint(model)
 
 needles <- read.table("./datasets/01-linear-regression/needles.txt", header = T, sep = "\t", dec = ".")
-attach(needles)
 
 ```
 
@@ -82,7 +80,7 @@ $\beta_P=$ difference in mean length between trees that differ 1 unit in proport
 \small
 ```{r}
 #| echo: true
-model_l <- lm(length ~ phosphor)
+model_l <- lm(length ~ phosphor, data = needles)
 summary(model_l)$coefficients
 ```
 \normalsize
@@ -95,12 +93,12 @@ Parameters estimated using least squares method:
 
 \small
 ```{r eval = FALSE}
-model_l2 <- lm(length ~ nitrogen + phosphor 
-               + potassium + residu)
+model_l2 <- lm(length ~ nitrogen + phosphor
+               + potassium + residu, data = needles)
 summary(model_l2)
 ```
 ```{r echo = FALSE}
-model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu)
+model_l2 <- lm(length ~ nitrogen + phosphor + potassium + residu, data = needles)
 summary(model_l2)$coefficients
 ```
 
@@ -144,14 +142,14 @@ $$
 ```{r}
 #| echo: false
 par(mfrow = c(2,2))
-plot(nitrogen, resid(model_l2))
-lines(lowess(nitrogen,resid(model_l2)))
-plot(phosphor, resid(model_l2))
-lines(lowess(phosphor,resid(model_l2)))
-plot(potassium, resid(model_l2))
-lines(lowess(potassium,resid(model_l2)))
-plot(residu, resid(model_l2))
-lines(lowess(residu,resid(model_l2)))
+plot(needles$nitrogen, resid(model_l2))
+lines(lowess(needles$nitrogen, resid(model_l2)))
+plot(needles$phosphor, resid(model_l2))
+lines(lowess(needles$phosphor, resid(model_l2)))
+plot(needles$potassium, resid(model_l2))
+lines(lowess(needles$potassium, resid(model_l2)))
+plot(needles$residu, resid(model_l2))
+lines(lowess(needles$residu, resid(model_l2)))
 ```
 
 ## Analysis of larches: residual plots
@@ -193,7 +191,7 @@ E(Y| & X_N=x_N+1,X_P)-E(Y|X_N=x_N,X_P)\\
 \scriptsize
 ```{r}
 #| echo: true
-model_l3 <- lm(length ~ nitrogen * phosphor)
+model_l3 <- lm(length ~ nitrogen * phosphor, data = needles)
 summary(model_l3)
 ```
 \normalsize
@@ -209,10 +207,9 @@ Interactive visualization at
 
 ```{r}
 #| echo: false
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 model <- lm(length ~ nitrogen*phosphor, data = needles)
@@ -255,7 +252,7 @@ plot(phosphor_plot, nitrogen_effect, type = "l", lwd = 2,
 \scriptsize
 ```{r}
 #| echo: true
-model_l4 <- lm(length ~ nitrogen + phosphor)
+model_l4 <- lm(length ~ nitrogen + phosphor, data = needles)
 summary(model_l4)
 ```
 \normalsize
@@ -268,10 +265,9 @@ summary(model_l4)
 ## Predicted association (left) and effect (right)
 
 ```{r}
-#| out-width: 4in
-#| out-height: 4in
+#| out-width: 4.5in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 model <- lm(length ~ nitrogen + phosphor, data = needles)
@@ -339,7 +335,7 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 - Once all **first order terms** have been verified, investigate **higher order terms** (interactions, quadratic effects, ...)
 - This is **not** done in exhaustive way:
   - Because number of higher order terms can get very large.
-  - Because problem of multiple testing might sometimes lead relatively easy by mere coincidence to incorrect conclusion that certain higher order term is significant.
+  - Because multiple testing can, by mere coincidence, lead to incorrect conclusions that certain higher-order terms are significant.
 
 - Higher order terms considered for inclusion based on:
   - Biological judgment
@@ -348,12 +344,12 @@ In either case, the included (excluded) predictor is ideally the one that is mos
 - Once final model is obtained, verify through residual plots.
 
 
-## Analysis of larches: provisonally `final' model
+## Analysis of larches: provisionally `final' model
 
 \small
 ```{r}
-model_l5 <- lm(length ~ nitrogen * phosphor + potassium 
-               + phosphor * residu)
+model_l5 <- lm(length ~ nitrogen * phosphor + potassium
+               + phosphor * residu, data = needles)
 ```
 ```{r}
 #| echo: false
@@ -375,7 +371,7 @@ F-statistic: 30.83 on 6 and 19 DF,  p-value: 8.159e-09
 
 - To make predictions, previous strategy is sensible since it aims at avoiding overfitting.
 - To determine effect of an exposure on an outcome, must make sure above all to adjust for all confounders
-- Recall: Confounder are factors
+- Recall: Confounders are factors
   - that are not comparable between exposure groups
   - in particular, that are associated with outcome and exposure, but are not influenced by either.
 

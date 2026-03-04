@@ -1,0 +1,147 @@
+---
+title: "Multiple regression: the Japanese larches dataset"
+format: html
+---
+
+# Loading the dataset
+
+```{r}
+needles <- read.csv("needles.txt", sep="\t")
+head(needles)
+```
+
+If there are not too variables in the dataset (4-5 at most), it is often a good idea to make a pairwise scatterplot of the data. This will give you already some indication of (linear) relations between predictors and the outcome, or about any issues with multicollinearity (see later).
+
+```{r}
+pairs(needles)
+```
+
+# Forward model building
+
+Throughout this section and the following ones, we will use a significance level of $\alpha = 0.10$. That means that we will add a term to our model if its p-value is below 10\%.
+
+## Simple linear models
+
+We first build a series of simple regression models, one for each predictor. We look for the model whose predictor is most significant.
+
+```{r}
+m1 <- lm(length ~ nitrogen, data = needles)
+summary(m1)
+```
+
+```{r}
+m2 <- lm(length ~ phosphor, data = needles)
+summary(m2)
+```
+
+```{r}
+m3 <- lm(length ~ potassium, data = needles)
+summary(m3)
+```
+
+```{r}
+m4 <- lm(length ~ residu, data = needles)
+summary(m4)
+```
+
+The t-values for the predictors of model 1 through 4 are respectively 6.971, 5.988, 6.346, and 5.869. We choose the model with the largest absolute t-value (note that this corresponds to the smallest p-value), meaning that we choose model 1.
+
+## Adding one predictor
+
+We now add one more predictor (of the three predictors that are left).
+
+```{r}
+m12 <- lm(length ~ nitrogen + phosphor, data = needles)
+summary(m12)
+```
+
+```{r}
+m13 <- lm(length ~ nitrogen + potassium, data = needles)
+summary(m13)
+```
+
+```{r}
+m14 <- lm(length ~ nitrogen + residu, data = needles)
+summary(m14)
+```
+
+The next most significant term is potassium, so we choose `model13` that includes nitrogen and potassium.
+
+## Adding yet more predictors
+
+We continue adding predictors. We start with the model that includes nitrogen and potassium and try to add more predictors, checking at each step whether the added predictor is significant.
+
+```{r}
+m132 <- lm(length ~ nitrogen + potassium + phosphor, data = needles)
+summary(m132)
+```
+
+```{r}
+m134 <- lm(length ~ nitrogen + potassium + residu, data = needles)
+summary(m134)
+```
+
+The `residu` predictor is not significant, but `phosphor` is, so we select model `m132`. 
+
+## Wrapping up
+
+As a last step, we build one more model: we try to add `residu` to `m132`. This term is not significant, so we don't include it. *Our final model is m132`*.
+
+```{r}
+m1324 <- lm(length ~ nitrogen + potassium + phosphor + residu, data = needles)
+summary(m1324)
+```
+
+# Automating the model building procedure
+
+We had to build no less than 10 models before settling on the final one. Luckily R contains automated model building functions, using the `step` function. This function can build a model using the forward or backward procedure. Here we use it for forward model building: `step` will repeatedly try to add predictors to the model, until it reaches the full model (the model with all predictors included). At each step, the function computes the so-called AIC (Akaike Information Coefficient) of the model, a measure for the complexity of the model that we will encounter later in the course. Models with lower AIC are generally simpler and better able to explain the data (but this is only a rule-of-thumb).
+ 
+```{r}
+empty <- lm(length ~ 1, data = needles)  # a model with only an intercept
+full <- lm(length ~ ., data = needles)  # a model with all predictors
+
+model_forward <- step(
+  empty,
+  scope = list(lower = empty, upper = full),
+  direction = "forward"
+)
+
+```
+
+```{r}
+summary(model_forward)
+```
+
+Looking at the final model, we see that we get the exact same model as with our earlier, manual model building procedure. This is not guaranteed; different model building procedures may result in different models.
+
+## Interaction terms
+
+Lastly, we add two interaction terms to our model, to incorporate interactions between `residu` and `phosphor` on the one hand, and `phosphor` and `nitrogen` on the other. As discussed in the theory lecture, you would typically add these interaction terms because you think (on biological or physical grounds) that they should be there. You wouldn't perform an exhaustive search across all interaction terms.
+
+If we add an interaction term, then the individual variables should also be present. We can achieve that in two ways: first, by using the `*` syntax:
+
+```{r}
+model_interaction <- lm(length ~ potassium + residu * phosphor + phosphor * nitrogen, data = needles)
+summary(model_interaction)
+```
+
+Secondly, you can specify all terms explicitly. Note that the resulting models are the same.
+
+```{r}
+model_interaction <- lm(length ~ potassium + residu + phosphor + nitrogen + 
+                                 residu : phosphor + phosphor : nitrogen, data = needles)
+summary(model_interaction)
+
+```
+
+Note that we keep `phosphor` and `nitrogen` in the model even though they are individually non-significant. As long as there is an interaction term involving a variable, that variable stays in the model.
+
+# Diagnostic plots
+
+Once you have built a model, don't forget to check the diagnostic plots and adjust the model as needed. Judging from the diagnostic plots, our model (with interaction terms) is fine and doesn't require any adjustments at this stage.
+
+```{r}
+par(mfrow = c(2, 2))
+plot(model_interaction)
+```
+

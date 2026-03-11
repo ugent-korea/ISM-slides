@@ -107,34 +107,29 @@ summary(m)$coefficients
 \normalsize
 Necessary to test if multiple coefficients are zero
 
-## Partial F-test
+## F-test for effect of province
 
-Assume we want to compare 2 **nested models**:
+Compare two **nested models** (as in slide deck on predictivity):
 
-- **Complete model (C)** with $p_C$ parameters; e.g., $p_C=10$ and
+- **Complex model** with $p_\mathrm{complex} = 10$ parameters:
 $$
   E(Y|X,P)=\beta_0+\beta_1X+\beta_2P
 $$
-- **Reduced model (R)** with $p_R$ parameters; e.g., $p_R=6$ and
+- **Simple model** with $p_\mathrm{simple} = 6$ parameters:
 $$
   E(Y|X,P)=\beta^*_0+\beta^*_1X
 $$
-- Testing $H_0:\beta_2=0$ is equivalent to testing if complete and reduced model are equal.
+- Testing $H_0:\beta_2=0$ is equivalent to testing if both models fit the data equally well.
 
-## Partial F-test
+## F-test for effect of province
 
-- Under null hypothesis, residual sums of squares of both models will be approximately same.
-- **Test statistic**:
+- Use the $F$-test to compare residual sums of squares:
 $$
-  SSE(R) - SSE(C).
+  f = \frac{\frac{SSE_\mathrm{simple}- SSE_\mathrm{complex}}{p_\mathrm{complex} - p_\mathrm{simple}}}{\frac{SSE_\mathrm{complex}}{n - p_\mathrm{complex} }}
+  \sim F_{p_\mathrm{complex} - p_\mathrm{simple}, n - p_\mathrm{complex}}.
 $$
-- What is distribution under null hypothesis?
-$$
-  \frac{SSE(R) - SSE(C)}{p_C-p_R}\div \frac{SSE(C)}{n-p_C}\sim F_{p_C-p_R,n-p_C}.
-$$
-under null hypothesis
 
-## Partial F-test in \texttt{R}
+## F-test in \texttt{R}
 
 \footnotesize
 ```{r}

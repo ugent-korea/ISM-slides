@@ -135,8 +135,8 @@ p[1:3,]  # print first 3 predictions
 newdata <- data.frame(nitrogen = 1.9, phosphor = 0.2, 
                       potassium = 0.7)
 newdata
-predict.lm(model_l8, newdata, interval = "confidence")
-predict.lm(model_l8, newdata, interval = "prediction")
+predict(model_l8, newdata, interval = "confidence")
+predict(model_l8, newdata, interval = "prediction")
 ```
 
 # Variability in regression models

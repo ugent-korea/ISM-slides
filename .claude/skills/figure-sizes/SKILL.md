@@ -18,6 +18,13 @@ Only set `out-height`, not `out-width`; this preserves the aspect ratio set by `
 
 Keep `fig-height: 3` constant across all plots to ensure consistent font sizes. Adjust `fig-width` if a different aspect ratio is needed (e.g. wider plots), but do not change `fig-height`.
 
+For figures on slides where there is no other text, the following header gives a figure that fills the entire page:
+
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 ## Column layouts
 
 Leave figures inside column layouts (`:::: {.columns}` / `::: {.column}`) unchanged. These have intentional custom sizing to fit their column width. Flag them in your comments so the user can review, but do not modify them.

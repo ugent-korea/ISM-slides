@@ -99,8 +99,9 @@ Intuitively:
 
 
 ```{r, echo=FALSE}
-#| fig-height: 3
-#| fig-width: 5
+#| out-width: 4in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
 library(mvtnorm)
 
@@ -153,9 +154,10 @@ ggplot() +
 Since `triceps` and `thigh` are highly correlated, specifying both is superfluous. What do we lose if we throw away one of these variables?
 
 ```{r}
-#| fig-align: center
 #| out-width: 4in
-#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
 bodyfat <- read.csv("datasets/01-linear-regression/bodyfatNKNW.txt", sep = " ")
 bodyfat_predictors <- bodyfat[,c("triceps.skinfold.thickness", "thigh.circumference", "midarm.circumference")]
 
@@ -645,8 +647,10 @@ In R: `prcomp(df, center = TRUE, scale = TRUE)`.
 - Can be used to spot patterns in data (see later)
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 3.5
 #| fig-align: center
-#| fig-height: 4
 
 # Explained variation for first and second component
 total_var <- sum(pca$sdev^2)
@@ -666,8 +670,10 @@ ggplot(df, aes(x = PC1, y = PC2)) +
 - Useful to discern patterns in PCs
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 3.5
 #| fig-align: center
-#| fig-height: 4
 pc <- prcomp(bodyfat_predictors)
 df <- as.data.frame(pc$rotation) %>%
   rownames_to_column(var = "Variable") %>%
@@ -679,7 +685,8 @@ ggplot(df, aes(x = as.factor(Variable), y = Loading,
                group = Component, color = Component)) +
   geom_line() +
   geom_point() + 
-  xlab("Variable")
+  xlab("Variable") +
+  scale_x_discrete(labels = function(x) sub("\\..*", "", x))
 ```
 
 ## Scree plot
@@ -690,8 +697,10 @@ ggplot(df, aes(x = as.factor(Variable), y = Loading,
 
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 3
 #| fig-align: center
-#| fig-height: 4
 gg_screeplot <- function(pc, n = length(pc$sdev)) {
   sdev = pc$sdev[1:n]
   var_explained <- sdev^2 / sum(sdev^2)
@@ -804,8 +813,12 @@ summary(model_12)
 Reminder: principal components are uncorrelated by definition, so all the VIFs will be equal to 1.
 
 ```{r}
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 4
+#| fig-align: center
 library(car)
-plot(vif(model_12))
+plot(vif(model_12), pch = 19)
 ```
 
 ## PCR by hand: putting together the final model
@@ -841,9 +854,12 @@ summary(pcr_model)
 - "1-sigma rule": select model with least number of components whose cross-validation error is at most 1 standard deviation away from optimal model
 - In human language: 2 PCs gives lowest RMSEP, but we can go down to 1 PC without losing too much
 
-```{r, echo=TRUE}
-#| fig-height: 4
-#| out-height: 3in
+```{r}
+#| echo: false
+#| out-width: 4.5in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
 selectNcomp(pcr_model, method = "onesigma", plot = TRUE)
 ```
 

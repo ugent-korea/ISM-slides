@@ -18,7 +18,65 @@ format:
 set.seed(1234)
 
 library(tidyverse)
+library(readxl)
+library(pls)
+library(loon.data)
 theme_set(theme_bw() + theme(text = element_text(size = 14)))
+
+# Read oils data
+oils <- read_excel("./datasets/02b-pca-applications/HSI.xlsx")
+cols <- colnames(oils)
+spectra <- cols[5:length(cols)]
+
+oils_long <- oils %>%
+  pivot_longer(cols = spectra,
+               names_to = "wavelength",
+               values_to = "intensity") %>%
+  mutate(wavelength = as.numeric(wavelength))
+
+# PCA on spectral data
+pca_oils <- oils %>%
+  select(all_of(spectra)) %>%
+  prcomp(scale = FALSE)
+
+# Train/test split for adulterated oils
+adulterated <- oils %>%
+  filter(`% Adulteration` > 0, `% Adulteration` <= 20) %>%
+  select(-`Sample ID/Wavelength`, -Sample, -Classification)
+
+train_no <- round(0.8 * nrow(adulterated))
+train_idxs <- sample(1:nrow(adulterated), train_no)
+adulterated_train <- adulterated[train_idxs, ]
+adulterated_test <- adulterated[-train_idxs, ]
+
+# Build PCR and PLS models
+pcr_model <- pcr(
+  `% Adulteration` ~ ., data = adulterated_train,
+  scale = FALSE, validation = "CV", ncomp = 10
+)
+pls_model <- plsr(
+  `% Adulteration` ~ ., data = adulterated_train,
+  scale = FALSE, validation = "CV", ncomp = 10
+)
+
+# Faces dataset
+data(faces)
+pc_olivetti <- prcomp(faces)
+
+show_image <- function(imgdata, title = NULL) {
+  m <- matrix(imgdata, nrow = 64, ncol = 64, byrow = F)
+  m <- t(apply(m, 2, rev))
+  image(m, axes = FALSE, col = grey(seq(0, 1, length = 256)),
+        main = title)
+}
+
+normalize <- function(x) {
+  255 * (x - min(x)) / (max(x) - min(x))
+}
+
+project_data <- function(pc, n_retain) {
+  t(t(pc$x[, 1:n_retain] %*% t(pc$rotation)[1:n_retain, ]) + pc$center)
+}
 
 ```
 
@@ -105,35 +163,107 @@ In addition, we have some metadata:
 
 Averaged spectra for each kind of oil (EVOO + 6 others)
 
-![](./images/02b-pca-applications/spectra.png){fig-align=center height=60%}
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+#| warning: false
+summarized_oils_long <- oils_long %>%
+  filter(`% Adulteration` == 0 | `% Adulteration` == 100) %>%
+  mutate(type = if_else(Classification == "Olive", "EVOO", `Sample ID/Wavelength`)) %>%
+  group_by(type, wavelength) %>% summarise(mean_intensity = mean(intensity))
+
+ggplot(
+  summarized_oils_long,
+  aes(x = wavelength, y = mean_intensity, color = type)) +
+  geom_line() +
+  labs(x = "Wavelength (nm)", y = "Mean reflectance", color = "Type of oil")
+```
 
 Plot shows small differences between spectra: **promising sign** that we will be able to address the research questions.
+
 
 ## Principal component analysis: scree plot
 
 Not all 224 wavelengths are equally informative. Much of our dataset is redundant.
 
-![](./images/02b-pca-applications/scree-plot.png){fig-align=center height=50%}
+```{r}
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+pca_oils %>%
+  broom::tidy(matrix = "eigenvalues") %>%
+  head(n = 9) %>%
+  ggplot(aes(PC, percent)) +
+  geom_col(fill = "#56B4E9", alpha = 0.8) +
+  scale_x_continuous(breaks = 1:9) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    expand = expansion(mult = c(0, 0.01))
+  ) +
+  labs(y = "Pct of variance explained")
+```
 
-This is confirmed by the scree plot: 
+This is confirmed by the scree plot:
 
 - First 2 PCs explain **94% of variance** in the data
 - First 3 PCs: almost 100%
+
 
 ## Principal component analysis: loadings vectors
 
 Loadings vectors are linear combinations of features, tell us how features contribute to variability in dataset.
 
-![](./images/02b-pca-applications/first-two-pcs.png){fig-align=center height=50%}
+
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+loadings <- as.data.frame(pca_oils$rotation)
+loadings$wavelength <- as.numeric(rownames(loadings))
+rownames(loadings) <- 1:nrow(loadings)
+
+loadings %>%
+  select(wavelength, PC1, PC2) %>%
+  pivot_longer(cols = c(PC1, PC2)) %>%
+  ggplot() +
+    geom_line(aes(x = wavelength, y = value, color = name), linewidth = 1.0) +
+  labs(x = "Wavelength", y = "", color = "Component")
+```
 
 For our example:
 
 - Loadings vector 1: where do spectra differ the most?
 - Loadings vector 2: where is next source of variability located?
 
+
 ## Principal component analysis: scores
 
-![](./images/02b-pca-applications/oils-score-plot.png){fig-align=center height=60%}
+```{r}
+#| out-height: 2in
+#| fig-width: 5
+#| fig-height: 4  # note: deliberately made the plot larger
+#| fig-align: center
+pdata <- pca_oils %>%
+  broom::augment(oils) %>%
+  filter(`% Adulteration` < 100) %>%
+  mutate(adulterated = `% Adulteration` > 0)
+
+pct_var_explained <- 100*pca_oils$sdev^2/sum(pca_oils$sdev^2)
+xlabel <- paste0("PC 1 (", round(pct_var_explained[[1]], 2), "% var. explained)")
+ylabel <- paste0("PC 2 (", round(pct_var_explained[[2]], 2), "% var. explained)")
+
+ggplot(
+  pdata,
+  aes(.fittedPC1, .fittedPC2,
+      color = `% Adulteration`, shape = adulterated)) +
+  geom_point(size = 2) +
+  labs(x = xlabel, y = ylabel, shape = "Type of oil") +
+  scale_shape_discrete(labels = c("Pure", "Adulterated"))
+```
 
 Can we tell pure and adulterated samples apart?
 
@@ -142,6 +272,7 @@ Can we tell pure and adulterated samples apart?
 Can we predict the percentage of adulteration?
 
 - **No**: hard to distinguish from first 2 PCs alone.
+
 
 ## Predicting the percentage of adulteration
 
@@ -222,7 +353,28 @@ Arguments:
 
 ## Performance of PCR/PLS models
 
-![](./images/02b-pca-applications/regression-performance.png){fig-align=center height=60%}
+```{r}
+#| out-height: 2in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+#| warning: false
+pcr_pred <- predict(pcr_model, adulterated_test, ncomp = 10)
+pls_pred <- predict(pls_model, adulterated_test, ncomp = 10)
+
+df <- data.frame(
+  measured = adulterated_test$`% Adulteration`,
+  PLS = unlist(as.list(pls_pred)),
+  PCR = unlist(as.list(pcr_pred))
+) %>% pivot_longer(cols = c("PLS", "PCR"))
+
+jitter_x <- position_jitter(w = 0.15, h = 0)
+ggplot(df) +
+  geom_abline(alpha = 0.3) +
+  geom_point(aes(x = measured, y = value, color = name),
+             alpha = 1.0, position = jitter_x) +
+  labs(color = "Method", x = "Measured", y = "Predicted")
+```
 
 Both models do well on the test data.
 
@@ -230,15 +382,27 @@ Both models do well on the test data.
 
 (obtained via `selectNcomp(method = "onesigma")`)
 
-![](./images/02b-pca-applications/ncomp-pcr.png){fig-align=center height=60%}
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+selectNcomp(pcr_model, method = "onesigma", plot = TRUE)
+```
 
 - Optimal number of components: 7
 - RMSEP for 7 components: 1.796
 
+
 ## Optimal number of components: PLS
 
-
-![](./images/02b-pca-applications/ncomp-pls.png){fig-align=center height=60%}
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+selectNcomp(pls_model, method = "onesigma", plot = TRUE)
+```
 
 - Optimal number of components: 9
 - RMSEP for 9 components: 1.627
@@ -256,6 +420,100 @@ Both models do well on the test data.
 
 # Human faces dataset
 
-## 
+## The Olivetti faces dataset
 
-There are no slides for this part of the lecture. Instead, the lecture will follow the discussion in the following book chapter: https://jvkersch.github.io/ISM/pca-applications.html#sec-eigenfaces
+- 400 frontal photographs of human faces
+- Grayscale images, 64 $\times$ 64 pixels
+- Each pixel: value between 0 (black) and 255 (white)
+
+\vspace*{0.5cm}
+Each image can be "unrolled" into a vector with $64 \times 64 = 4096$ entries.
+
+
+![](./images/02b-pca-applications/image-unroll.pdf){height=2in fig-align=center}
+
+## Sample faces
+
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+par(mfrow = c(2, 4), mar = c(1, 1, 1, 1))
+for (i in 1:8) {
+  show_image(faces[, 10*i], paste0("Face #", 10*i))
+}
+```
+
+- Data matrix: 4096 rows $\times$ 400 columns
+- Each column is one face (as a vector)
+
+## Scree plot
+
+```{r}
+#| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
+#| warning: false
+sdev <- pc_olivetti$sdev[1:50]
+var_explained <- sdev^2 / sum(pc_olivetti$sdev^2)
+total_var <- cumsum(var_explained)
+df_var <- data.frame(n = 1:50, v = var_explained, t = total_var)
+
+ggplot(df_var) +
+  geom_line(aes(x = n, y = v, color = "Per component")) +
+  geom_point(aes(x = n, y = v, color = "Per component"), size = 0.8) +
+  geom_line(aes(x = n, y = t, color = "Cumulative")) +
+  geom_point(aes(x = n, y = t, color = "Cumulative"), size = 0.8) +
+  ylim(c(0, 1)) +
+  scale_color_manual(
+    name = "Explained variance",
+    breaks = c("Per component", "Cumulative"),
+    values = c("Per component" = "cornflowerblue",
+               "Cumulative" = "chocolate")
+  ) +
+  labs(x = "Principal component", y = "Explained variance (%)")
+```
+
+- 400 PCs in total, but most contribute almost no variance
+- We can discard most PCs without losing much information
+
+## Loadings vectors as "eigenfaces"
+
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+par(mfrow = c(2, 4), mar = c(1, 1, 1, 1))
+for (i in 1:8) {
+  show_image(normalize(pc_olivetti$x[, i]), paste0("PC ", i))
+}
+```
+
+- Each loadings vector represents a **pattern** in the dataset
+- PC 1: overall face structure; PC 2: left-right illumination; ...
+- By mixing all loadings vectors, we can recreate any face
+
+## PCA as data compression
+
+```{r}
+#| out-height: 2in
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+par(mfrow = c(2, 4), mar = c(1, 1, 1, 1))
+show_image(faces[, 70], "Original")
+show_image(project_data(pc_olivetti, 10)[, 70], "10 PCs")
+show_image(project_data(pc_olivetti, 40)[, 70], "40 PCs")
+show_image(project_data(pc_olivetti, 80)[, 70], "80 PCs")
+
+show_image(faces[, 80], "Original")
+show_image(project_data(pc_olivetti, 10)[, 80], "10 PCs")
+show_image(project_data(pc_olivetti, 40)[, 80], "40 PCs")
+show_image(project_data(pc_olivetti, 80)[, 80], "80 PCs")
+```
+
+- Original: 4096 degrees of freedom
+- 80 PCs: more than **50$\times$ reduction** — faces still clearly recognizable

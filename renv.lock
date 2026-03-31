@@ -3858,6 +3858,26 @@
       "Maintainer": "Achim Zeileis <Achim.Zeileis@R-project.org>",
       "Repository": "CRAN"
     },
+    "loon.data": {
+      "Package": "loon.data",
+      "Version": "0.1.4",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Data Used to Illustrate 'Loon' Functionality",
+      "Authors@R": "c( person(\"R. Wayne\", \"Oldford\", , \"rwoldford@uwaterloo.ca\", role =  c(\"aut\", \"cre\")), person(\"Adrian\", \"Waddell\", , \"adrian@waddell.ch\", role = \"aut\") )",
+      "Description": "Data used as examples in the 'loon' package.",
+      "URL": "https://great-northern-diver.github.io/loon.data/",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "License": "GPL-2",
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "R. Wayne Oldford [aut, cre], Adrian Waddell [aut]",
+      "Maintainer": "R. Wayne Oldford <rwoldford@uwaterloo.ca>",
+      "Repository": "CRAN"
+    },
     "lubridate": {
       "Package": "lubridate",
       "Version": "1.9.5",

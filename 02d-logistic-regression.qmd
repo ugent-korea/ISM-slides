@@ -98,8 +98,7 @@ test <- bdiag[-train_ind, ]
 ## A first look at the data
 
 ```{r}
-#| out-width: 4in
-#| out-height: 3.5in
+#| out-height: 3in
 #| fig-width: 6
 #| fig-height: 4.5
 #| fig-align: center
@@ -162,6 +161,11 @@ Disadvantages:
 ## Decision boundary ($K = 5$)
 
 ```{r}
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
+
 # decision boundary plot code adapted from https://www.thomaspuschel.com/post/decision_boundary_plot2/
 
 library(caret)
@@ -305,9 +309,8 @@ $$
 Logits are unbounded: $\text{logit} \to \pm\infty$ for $p \to 0, 1$
 
 ```{r}
-#| out-width: 4in
 #| out-height: 1.5in
-#| fig-width: 6
+#| fig-width: 5
 #| fig-height: 2.25
 #| fig-align: center
 ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
@@ -340,10 +343,9 @@ ggplot(tibble(x = seq(-5, 5, length.out = 100)), aes(x)) +
 - Assume $\pi(X) = \alpha + \beta X$ and determine $\alpha, \beta$ through linear regression.
 
 ```{r}
-#| out-width: 3in
 #| out-height: 1.5in
-#| fig-width: 6
-#| fig-height: 3
+#| fig-width: 4.5
+#| fig-height: 2.25
 #| fig-align: center
 
 ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
@@ -416,6 +418,10 @@ summary(m_simple)
 ## The log likelihood
 
 ```{r}
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 log_lh <- function(x, y, alpha, beta) {
   lp <- alpha + beta * x
   px <- 1 / (1 + exp(-lp))
@@ -572,10 +578,9 @@ pred_probs
 ## Making predictions
 
 ```{r}
-#| out-width: 4in
 #| out-height: 3in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 ggplot(train, aes(x = radius_mean, y = diagnosis_binary)) +
@@ -761,9 +766,10 @@ $$
 - Decision boundary is **straight** line
 
 ```{r}
-#| fig-align: center
-#| out-width: 3in
 #| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
 
 library(scales)  # for hue_pal()
 
@@ -807,9 +813,10 @@ ggplot(xgrid, aes(x = radius_mean, y = texture_mean)) +
 - Decision boundary is **curved** line
 
 ```{r}
-#| fig-align: center
-#| out-width: 3in
 #| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
 
 # these will become arguments
 model <- m_inter
@@ -929,9 +936,8 @@ By changing the threshold, sensitivity and specificity can be traded against one
 ## Sensitivity and specificity as a function of threshold
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -971,9 +977,8 @@ As threshold increases:
 - Can be used to compare classifiers
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -990,10 +995,9 @@ ggroc(roc_logis) +
 ## ROC: KNN versus logistic regression
 
 ```{r}
-#| out-width: 4in
 #| out-height: 3in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 pred_test_knn <- predict(model_knn_5, newdata = test, type = "prob")[, 2]

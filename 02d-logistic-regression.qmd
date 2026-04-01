@@ -912,26 +912,25 @@ By changing the threshold, sensitivity and specificity can be traded against one
 - Lowering threshold: $\text{Sensitivity} \uparrow$, $\text{Specificity} \downarrow$.
 - Increasing threshold: $\text{Sensitivity} \downarrow$, $\text{Specificity} \uparrow$.
 
-##
-
-::: {.callout-note}
 ## Breast cancer dataset
 
-- For $C = 0.5$: sensitivity 0.84
+- Threshold $C = 0.5$:
 
-| Prediction \ Reference | B  | M  |
-|------------------------|----|----|
-| B                      | 70 | **13** |
-| M                      | 5  | 26 |
+|                         | Actual B     | Actual M      |
+|-------------------------|--------------|---------------|
+| Predicted B             | 70           | 13            |
+| Predicted M             | 5            | 26            |
 
-- For $C = 0.2$: sensitivity **0.85**
+Sensitivity is 26/39 = 0.67, specificity is 70/75 = 0.93
 
-| Prediction \ Reference | B  | M  |
-|------------------------|----|----|
-| B                      | 64 | **6**  |
-| M                      | 11 | 33 |
-:::
+- Threshold $C = 0.2$:
 
+|                        | Actual B  | Actual M      |
+|------------------------|-----------|---------------|
+| Predicted B            | 64        | 6             |
+| Predicted M            | 11        | 33            |
+
+Sensitivity increases to 33/39 = 0.85, specificity decreases to 64/75 = 0.85
 
 ## Sensitivity and specificity as a function of threshold
 

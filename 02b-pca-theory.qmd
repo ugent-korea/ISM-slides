@@ -622,7 +622,7 @@ summary(pca)
 - Interpretation:
 \begin{align*}
   \text{PC}_1 & = 0.693 \cdot \texttt{triceps} + 0.699 \cdot \texttt{thigh} + 0.179 \cdot \texttt{midarm} \\
-  \text{PC}_2 & = 0.151 \cdot \texttt{triceps} - 0.384 \cdot \texttt{thigh} - 0.910 \cdot \texttt{midarm}
+  \text{PC}_2 & = 0.151 \cdot \texttt{triceps} - 0.384 \cdot \texttt{thigh} + 0.910 \cdot \texttt{midarm}
 \end{align*}
 
 ## Standardizing the features

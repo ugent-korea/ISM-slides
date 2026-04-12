@@ -404,8 +404,8 @@ selectNcomp(pcr_model, method = "onesigma", plot = TRUE)
 selectNcomp(pls_model, method = "onesigma", plot = TRUE)
 ```
 
-- Optimal number of components: 9
-- RMSEP for 9 components: 1.627
+- Optimal number of components: 7
+- RMSEP for 7 components: 1.627
 
 ## Conclusions
 
@@ -445,8 +445,8 @@ for (i in 1:8) {
 }
 ```
 
-- Data matrix: 4096 rows $\times$ 400 columns
-- Each column is one face (as a vector)
+- Data matrix: 400 rows $\times$ 4096 columns
+- Each row is one face (as a vector)
 
 ## Scree plot
 

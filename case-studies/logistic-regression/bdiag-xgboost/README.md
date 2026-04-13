@@ -17,7 +17,7 @@ R dependencies are pinned via `renv`:
 
 ```bash
 Rscript -e 'renv::restore()'
-Rscript classifiers.R
+quarto render classifiers.qmd
 ```
 
 ## Results (test set, n = 143)

@@ -75,9 +75,8 @@ Model of **number of adult fish** (recruitment) as a function of **spawning biom
 - `year`: not used
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -124,7 +123,6 @@ Parameters:
 ## Beverton-Holt: Effect of varying $\alpha$ and $k$
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
@@ -176,9 +174,8 @@ Determining the **optimal values for the parameters** using the experimental dat
 
 Example: For *M. merluccius*, we will see that $\hat{\alpha} = 5.75$, $\hat{k} = 33.16$.
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -277,9 +274,8 @@ Doesn't need to be overly precise, a rough estimate is usually sufficient.
 - Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 20$.
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -607,7 +603,10 @@ Geometric interpretation:
 -   Jump to bottom of parabola to find $x_{k+1}$.
 -   Repeat!
 
-```{r, echo=FALSE, fig.height=3}
+```{r}
+#| out-height: 3in
+#| fig-width: 7
+#| fig-height: 3
 source("scripts/03a-parameter-estimation//newton-polynomial.R", local = knitr::knit_global())
 ```
 
@@ -709,9 +708,8 @@ fit
 4. Evaluate the fit
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -855,7 +853,6 @@ Can be checked with QQ-plot of residuals
 ## Example: M. mercullius
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
@@ -893,10 +890,7 @@ No pattern in residuals + normality: model appears well-fit.
 
 How can we detect patterns, correlations, ... in residuals?
 
-\vspace*{1cm}
-
-```{r, echo=FALSE}
-#| out-width: 4.5in
+```{r}
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
@@ -957,14 +951,13 @@ Autocorrelation uncovers repeating patterns in signal:
 - Anticorrelated over 6-month basis
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
 #| fig-align: center
 
-months <- c("Jan", "Feb", "Mar", "Apr", 
-            "May", "Jun", "Jul", "Aug", 
+months <- c("Jan", "Feb", "Mar", "Apr",
+            "May", "Jun", "Jul", "Aug",
             "Sep", "Oct", "Nov", "Dec")
 
 energy <- read.csv("scripts/03a-parameter-estimation/energy.csv") %>%
@@ -1024,9 +1017,8 @@ $$
 
 Data and model fit:
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -1058,9 +1050,8 @@ tibble(t = t, y_full = y_full, y_predict = predict(fit)) |>
 Model fit is good, but not perfect. Clear **repeating pattern** in the residuals.
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 resids <- y_full - predict(fit)
@@ -1077,9 +1068,8 @@ tibble(t = t, resids = resids) |>
 Lack of model fit, repeating pattern in the residuals can also be seen from the autocorrelation plot.
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -1100,9 +1090,8 @@ $$
 
 ```{r}
 #| out-height: 2in
-#| out-width: 4in
+#| fig-width: 5
 #| fig-height: 3
-#| fig-width: 6
 #| fig-align: center
 
 fit_full <- nls(y ~ exp(-t/A)*sin(t) + B*cos(C*t),
@@ -1143,7 +1132,6 @@ ggplot() +
 No residual pattern visible in residuals. The model is well fit.
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
@@ -1165,7 +1153,6 @@ grid.arrange(p, q, ncol = 2)
 ## Residual QQ-plots
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3

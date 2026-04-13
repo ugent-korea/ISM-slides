@@ -1,0 +1,127 @@
+---
+title: "Wisconsin breast cancer: logistic regression vs. XGBoost"
+format: pdf
+---
+
+Three classifiers for `bdiag.csv`, predicting `diagnosis` (B/M) from the cell-nucleus measurements: a two-variable logistic regression, a full logistic regression, and an XGBoost model (state of the art on tabular data).
+
+_The code to run and evaluate the three models was produced by Claude (Opus 4.6) and reviewed manually._
+
+```{r}
+library(xgboost)
+library(pROC)
+
+set.seed(49773858)
+```
+
+## Data
+
+The CSV has a trailing comma that produces an empty-name column; we drop it, remove the `id`, and turn `diagnosis` into a factor with `B` as the reference level.
+
+```{r}
+bdiag <- read.csv("bdiag.csv", check.names = FALSE)
+bdiag <- bdiag[, nzchar(names(bdiag))]
+bdiag$id <- NULL
+names(bdiag) <- make.names(names(bdiag))
+bdiag$diagnosis <- factor(bdiag$diagnosis, levels = c("B", "M"))
+```
+
+## Train/test split
+
+```{r}
+n <- nrow(bdiag)
+train_idx <- sample.int(n, size = floor(0.75 * n))
+train <- bdiag[train_idx, ]
+test  <- bdiag[-train_idx, ]
+```
+
+## Evaluation helper
+
+```{r}
+evaluate <- function(label, truth, prob) {
+  pred <- factor(ifelse(prob >= 0.5, "M", "B"), levels = c("B", "M"))
+  cm <- table(truth = truth, pred = pred)
+  correct <- sum(pred == truth)
+  n <- length(truth)
+  acc_ci <- binom.test(correct, n)
+  acc <- unname(acc_ci$estimate)
+  ci  <- acc_ci$conf.int
+  auc <- pROC::roc(truth, prob, quiet = TRUE,
+                   levels = c("B", "M"), direction = "<")
+  auc_ci <- as.numeric(pROC::ci.auc(auc))  # lower, estimate, upper
+  cat("\n==", label, "==\n")
+  print(cm)
+  cat(sprintf("Accuracy: %.4f  (95%% CI %.4f-%.4f)\n", acc, ci[1], ci[2]))
+  cat(sprintf("AUC:      %.4f  (95%% CI %.4f-%.4f)\n",
+              auc_ci[2], auc_ci[1], auc_ci[3]))
+}
+```
+
+## 1. Logistic regression on `radius_mean` + `texture_mean`
+
+```{r fit1}
+fit1 <- glm(diagnosis ~ radius_mean + texture_mean,
+            data = train, family = binomial)
+summary(fit1)
+prob1 <- predict(fit1, newdata = test, type = "response")
+evaluate("Logistic (radius_mean + texture_mean)", test$diagnosis, prob1)
+```
+
+## 2. Logistic regression on all features
+
+```{r fit2, warning=FALSE}
+fit2 <- glm(diagnosis ~ ., data = train, family = binomial)
+prob2 <- predict(fit2, newdata = test, type = "response")
+evaluate("Logistic (all features)", test$diagnosis, prob2)
+```
+
+## 3. XGBoost on all features
+
+```{r fit3}
+feature_cols <- setdiff(names(bdiag), "diagnosis")
+x_train <- as.matrix(train[, feature_cols])
+x_test  <- as.matrix(test[, feature_cols])
+y_train <- as.integer(train$diagnosis) - 1L
+y_test  <- as.integer(test$diagnosis)  - 1L
+
+dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+dtest  <- xgb.DMatrix(data = x_test,  label = y_test)
+
+params <- list(
+  objective = "binary:logistic",
+  eval_metric = "logloss",
+  eta = 0.1,
+  max_depth = 4
+)
+fit3 <- xgb.train(
+  params = params,
+  data = dtrain,
+  nrounds = 200,
+  evals = list(train = dtrain, test = dtest),
+  early_stopping_rounds = 20,
+  verbose = 0
+)
+prob3 <- predict(fit3, dtest)
+evaluate("XGBoost (all features)", test$diagnosis, prob3)
+```
+
+## McNemar test: full logistic vs. XGBoost
+
+McNemar's test compares two classifiers on the same test set by looking at the discordant pairs: cases where one model is correct and the other is wrong. The null hypothesis is that both classifiers have the same error rate.
+
+```{r}
+pred2 <- factor(ifelse(prob2 >= 0.5, "M", "B"), levels = c("B", "M"))
+pred3 <- factor(ifelse(prob3 >= 0.5, "M", "B"), levels = c("B", "M"))
+
+correct2 <- pred2 == test$diagnosis
+correct3 <- pred3 == test$diagnosis
+
+disagreement <- table(
+  logistic = factor(correct2, levels = c(TRUE, FALSE), labels = c("correct", "wrong")),
+  xgboost  = factor(correct3, levels = c(TRUE, FALSE), labels = c("correct", "wrong"))
+)
+disagreement
+
+mcnemar.test(disagreement)
+```
+

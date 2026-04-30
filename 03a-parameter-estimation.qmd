@@ -200,7 +200,7 @@ $$
 where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ is normally distributed noise.
 
 - $x$: inputs, predictors, features (e.g. `spawn.biomass`)
-- $y$: outcome, depent variable (e.g. `num.fish`)
+- $y$: outcome, dependent variable (e.g. `num.fish`)
 - $\theta$: (vector of) parameters (e.g. $\theta = (\alpha, k)$)
 
 We will not talk about **building** a model (see one of your many other courses)
@@ -271,7 +271,7 @@ Doesn't need to be overly precise, a rough estimate is usually sufficient.
 ## Initial values for M. merluccius
 
 - Slope: $\alpha_0 = \frac{75}{15} = 5$
-- Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 20$.
+- Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 24$.
 
 ```{r}
 #| out-height: 2in
@@ -294,7 +294,7 @@ M.merluccius |>
   geom_hline(yintercept = 120, linewidth = 1, linetype = "dashed",
              color = "blue") +
   annotate("text", x = 25, y = 125, size = 5, color = "blue",
-           label = "min.fish = 120") +
+           label = "num.fish = 120") +
   geom_point() 
 
 ```
@@ -450,7 +450,7 @@ ggplot(trajectory) +
 
 ## Caveat: local and global minima
 
-- Linear problems: unique minium
+- Linear problems: unique minimum
 - Nonlinear problems: (typically) several local minima
 
 ![](./images/03a-parameter-estimation/local-global-minimum.pdf)
@@ -534,7 +534,7 @@ s_k & = & -\nabla J(\theta^k) \\
     \frac{\partial J(\theta)}{\partial \theta_1} |_{\theta^k} \\
     \frac{\partial J(\theta)}{\partial \theta_2} |_{\theta^k} \\
     \vdots \\
-    \frac{\partial J(\theta)}{\partial \theta_n} |_{\theta^k}
+    \frac{\partial J(\theta)}{\partial \theta_p} |_{\theta^k}
   \end{array}\right].
 \end{eqnarray*}
 
@@ -617,15 +617,15 @@ Search direction uses gradient and **Hessian** $$
     $$ where $$
     H(\theta^k) = \nabla^2 J(\theta^k) =
             \left[ \begin{array}{cccc}
-                  \frac{\partial^2 J(\theta)}{\partial \theta_1^2} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_n} |_{\theta^k} \\
-                  \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_2^2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_n} |_{\theta^k} \\
+                  \frac{\partial^2 J(\theta)}{\partial \theta_1^2} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_1 \partial \theta_p} |_{\theta^k} \\
+                  \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_2^2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_2 \partial \theta_p} |_{\theta^k} \\
                   \vdots & \vdots & \ddots & \vdots \\
-                  \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_n \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_n^2} |_{\theta^k}
+                  \frac{\partial^2 J(\theta)}{\partial \theta_p \partial \theta_1} |_{\theta^k} & \frac{\partial^2 J(\theta)}{\partial \theta_p \partial \theta_2} |_{\theta^k} & \cdots & \frac{\partial^2 J(\theta)}{\partial \theta_p^2} |_{\theta^k}
               \end{array}\right]
     $$
 
 - In practice, not necessary to invert $H(\theta)$
-- Still requires $\mathcal{O}(D^2)$ computation at each step (expensive)
+- Still requires $\mathcal{O}(p^3)$ computation and $\mathcal{O}(p^2)$ storage at each step (expensive)
 
 ## Method of Newton: advantages and disadvantages
 
@@ -687,7 +687,7 @@ J <- function(theta, x, y) {
 2. Specify the initial parameters:
 
 ```{r, echo=TRUE}
-theta0 <- c(5, 20)
+theta0 <- c(5, 24)
 ```
 
 ##
@@ -762,7 +762,7 @@ Basic idea: Capture optimal value inside simplex (triangle, pyramid, ...)
 - Can find a rough approximation of a minimum in just a few updates...
 - ... but may take a long time to converge completely.
 
-## Example: M. mercullius
+## Example: M. merluccius
 
 ```{r, echo=TRUE}
 fit <- optim(theta0, J, 
@@ -770,7 +770,7 @@ fit <- optim(theta0, J,
              x = M.merluccius$spawn.biomass,
              y = M.merluccius$num.fish)
 fit$par
-fit$count
+fit$counts
 ```
 Compared to BFGS:
 
@@ -850,7 +850,7 @@ If the model is well-fit, the residuals $e_i = y_i - f(x_i; \theta)$ should be
 
 Can be checked with QQ-plot of residuals
 
-## Example: M. mercullius
+## Example: M. merluccius
 
 ```{r}
 #| out-height: 2in
@@ -1012,7 +1012,7 @@ Source: Korea Energy Economics Institute.
 
 Over the course of exercise, calcium ions flow in and out of the muscle cells. On biological grounds, model calcium concentration as exponentially damped sine:
 $$
-  C(t) = \exp(-A t) \sin(t)
+  \text{Ca}(t) = \exp(-t/A) \sin(t)
 $$
 
 Data and model fit:
@@ -1084,7 +1084,7 @@ autocorr_plot(resids, plot_thresholds = TRUE)
 
 Pattern in residuals is a clear sign that **something is missing** in our modelling approach. Given the periodic oscillations, propose
 $$
-  C(t) = \exp(-At)\sin(t) + B\cos(\omega t).
+  \text{Ca}(t) = \exp(-t/A)\sin(t) + B\cos(\omega t).
 $$
 
 
@@ -1097,9 +1097,6 @@ $$
 fit_full <- nls(y ~ exp(-t/A)*sin(t) + B*cos(C*t),
             data = data.frame(t = t, y = y_full),
             start = list(A = 10, B = 1.0, C = 1.0))
-A_fitted <- coef(fit)["A"]
-B_fitted <- coef(fit)["B"]
-C_fitted <- coef(fit)["C"]
 
 easy_predict <- function(model, t) {
   predict(model, newdata = data.frame(t = t))
@@ -1129,7 +1126,7 @@ ggplot() +
 
 ## Residual and autocorrelation plot
 
-No residual pattern visible in residuals. The model is well fit.
+No residual pattern visible. The model is well fit.
 
 ```{r}
 #| out-height: 2in

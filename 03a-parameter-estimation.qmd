@@ -270,7 +270,7 @@ Doesn't need to be overly precise, a rough estimate is usually sufficient.
 
 ## Initial values for M. merluccius
 
-- Slope: $\alpha_0 = \frac{75}{15} = 6$
+- Slope: $\alpha_0 = \frac{75}{15} = 5$
 - Horizontal asymptote: $k_0 \alpha_0 = 120$, so $k_0 = 20$.
 
 ```{r}
@@ -687,7 +687,7 @@ J <- function(theta, x, y) {
 2. Specify the initial parameters:
 
 ```{r, echo=TRUE}
-theta0 <- c(6, 20)
+theta0 <- c(5, 20)
 ```
 
 ##

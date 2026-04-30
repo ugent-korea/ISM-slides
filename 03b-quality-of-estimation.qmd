@@ -70,7 +70,7 @@ $$
 where $\epsilon \sim N(0, \sigma^2)$.
 
 - Parameters: $A = 5.6$, $k = 1.4$, $x_\text{mid} = 2.5$.
-- Measurement noise: $\sigma^2 = 0.2$ (the measure).
+- Measurement noise: $\sigma = 0.2$ (the measure).
 
 We take $n = 20$ data points from this model:
 
@@ -135,7 +135,7 @@ points(xdata, ydata, pch = 19)
 $$
   \sigma^2 \approx \frac{J(\theta_\text{best})}{N - p}.
 $$
-- Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
+- Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma^2 = (0.2)^2 = 0.04$)
 
 \vspace*{0.5cm}
 ```{r}

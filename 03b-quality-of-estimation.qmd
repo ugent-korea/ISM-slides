@@ -41,7 +41,13 @@ You should be able to
   - High curvature: low uncertainty (parameters well determined)
   - Low curvature: high uncertainty (not well determined)
 
-```{r, echo=FALSE}
+```{r}
+#| echo: false
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
+
 library(plot3D)
 
 x <- outer(seq(-7, 7, length.out = 50), rep(1, 50))
@@ -68,7 +74,12 @@ where $\epsilon \sim N(0, \sigma^2)$.
 
 We take $n = 20$ data points from this model:
 
-```{r, echo=FALSE, out.height='33%', fig.align='center'}
+```{r}
+#| out-height: 1.5in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
 set.seed(1234)
 thetas <- c(5.6, 1.4, 2.5)
 measurement_sd <- 0.2
@@ -81,8 +92,9 @@ n <- 20
 xdata <- seq(-3, 9, length.out = n) + rnorm(n, sd = 0.5)
 ydata <- model(xdata, thetas) + rnorm(n, sd = measurement_sd)
 
-par(cex = 2)
-plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
+plot(NULL, xlim = c(-4, 10), ylim = c(0, 6), xlab = "", ylab = "")
+#lines(xplot, yplot_optim, lty = 1, lw = 2, col = "red")
+points(xdata, ydata, pch = 19)
 
 ```
 
@@ -92,7 +104,12 @@ plot(xdata, ydata, pch = 19, xlab = "", ylab = "")
 - Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
 
 \vspace*{0.5cm}
-```{r, echo=FALSE, out.height="50%", fig.align='center'}
+```{r}
+#| out-height: 1.5in
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: center
+
 J <- function(thetas, xdata, ydata) {
   resids <- ydata - model(xdata, thetas)
   return(sum(resids^2))
@@ -105,10 +122,9 @@ thetas_optim <- fit$par
 xplot <- seq(min(xdata), max(xdata), length.out = 50)
 yplot_optim <- model(xplot, thetas_optim)
 
-par(cex = 1.5)
-plot(xdata, ydata, pch = 19, xlab = "X", ylab = "Y")
-lines(xplot, yplot_optim, lty = 1)
-
+plot(NULL, xlim = c(-4, 10), ylim = c(0, 6), xlab = "", ylab = "")
+lines(xplot, yplot_optim, lty = 1, lw = 2, col = "red")
+points(xdata, ydata, pch = 19)
 ```
 
 
@@ -122,11 +138,15 @@ $$
 - Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
 
 \vspace*{0.5cm}
-```{r, echo=FALSE, out.height='50%', fig.align='center'}
+```{r}
+#| echo: false
+#| out-height: 2in
+#| fig-width: 7
+#| fig-height: 3
+#| fig-align: center
 
 par(mfrow=c(1, 2))
 
-par(cex = 1.5)
 resids <- ydata - model(xdata, thetas_optim)
 plot(ydata, resids, pch = 19, xlab = "Y", ylab = "Residuals")
 abline(h = 0, lty = "dashed")
@@ -292,9 +312,8 @@ Optimal parameters:
 - $k = 33.16$
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4.5
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -422,7 +441,6 @@ $$
 To get an idea of the variability in the confidence region, sample parameters from it, and plot resulting fitted curves.
 
 ```{r}
-#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3

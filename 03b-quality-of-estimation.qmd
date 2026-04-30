@@ -70,7 +70,7 @@ $$
 where $\epsilon \sim N(0, \sigma^2)$.
 
 - Parameters: $A = 5.6$, $k = 1.4$, $x_\text{mid} = 2.5$.
-- Measurement noise: $\sigma^2 = 0.2$ (the measure).
+- Measurement noise: $\sigma = 0.2$.
 
 We take $n = 20$ data points from this model:
 
@@ -101,7 +101,7 @@ points(xdata, ydata, pch = 19)
 ## Model fit
 
 - From now on, we "forget" the true parameters, and we will work with the data only.
-- Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
+- Nonlinear least squares: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.450$.
 
 \vspace*{0.5cm}
 ```{r}
@@ -135,7 +135,7 @@ points(xdata, ydata, pch = 19)
 $$
   \sigma^2 \approx \frac{J(\theta_\text{best})}{N - p}.
 $$
-- Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma = 0.2^2 = 0.04$)
+- Here $\sigma^2 \approx 0.523/17 = 0.031$ (true value $\sigma^2 = (0.2)^2 = 0.04$)
 
 \vspace*{0.5cm}
 ```{r}
@@ -193,8 +193,8 @@ Taylor expansion to second order:
 \begin{multline*}
   J(\theta) \approx
     J(\theta_\text{best}) +
-    \sum_{i = 1}^N \underbrace{\frac{\partial J}{\partial \theta_i}(\theta_\text{best})}_{= 0}(\theta - \theta_\text{best})_i + \\
-    \frac{1}{2} \sum_{i,j=1}^N \frac{\partial^2 J}{\partial \theta_i \partial \theta_j}
+    \sum_{i = 1}^p \underbrace{\frac{\partial J}{\partial \theta_i}(\theta_\text{best})}_{= 0}(\theta - \theta_\text{best})_i + \\
+    \frac{1}{2} \sum_{i,j=1}^p \frac{\partial^2 J}{\partial \theta_i \partial \theta_j}
       (\theta - \theta_\text{best})_i(\theta - \theta_\text{best})_j.
 \end{multline*}
 
@@ -202,7 +202,7 @@ Confidence region becomes
 $$
   (\theta - \theta_\text{best})^T \mathcal{I} (\theta - \theta_\text{best}) \le p F_{p, N-p, 1-\alpha}.
 $$
-with $\mathcal{I}$ the **Fisher Information Matrix (FIM)**:
+with $\mathcal{I}$ the $p \times p$ **Fisher Information Matrix (FIM)**:
 $$
   \mathcal{I}_{ij} =
     \frac{1}{\sigma^2} \sum_{k = 1}^N \left(
@@ -244,7 +244,7 @@ $$
 $$
 
 - Diagonal: variances, off-diagonal: covariances
-- Can be used to construct correlations between between parameters:
+- Can be used to construct correlations between parameters:
 $$
   R_{ij} = \frac{\text{cov}(\theta_i, \theta_j)}{\sigma_{\theta_i} \sigma_{\theta_j}}.
 $$
@@ -298,7 +298,7 @@ $$
 | $k$       | 1.60 | 1.32 | 1.87 |
 | $x_\text{mid}$ | 2.45 | 2.32 | 2.58 |
 
-- Correlation between $A$ and $k$: $R = -0.0034/\sqrt{0.057 \times 0.0169} = -0.110$.
+- Correlation between $A$ and $k$: $R = -0.0034/\sqrt{0.0057 \times 0.0169} = -0.346$.
 
 ## Worked-out example: stock-recruitment model
 

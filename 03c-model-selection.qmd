@@ -123,7 +123,7 @@ $$
    \mathrm{Error}[M_D(x)] = 
    \mathrm{Bias}[M_D(x)]^2 + \mathrm{Var}[M_D(x)] + \mathrm{Noise}.
 $$
-Goal model selection: select model with smallest total error = compromise between bias error and variance error
+Goal of model selection: select model with smallest total error = compromise between bias error and variance error
 
 ![](images/03c-model-selection/bias-variance-tradeoff.svg){fig-align="center"}
 
@@ -146,14 +146,14 @@ poly_bias_variance
 ```
 
 - Model of degree 2 (quadratic curve) gives best fit (not too complex, not too simple)
-- Bias and variance in general **difficult to calculate**
+- Bias and variance are in general **difficult to calculate**
 
 
 ## Case study: biodegradation test
 
 **Waste treatment**: Measure the oxygen uptake rate (OUR) during oxidation of biodegradable waste products by activated sludge.
     
-- Shape respirogram depends on degradation kinetics and quantity added products
+- Shape respirogram depends on degradation kinetics and quantity of added products
 - Not known a priori $\rightarrow$ measure and test several models
     
 ## Case study: biodegradation data
@@ -175,7 +175,7 @@ plot(our.data[,1], our.data[,2],
 $$
 OUR = \sum_{i=1}^k (1-Y_i)r_{S_i}
 $$
-where $Y_i$ is the yield, (fraction of substrate $S_i$ that is not oxidated but transformed in biomass $X$), and $r_{S_i}$ the degradation rate of $S_i$.
+where $Y_i$ is the yield (fraction of substrate $S_i$ that is not oxidized but transformed in biomass $X$), and $r_{S_i}$ the degradation rate of $S_i$.
 
 - Candidate models differ in number of pollutants $k$ and choice of degradation rates $r_{S_i}$.
 
@@ -200,7 +200,7 @@ where $Y_i$ is the yield, (fraction of substrate $S_i$ that is not oxidated but 
 **Model 3**: simultaneous degradation of two pollutants according to Monod kinetics (*double Monod*) without interaction. 
 \begin{align*}
   r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
-  r_{S_2} & = \dfrac{\mu_{max2}X}{Y_1}\dfrac{S_2}{K_{S_2}+S_2} \\
+  r_{S_2} & = \dfrac{\mu_{max2}X}{Y_2}\dfrac{S_2}{K_{S_2}+S_2} \\
   OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
 \end{align*}
 
@@ -259,7 +259,7 @@ Many different criteria to make this concrete.
 
 ## Akaike Information Criterion (AIC)
 
-Model complexity penality: $2p$, with $p$ number of parameters:
+Model complexity penalty: $2p$, with $p$ number of parameters:
 $$
   AIC = N \ln\left( \frac{SSR}{N} \right) + 2p.
 $$
@@ -376,7 +376,6 @@ Optimal model provides a **good fit** (SSR low) and is **not too complex** (pena
 #| fig-align: center
 
 fit_and_eval <- function(degree) {
-  # TODO: should we evaluate on held-out test data? If I do that, then AIC/BIC rise monotonically. Not sure how to interpret.
   n <- nrow(train)
   model <- fit_model(degree, train)
   SSR = eval_model(model, train)
@@ -443,7 +442,7 @@ $$
 ## Residual analysis
 
 - Hypothesis: model is appropriate if properties of residuals are same as properties of measurement errors
-- Two popular techniques for evaluation independence of residuals
+- Two popular techniques for evaluating independence of residuals
     - Autocorrelation test (see Parameter Estimation)
     - Runs test (nonparametric test)
 

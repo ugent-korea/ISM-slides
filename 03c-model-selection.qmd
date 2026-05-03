@@ -37,7 +37,9 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 - True model: $y = \sin(x) + \sqrt{x} + 0.3 \epsilon$, where $\epsilon \sim N(0, 1)$
 - Four datasets, fit polynomial of degree 1, 2, or 8
 
-```{r, echo=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| fig-height: 6
 set.seed(1234)
 
 # True model
@@ -82,10 +84,8 @@ run_experiment <- function() {
 
 # Run 4 experiments
 par(mfrow = c(2, 2), mar = c(0.5, 0.5, 0.5, 0.5))
-run_experiment()
-run_experiment()
-run_experiment()
-run_experiment()
+x <- replicate(4, run_experiment())
+
 ```
 
 ## Two sources of error
@@ -330,8 +330,8 @@ fit_and_eval <- function(degree) {
   data.frame(
     degree = degree,
     SSR = SSR,
-    AIC = 2 * degree,
-    BIC = degree * log(n))
+    AIC_penalty = 2 * degree,
+    BIC_penalty = degree * log(n))
 }
 
 degrees <- 0:6
@@ -348,7 +348,7 @@ p_ssr <-
   
 
 plot_data_penalty <- plot_data |>
-  select(degree, AIC, BIC) |>
+  select(degree, AIC_penalty, BIC_penalty) |>
   pivot_longer(!degree)
   
 p_penalty <- 
@@ -419,13 +419,18 @@ grid.arrange(p, q, ncol = 2)
 
 ## AIC/BIC: Biodegradation example
 
-| Model        | p |   SSR   |    AIC    |    BIC    |
-|--------------|---|--------:|----------:|----------:|
-| Exponential  | 2 |   0.36  |  -303.67  |  -299.48  |
-| Single Monod | 3 |   0.16  |  -348.74  |  -342.45  |
-| Double Monod | 6 |   0.01  |  -508.87  |  -496.30  |
+```{r, echo=FALSE}
+source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 
-<!-- See script "monod-plot.R" for code to compute these numbers -->
+bind_rows(
+  model_eval_first_order(),
+  model_eval_single_monod(),
+  model_eval_double_monod()
+) |>
+  mutate(Model = c("Exponential", "Single Monod", "Double Monod"),
+         .before = 1) |>
+  knitr::kable(digits = 2, align = "lrrrr")
+```
 
 
 ## Statistical hypothesis test

@@ -201,12 +201,12 @@ where $Y_i$ is the yield (fraction of substrate $S_i$ that is not oxidized but t
 \begin{align*}
   r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
   r_{S_2} & = \dfrac{\mu_{max2}X}{Y_2}\dfrac{S_2}{K_{S_2}+S_2} \\
-  OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
+  OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2}
 \end{align*}
 
 ## Case study: parameter estimation
 
-Dataset (dots) and best fits (calibrated candidate models based on an SSE-based objective function) of the different models
+Dataset (dots) and best fits (calibrated candidate models based on an SSR-based objective function) of the different models
 
 ```{r}
 #| echo: false
@@ -231,7 +231,7 @@ run_all()
 ## A priori model selection
 
 - Restrict set of model candidates based on properties of data that are independent of parameters.
-- Biodegradation example: inflection points.
+- Biodegradation example: candidate curves have either zero or one inflection point, enough to rule out some candidates before fitting.
 
 ```{r}
 #| echo: false
@@ -282,8 +282,8 @@ $$
 $$
 Properties:
 
-- Favors prediction accuracy
-- Not necessarily consistent (will not select true model even if sample size is large)
+- Favors prediction accuracy.
+- Not necessarily consistent (will not select true model even if sample size is large).
 
 
 ## Bayes Information Criterion (BIC)
@@ -295,16 +295,17 @@ $$
 Properties:
 
 - Selects a simpler model than AIC.
-- Consistent (under some conditions)
+- Consistent (under some conditions).
 
 ## AIC/BIC: Polynomial example
 
-- SSR always decreases when number of parameters increases
-- Penalty terms cause AIC/BIC to increase at a certain point
+- SSR always decreases as the number of parameters increases
+- Penalty terms keep growing — combining the two gives a U-shape (next slide)
 
-Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for given data.
+Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC for given data.
 
 ```{r}
+#| echo: false
 #| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
@@ -386,6 +387,7 @@ grid.arrange(p_ssr, p_penalty, ncol = 2)
 Optimal model provides a **good fit** (SSR low) and is **not too complex** (penalty low).
 
 ```{r}
+#| echo: false
 #| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
@@ -454,13 +456,13 @@ bind_rows(
 ## Statistical hypothesis test
 
 - Choice between 2 **nested** models: simple and more complex
-- Is complex model statistically speaking better?
+- Is the complex model statistically speaking better?
 - Verify using F-test:
 $$
 F = \dfrac{ \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}}}{\dfrac{SSR_{complex}}{N-p_{complex}}}
 $$
-- Compare test criterion with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
-- If value larger, complex model better (and vice versa)
+- Compare $F$ with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
+- If $F$ exceeds the critical value, prefer the complex model; otherwise, prefer the simple one
 - Requires normally distributed residuals
 
 ## Residual analysis
@@ -471,6 +473,8 @@ $$
     - Runs test (nonparametric test)
 
 ## Autocorrelation test: Biodegradation example
+
+Recall the three calibrated fits (same data and curves as before):
 
 ```{r}
 #| echo: false
@@ -497,12 +501,12 @@ plot.residuals()
 
 ## Autocorrelation test
 
-- Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
-- Correlations for double Monod decay much quicker than the other two models.
-
 ```{r}
 #| echo: false
 #| fig-width: 7
 #| fig-height: 4
 plot.acf()
 ```
+
+- Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
+- Correlations for double Monod decay much quicker than the other two models.

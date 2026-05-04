@@ -24,13 +24,17 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
 
 
-# Model Selection
-
 ## Model selection
 
 - Also called _structure characterisation_
 - Problem: "perfect" model and "true" parameters are unknown.
 - Goal:  __Select best model structure from set of candidate models, based on experimental data__
+
+## Outline
+
+\tableofcontents
+
+# Bias and variance
 
 ## Which model fits the data the best?
 
@@ -193,6 +197,8 @@ Balance two terms:
 
 1. **Goodness of fit**, measured by sum of the squared residuals (SSR)
 2. **Complexity of the model**, as a function of number of parameters.
+
+In effect, this is the bias-variance trade-off in disguise: SSR plays the role of bias, the complexity penalty the role of variance.
 
 We will see two criteria to compare models:
 
@@ -362,6 +368,7 @@ grid.arrange(p, q, ncol = 2)
 
 - Both AIC and BIC select the fit of degree 3
 - In general AIC and BIC don't have to agree
+- The U-shape is the bias-variance trade-off in action: adding parameters helps until it starts to hurt
 
 
 ## Statistical hypothesis test

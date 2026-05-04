@@ -156,7 +156,10 @@ poly_bias_variance
 
 1.5 data points per minute, acquired using dissolved oxygen (DO) sensor.
 
-```{r, echo=FALSE, fig.height=5, fig.width=7}
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 7
 our.data <- read.csv("datasets/03-parameter-estimation/vanrolleghem_our.csv")
 plot(our.data[,1], our.data[,2], 
      ylim = c(0, 1), pch = 20, cex = 0.5,
@@ -174,6 +177,7 @@ $$
 where $Y_i$ is the yield (fraction of substrate $S_i$ that is not oxidized but transformed in biomass $X$), and $r_{S_i}$ the degradation rate of $S_i$.
 
 - Candidate models differ in number of pollutants $k$ and choice of degradation rates $r_{S_i}$.
+
 
 ## Case study: candidate models
 
@@ -204,7 +208,10 @@ where $Y_i$ is the yield (fraction of substrate $S_i$ that is not oxidized but t
 
 Dataset (dots) and best fits (calibrated candidate models based on an SSE-based objective function) of the different models
 
-```{r, echo=FALSE, fig.width=7, fig.height=4}
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 4
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 
 run_all()
@@ -429,7 +436,8 @@ grid.arrange(p, q, ncol = 2)
 
 ## AIC/BIC: Biodegradation example
 
-```{r, echo=FALSE}
+```{r}
+#| echo: false
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 
 bind_rows(
@@ -464,7 +472,10 @@ $$
 
 ## Autocorrelation test: Biodegradation example
 
-```{r, echo=FALSE, fig.width=7, fig.height=4}
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 4
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 run_all()
 ```
@@ -472,11 +483,15 @@ run_all()
 ## Autocorrelation test: Residuals as a function of time
 
 
-```{r, include=FALSE}
+```{r}
+#| include: false
 source("scripts/03a-parameter-estimation/monod-residuals.R", local = knitr::knit_global())
 ```
 
-```{r, echo=FALSE, fig.width=7, fig.height=4}
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 4
 plot.residuals()
 ```
 
@@ -485,6 +500,9 @@ plot.residuals()
 - Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
 - Correlations for double Monod decay much quicker than the other two models.
 
-```{r, echo=FALSE, fig.width=7, fig.height=4}
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 4
 plot.acf()
 ```

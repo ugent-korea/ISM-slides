@@ -101,7 +101,7 @@ x <- replicate(4, run_experiment())
 - Decreases as model gets more complex.
 
 \vspace*{0.5cm}
-**Variance**: *How well does the model do on new, unseen data?*
+**Variance**: *How much does the fitted model change across training sets?*
 
 - Decreases with more data.
 - Increases as model gets more complex.
@@ -116,13 +116,8 @@ x <- replicate(4, run_experiment())
 
 ::::
 
-## Bias and variance are complementary
+## The bias-variance tradeoff
 
-For a model $M_D(x)$ on a dataset $D$, the error decomposes as
-$$
-   \mathrm{Error}[M_D(x)] = 
-   \mathrm{Bias}[M_D(x)]^2 + \mathrm{Var}[M_D(x)] + \mathrm{Noise}.
-$$
 Goal of model selection: select model with smallest total error = compromise between bias error and variance error
 
 ![](images/03c-model-selection/bias-variance-tradeoff.svg){fig-align="center"}
@@ -130,10 +125,11 @@ Goal of model selection: select model with smallest total error = compromise bet
 
 ## Model selection for linear models
 
-- Same data as before (slide 1)
+- Same polynomial data as explained before
 - Polynomial model $y \sim 1 + x + x^2 + \cdots + x^d$
 
-```{r, echo=FALSE}
+```{r}
+#| echo: false
 #| out-width: 3in
 #| out-height: 1.5in
 #| fig-width: 4.5
@@ -230,8 +226,14 @@ run_all()
 - Restrict set of model candidates based on properties of data that are independent of parameters.
 - Biodegradation example: inflection points.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4}
+```{r}
+#| echo: false
+#| fig-height: 4
+#| out-height: 5in
+
 source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit_global())
+
+run_all()
 ```
 
 ##  A posteriori model selection
@@ -241,21 +243,29 @@ source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit
 - Perform parameter estimation for all models
 - Rank candidate models and select best
 - Methods
-    - Goodness-of-fit and complexity penalization
-    - Evaluation of undermodelling
+    - Information criteria
     - Statistical hypothesis test
     - Residual analysis
 
-## Goodness-of-fit and complexity penalization
+::: {.callout-warning}
+Statistical tests, information criteria, etc only yield reliable results if model is **well fit** (residuals are independent and normally distributed)
+:::
+
+## Information criteria
 
 Select least complex model that describes data (sufficiently) well.
 
 Balance two terms:
 
-1. **Goodness of fit**, measured by sum-squared of residuals (SSR)
+1. **Goodness of fit**, measured by sum of the squared residuals (SSR)
 2. **Complexity of the model**, as a function of number of parameters.
 
-Many different criteria to make this concrete.
+We will see two criteria to compare models:
+
+- AIC: which model would predict best on new data?
+- BIC: which model is most likely to be the true one?
+
+Information criteria may contradict one another.
 
 ## Akaike Information Criterion (AIC)
 
@@ -265,7 +275,7 @@ $$
 $$
 Properties:
 
-- Sometimes preferred when prediction accuracy is important and sample size is small
+- Favors prediction accuracy
 - Not necessarily consistent (will not select true model even if sample size is large)
 
 
@@ -277,13 +287,13 @@ $$
 $$
 Properties:
 
-- Will select a simpler model than AIC.
+- Selects a simpler model than AIC.
 - Consistent (under some conditions)
 
 ## AIC/BIC: Polynomial example
 
 - SSR always decreases when number of parameters increases
-- Penalty terms cause goodness-of-fit to increase at a certain point
+- Penalty terms cause AIC/BIC to increase at a certain point
 
 Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for given data.
 
@@ -414,7 +424,7 @@ q <- ggplot(train) +
 grid.arrange(p, q, ncol = 2)
 ```
 
-- Both AIC and BIC select fit of degree 3
+- Both AIC and BIC select the fit of degree 3
 - In general AIC and BIC don't have to agree
 
 ## AIC/BIC: Biodegradation example
@@ -435,14 +445,15 @@ bind_rows(
 
 ## Statistical hypothesis test
 
-- Choice between 2 models: simple and more complex
+- Choice between 2 **nested** models: simple and more complex
 - Is complex model statistically speaking better?
 - Verify using F-test:
 $$
-F = \dfrac{\left( \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}} \right)}{\left( \dfrac{SSR_{complex}}{N-p_{complex}} \right)}
+F = \dfrac{ \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}}}{\dfrac{SSR_{complex}}{N-p_{complex}}}
 $$
 - Compare test criterion with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
 - If value larger, complex model better (and vice versa)
+- Requires normally distributed residuals
 
 ## Residual analysis
 
@@ -473,7 +484,6 @@ plot.residuals()
 
 - Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
 - Correlations for double Monod decay much quicker than the other two models.
-
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4}
 plot.acf()

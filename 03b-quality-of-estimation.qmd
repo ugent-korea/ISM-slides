@@ -288,7 +288,7 @@ $$
   \end{bmatrix}.
 $$
 
-- Parameter estimates: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.500$.
+- Parameter estimates: $A = 5.359$, $k = 1.597$, $x_\text{mid} = 2.450$.
 
 - 95% confidence intervals (low, high):
 

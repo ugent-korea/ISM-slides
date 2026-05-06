@@ -1,19 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Introduction to Statistical Modelling",
-    "section": "",
-    "text": "1 - Linear Regression (1/7): Introduction\n1 - Linear Regression (2/7): Simple linear regression\n1 - Linear Regression (3/7): Multiple linear regression\n1 - Linear Regression (4/7): Predictivity and variability\n1 - Linear Regression (5/7): Outliers\n1 - Linear Regression (6/7): Categorical variables\n1 - Linear Regression (7/7): Multicollinearity\n2 - Principal Component Analysis (1/3): Introduction\n2 - Principal Component Analysis (2/3): Theory and concepts\n2 - Principal Component Analysis (3/3): Examples\n3 - Logistic regression\n4 - Nonlinear regression (1/5): Parameter estimation\n4 - Nonlinear regression (2/5): Confidence intervals\n4 - Nonlinear regression (3/5): Model selection\n4 - Nonlinear regression (4/5): Sensitivity analysis\n4 - Nonlinear regression (5/5): Case study: Streeter-Phelps model"
-  },
-  {
-    "objectID": "index.html#presentations",
-    "href": "index.html#presentations",
-    "title": "Introduction to Statistical Modelling",
-    "section": "",
-    "text": "1 - Linear Regression (1/7): Introduction\n1 - Linear Regression (2/7): Simple linear regression\n1 - Linear Regression (3/7): Multiple linear regression\n1 - Linear Regression (4/7): Predictivity and variability\n1 - Linear Regression (5/7): Outliers\n1 - Linear Regression (6/7): Categorical variables\n1 - Linear Regression (7/7): Multicollinearity\n2 - Principal Component Analysis (1/3): Introduction\n2 - Principal Component Analysis (2/3): Theory and concepts\n2 - Principal Component Analysis (3/3): Examples\n3 - Logistic regression\n4 - Nonlinear regression (1/5): Parameter estimation\n4 - Nonlinear regression (2/5): Confidence intervals\n4 - Nonlinear regression (3/5): Model selection\n4 - Nonlinear regression (4/5): Sensitivity analysis\n4 - Nonlinear regression (5/5): Case study: Streeter-Phelps model"
-  },
-  {
     "objectID": "case-studies/logistic-regression/prostate-cancer/prostate-cancer.html",
     "href": "case-studies/logistic-regression/prostate-cancer/prostate-cancer.html",
     "title": "Prostate cancer",

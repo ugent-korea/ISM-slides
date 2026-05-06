@@ -230,7 +230,7 @@ Different definitions, depending on what's important:
   Compare sensitivity of same variable w.r.t. *different parameters*
 2. Relative sensitivity w.r.t. variable 
   $$
-    \frac{\partial y_i(t)}{\partial \theta} \cdot \dfrac{1}{y_i}
+    \frac{\partial y_i(t)}{\partial \theta_j} \cdot \dfrac{1}{y_i}
   $$ 
 Compare sensitivity of *different variables* w.r.t. same parameter
 
@@ -298,6 +298,8 @@ $$
 ## 
 
 These slides have been moved to the slide deck `03f-monte-carlo.pdf`
+
+# Global sensitivity analysis
 
 ## Global sensitivity analysis (GSA)
 
@@ -371,7 +373,7 @@ $$
 - For linear model in parameters that were examined, the total variance is explained by $SRC$s
 $$\sum_i SRC_{\theta_i}^2=1$$
 - For nonlinear models (in the parameters) _not_ all variance will be explained. The part that is explained is given by determination coefficient
-$$R^2=\sum_{i=1}^n \dfrac{(\hat{y}_i-\overline{y})^2}{(y_i-\overline{y})^2}$$
+$$R^2=\dfrac{\sum_{i=1}^n(\hat{y}_i-\overline{y})^2}{\sum_{i=1}^n(y_i-\overline{y})^2}$$
 - $\hat{y}_i$: prediction by regression model
 - Technique only valid if $R^2 > 0.7$
 
@@ -416,7 +418,7 @@ $$R^2=\sum_{i=1}^n \dfrac{(\hat{y}_i-\overline{y})^2}{(y_i-\overline{y})^2}$$
 
 - Goal: find share of each model parameter in variance of model output
 - Used for models that are strongly nonlinear or nonmonotonous
-- Example of model with 3 paramaters:
+- Example of model with 3 parameters:
 $$
   \sigma_y^2=\sigma_1^2+\sigma_2^2+\sigma_3^2+\sigma_{12}^2+\sigma_{13}^2+\sigma_{23}^2+\sigma_{123}^2
 $$

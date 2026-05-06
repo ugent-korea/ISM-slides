@@ -25,7 +25,7 @@ p_approx <- ggplot(data, aes(x = time)) +
 p_diff <- ggplot(data, aes(x = time, y = diff)) +
   geom_line(color = 2) +
   xlab("Time") + ylab("") +
-  ggtitle("Difference exact - approximate")
+  ggtitle("Exact - approx.")
 
 grid.arrange(p_exact, p_diff, p_approx, ncol = 2,
              layout_matrix = cbind(c(1, 3), c(2, 2)))

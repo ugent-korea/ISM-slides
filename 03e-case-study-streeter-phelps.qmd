@@ -88,7 +88,12 @@ where
 source("scripts/03a-parameter-estimation/SP-simulate.R", local = knitr::knit_global())
 ```
 
-```{r, echo=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 plot.exact.trajectories()
 ```
 
@@ -101,19 +106,37 @@ plot.exact.trajectories()
 source("scripts/03a-parameter-estimation/SP-estimate.R", local = knitr::knit_global())
 ```
 
-```{r, echo=FALSE, message=FALSE, fig.height=5}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 plot.trajectory("Nelder-Mead")
 ```
 
 ## Parameter estimation - BFGS
 
-```{r, echo=FALSE, message=FALSE, fig.height=5}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 plot.trajectory("L-BFGS-B")
 ```
 
 ## Optimal parameter result
 
-```{r, echo=FALSE, message=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 plot.fitted.trajectory()
 ```
 
@@ -123,20 +146,38 @@ plot.fitted.trajectory()
 
 Absolute sensitivity of $\DO$ with respect to $k_1$ and $k_2$.
 
-```{r, echo=FALSE, message=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
 source("scripts/03a-parameter-estimation/SP-sensitivity-absolute.R", local = knitr::knit_global())
 ```
 
 ## Difference exact approximate
 
-```{r, echo=FALSE, message=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 source("scripts/03a-parameter-estimation/SP-sensitivity.R", local = knitr::knit_global())
 ```
 
 ## Relative sensitivity functions
 
 
-```{r, echo=FALSE, message=FALSE, fig.height=6}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-align: center
 source("scripts/03a-parameter-estimation/SP-sensitivity-relative.R", local = knitr::knit_global())
 ```
 
@@ -247,7 +288,13 @@ k_1: [0.1; 0.6] \quad k_2: [0.1; 0.6] \quad \DO_{sat} : [10; 12] \\
 
 ## GSA: Morris screening
 
-```{r, echo=FALSE, message=FALSE, fig.height=4}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
 source("scripts/03a-parameter-estimation/SP-morris.R", local = knitr::knit_global())
 ```
 
@@ -266,24 +313,36 @@ Among the selected parameters:
 source("./scripts/03a-parameter-estimation/SP-GSA.R")
 ```
 
-```{r, echo=FALSE, out.height="50%", fig.align='center'}
-scale_plot <- function(plot) {
-  plot + theme(text = element_text(size = 20))
-}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 2in
+#| fig-width: 5
+#| fig-height: 3
+#| fig-align: center
+
 grid.arrange(
-  scale_plot(plot_mc_bod), 
-  scale_plot(plot_mc_do), ncol = 1)
+  plot_mc_bod, 
+  plot_mc_do,
+  ncol = 1)
 
 ```
 
 ## GSA: Monte Carlo
 
-```{r, echo=FALSE}
+```{r}
+#| echo: false
+#| message: false
+#| out-height: 3.5in
+#| fig-width: 8
+#| fig-height: 5
+#| fig-align: center
+
 grid.arrange(
-  scale_plot(p_k1_bod), 
-  scale_plot(p_k2_bod), 
-  scale_plot(p_k1_do), 
-  scale_plot(p_k2_do), 
+  p_k1_bod, 
+  p_k2_bod, 
+  p_k1_do, 
+  p_k2_do, 
   ncol = 2)
 ```
 

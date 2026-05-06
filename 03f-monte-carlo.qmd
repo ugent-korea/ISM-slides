@@ -26,7 +26,7 @@ library(tidyverse)
 library(gridExtra)
 library(latex2exp)
 
-theme_set(theme_bw())
+theme_set(theme_bw() + theme(text = element_text(size = 14)))
 
 colors2 <- hue_pal()(2)
 
@@ -110,9 +110,8 @@ simulate_income <- function() {
 ```
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -142,9 +141,8 @@ simulate_expenditure <- function() {
 ```
 
 ```{r}
-#| out-width: 3in
 #| out-height: 2in
-#| fig-width: 4
+#| fig-width: 5
 #| fig-height: 3
 #| fig-align: center
 
@@ -162,10 +160,9 @@ plot_expenditures
 ## Comparing income and expenditure
 
 ```{r}
-#| out-width: 4in
 #| out-height: 3in
 #| fig-width: 6
-#| fig-height: 4
+#| fig-height: 4.5
 #| fig-align: center
 
 joint <- bind_rows(
@@ -207,10 +204,9 @@ simulate_yearly_savings <- function() {
 ## 
 
 ```{r}
-#| out-width: 3in
-#| out-height: 2in
-#| fig-width: 4
-#| fig-height: 3
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
 
 simulate_many <- function(n) {
@@ -239,10 +235,9 @@ p
 ## 
 
 ```{r}
-#| out-width: 3in
-#| out-height: 2in
-#| fig-width: 4
-#| fig-height: 3
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
 
 simulations <- simulate_many(100)
@@ -264,10 +259,9 @@ p
 ## 
 
 ```{r}
-#| out-width: 3in
-#| out-height: 2in
-#| fig-width: 4
-#| fig-height: 3
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
 
 simulations <- simulate_many(1000)
@@ -289,10 +283,9 @@ p
 ## Savings after 12 months
 
 ```{r}
-#| out-width: 3in
-#| out-height: 2in
-#| fig-width: 4
-#| fig-height: 3
+#| out-height: 3in
+#| fig-width: 6
+#| fig-height: 4.5
 #| fig-align: center
 
 simulations |>

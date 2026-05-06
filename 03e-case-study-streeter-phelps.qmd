@@ -2,17 +2,9 @@
 title: "Nonlinear modeling: Case study: river discharge"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
-pdf-engine: lualatex
 format:
   beamer:
-    theme: Pittsburgh
-    colortheme: default
-    fonttheme: default
     header-includes: |
-      \setbeamertemplate{frametitle}[default][left]
-      \setbeamertemplate{footline}[frame number]
-      \usepackage{emoji}
-      \usepackage{luatexko}
       \usepackage{siunitx}
       \usepackage{numprint}
       \newcommand{\BOD}{\mathsf{BOD}}

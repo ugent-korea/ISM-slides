@@ -2,16 +2,6 @@
 title: "Principal component analysis: examples"
 subtitle: Introduction to Statistical Modelling
 author: Prof. Joris Vankerschaver
-format:
-  beamer:
-    theme: Pittsburgh
-    colortheme: default
-    fonttheme: default
-    header-includes: |
-      \setbeamertemplate{frametitle}[default][left]
-      \setbeamertemplate{footline}[frame number]
-      \hypersetup{colorlinks,urlcolor=blue}
-
 ---
 
 ```{r, include=FALSE}

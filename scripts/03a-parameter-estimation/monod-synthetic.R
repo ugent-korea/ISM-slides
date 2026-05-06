@@ -45,7 +45,7 @@ plot.first.order <- function(ps) {
   times <- seq(0, 30, by=0.1)
   fitted <- call_rhs(our.first.order, times, ps) +
     0.1*AR.noise(length(times), width = 30)
-  plot(times, fitted, pch = 19, cex = 0.5, ylim=c(0, 1),
+  plot(times, fitted, pch = 19, ylim=c(0, 1),
        main = "0 inflection points", xlab = "", ylab = "")
 }
 
@@ -53,7 +53,7 @@ plot.single.monod <- function(ps) {
   times <- seq(0, 30, by=0.1)
   fitted <- call_rhs(our.single.monod, times, ps) +
     0.05*AR.noise(length(times), width = 30)
-  plot(times, fitted, pch = 19, cex = 0.5, ylim=c(0, 1),
+  plot(times, fitted, pch = 19, ylim=c(0, 1),
        main = "1 inflection point", xlab = "", ylab = "")
 }
 
@@ -61,7 +61,7 @@ plot.double.monod <- function(ps) {
   times <- seq(0, 45, by=0.1)
   fitted <- call_rhs(our.double.monod, times, ps) +
     0.05*AR.noise(length(times), width = 30)
-  plot(times, fitted, pch = 19, cex = 0.5, ylim=c(0, 1),
+  plot(times, fitted, pch = 19, ylim=c(0, 1),
        main = "3 inflection points", xlab = "", ylab = "")
 }
 
@@ -75,5 +75,3 @@ run_all <- function() {
   plot.single.monod(par.single.monod)
   plot.double.monod(par.double.monod)
 }
-
-run_all()

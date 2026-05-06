@@ -24,13 +24,17 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 ```
 
 
-# Model Selection
-
 ## Model selection
 
 - Also called _structure characterisation_
 - Problem: "perfect" model and "true" parameters are unknown.
 - Goal:  __Select best model structure from set of candidate models, based on experimental data__
+
+## Outline
+
+\tableofcontents
+
+# Bias and variance
 
 ## Which model fits the data the best?
 
@@ -38,11 +42,8 @@ theme_set(theme_bw() + theme(text = element_text(size = 14)))
 - Four datasets, fit polynomial of degree 1, 2, or 8
 
 ```{r}
-#| out-height: 2.5in
-#| fig-width: 6
-#| fig-height: 4
-#| fig-align: center
-
+#| echo: false
+#| fig-height: 6
 set.seed(1234)
 
 # True model
@@ -87,10 +88,8 @@ run_experiment <- function() {
 
 # Run 4 experiments
 par(mfrow = c(2, 2), mar = c(0.5, 0.5, 0.5, 0.5))
-run_experiment()
-run_experiment()
-run_experiment()
-run_experiment()
+x <- replicate(4, run_experiment())
+
 ```
 
 ## Two sources of error
@@ -106,7 +105,7 @@ run_experiment()
 - Decreases as model gets more complex.
 
 \vspace*{0.5cm}
-**Variance**: *How well does the model do on new, unseen data?*
+**Variance**: *How much does the fitted model change across training sets?*
 
 - Decreases with more data.
 - Increases as model gets more complex.
@@ -121,28 +120,24 @@ run_experiment()
 
 ::::
 
-## Bias and variance are complementary
+## The bias-variance tradeoff
 
-For a model $M_D(x)$ on a dataset $D$, the error decomposes as
-$$
-   \mathrm{Error}[M_D(x)] = 
-   \mathrm{Bias}[M_D(x)]^2 + \mathrm{Var}[M_D(x)] + \mathrm{Noise}.
-$$
-Goal model selection: select model with smallest total error = compromise between bias error and variance error
+Goal of model selection: select model with smallest total error = compromise between bias error and variance error
 
 ![](images/03c-model-selection/bias-variance-tradeoff.svg){fig-align="center"}
 
 
 ## Model selection for linear models
 
-- Same data as before (slide 1)
+- Same polynomial data as explained before
 - Polynomial model $y \sim 1 + x + x^2 + \cdots + x^d$
 
 ```{r}
 #| echo: false
-#| out-height: 2in
-#| fig-width: 5
-#| fig-height: 3
+#| out-width: 3in
+#| out-height: 1.5in
+#| fig-width: 4.5
+#| fig-height: 2
 #| fig-align: center
 
 source("scripts/03a-parameter-estimation/bias-variance-curves.R", local = knitr::knit_global())
@@ -151,85 +146,7 @@ poly_bias_variance
 ```
 
 - Model of degree 2 (quadratic curve) gives best fit (not too complex, not too simple)
-- Bias and variance in general **difficult to calculate**
-
-
-## Case study: biodegradation test
-
-**Waste treatment**: Measure the oxygen uptake rate (OUR) during oxidation of biodegradable waste products by activated sludge.
-    
-- Shape respirogram depends on degradation kinetics and quantity added products
-- Not known a priori $\rightarrow$ measure and test several models
-    
-## Case study: biodegradation data
-
-1.5 data points per minute, acquired using dissolved oxygen (DO) sensor.
-
-```{r}
-#| echo: false
-#| out-height: 2in
-#| fig-width: 5
-#| fig-height: 3
-#| fig-align: center
-
-our.data <- read.csv("datasets/03-parameter-estimation/vanrolleghem_our.csv")
-plot(our.data[,1], our.data[,2], 
-     ylim = c(0, 1), pch = 20, cex = 0.5,
-     xlab = "Time", ylab = "OUR")
-```
-
-## Case study: general model
-
-- $k$ pollutants $S_1, \ldots, S_k$.
-
-- Oxygen uptake rate
-$$
-OUR = \sum_{i=1}^k (1-Y_i)r_{S_i}
-$$
-where $Y_i$ is the yield, (fraction of substrate $S_i$ that is not oxidated but transformed in biomass $X$), and $r_{S_i}$ the degradation rate of $S_i$.
-
-- Candidate models differ in number of pollutants $k$ and choice of degradation rates $r_{S_i}$.
-
-## Case study: candidate models
-
-**Model 1**: degradation of one pollutant according to first-order kinetics. Gives *exponentially* decreasing OUR-curve.
-\begin{align*}
-  r_{S_1} & = \dfrac{k_{max1}X}{Y_1}S_1 \\
-  OUR & = (1-Y_1)r_{S_1}
-\end{align*}
-
-## Case study: candidate models
-
-**Model 2**: degradation of one pollutant according to *Monod kinetics*. 
-\begin{align*}
-  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
-  OUR & = (1-Y_1)r_{S_1}
-\end{align*}
-
-## Case study: candidate models
-
-**Model 3**: simultaneous degradation of two pollutants according to Monod kinetics (*double Monod*) without interaction. 
-\begin{align*}
-  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
-  r_{S_2} & = \dfrac{\mu_{max2}X}{Y_1}\dfrac{S_2}{K_{S_2}+S_2} \\
-  OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2} \\
-\end{align*}
-
-## Case study: parameter estimation
-
-Dataset (dots) and best fits (calibrated candidate models based on an SSE-based objective function) of the different models
-
-```{r}
-#| echo: false
-#| out-height: 2in
-#| fig-width: 7
-#| fig-height: 3
-#| fig-align: center
-
-source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
-
-run_all()
-```
+- Bias and variance are in general **difficult to calculate**
 
 # Methods for model selection
 
@@ -245,18 +162,16 @@ run_all()
 ## A priori model selection
 
 - Restrict set of model candidates based on properties of data that are independent of parameters.
-- Biodegradation example: inflection points.
+- Biodegradation example: candidate curves have either zero or one inflection point, enough to rule out some candidates before fitting.
 
 ```{r}
 #| echo: false
-#| warning: false
-#| message: false
-#| out-height: 2in
-#| fig-width: 5
-#| fig-height: 3
-#| fig-align: center
+#| fig-height: 4
+#| out-height: 5in
 
 source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit_global())
+
+run_all()
 ```
 
 ##  A posteriori model selection
@@ -266,32 +181,42 @@ source("scripts/03a-parameter-estimation/monod-synthetic.R", local = knitr::knit
 - Perform parameter estimation for all models
 - Rank candidate models and select best
 - Methods
-    - Goodness-of-fit and complexity penalization
-    - Evaluation of undermodelling
+    - Information criteria
     - Statistical hypothesis test
     - Residual analysis
 
-## Goodness-of-fit and complexity penalization
+::: {.callout-warning}
+Statistical tests, information criteria, etc only yield reliable results if model is **well fit** (residuals are independent and normally distributed)
+:::
+
+## Information criteria
 
 Select least complex model that describes data (sufficiently) well.
 
 Balance two terms:
 
-1. **Goodness of fit**, measured by sum-squared of residuals (SSR)
+1. **Goodness of fit**, measured by sum of the squared residuals (SSR)
 2. **Complexity of the model**, as a function of number of parameters.
 
-Many different criteria to make this concrete.
+In effect, this is the bias-variance trade-off in disguise: SSR plays the role of bias, the complexity penalty the role of variance.
+
+We will see two criteria to compare models:
+
+- AIC: which model would predict best on new data?
+- BIC: which model is most likely to be the true one?
+
+Information criteria may contradict one another.
 
 ## Akaike Information Criterion (AIC)
 
-Model complexity penality: $2p$, with $p$ number of parameters:
+Model complexity penalty: $2p$, with $p$ number of parameters:
 $$
   AIC = N \ln\left( \frac{SSR}{N} \right) + 2p.
 $$
 Properties:
 
-- Sometimes preferred when prediction accuracy is important and sample size is small
-- Not necessarily consistent (will not select true model even if sample size is large)
+- Favors prediction accuracy.
+- Not necessarily consistent (will not select true model even if sample size is large).
 
 
 ## Bayes Information Criterion (BIC)
@@ -302,17 +227,19 @@ $$
 $$
 Properties:
 
-- Will select a simpler model than AIC.
-- Consistent (under some conditions)
+- Selects a simpler model than AIC.
+- Consistent (under some conditions).
 
 ## AIC/BIC: Polynomial example
 
-- SSR always decreases when number of parameters increases
-- Penalty terms cause goodness-of-fit to increase at a certain point
+- SSR always decreases as the number of parameters increases
+- Penalty terms keep growing — combining the two gives a U-shape (next slide)
 
-Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC/... for given data.
+Example: Select best linear model $y \sim 1 + x + \cdots + x^d$ according to AIC/BIC for given data.
 
 ```{r}
+#| echo: false
+#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
@@ -354,8 +281,8 @@ fit_and_eval <- function(degree) {
   data.frame(
     degree = degree,
     SSR = SSR,
-    AIC = 2 * degree,
-    BIC = degree * log(n))
+    AIC_penalty = 2 * degree,
+    BIC_penalty = degree * log(n))
 }
 
 degrees <- 0:6
@@ -372,7 +299,7 @@ p_ssr <-
   
 
 plot_data_penalty <- plot_data |>
-  select(degree, AIC, BIC) |>
+  select(degree, AIC_penalty, BIC_penalty) |>
   pivot_longer(!degree)
   
 p_penalty <- 
@@ -393,13 +320,14 @@ grid.arrange(p_ssr, p_penalty, ncol = 2)
 Optimal model provides a **good fit** (SSR low) and is **not too complex** (penalty low).
 
 ```{r}
+#| echo: false
+#| out-width: 4.5in
 #| out-height: 2in
 #| fig-width: 7
 #| fig-height: 3
 #| fig-align: center
 
 fit_and_eval <- function(degree) {
-  # TODO: should we evaluate on held-out test data? If I do that, then AIC/BIC rise monotonically. Not sure how to interpret.
   n <- nrow(train)
   model <- fit_model(degree, train)
   SSR = eval_model(model, train)
@@ -438,80 +366,138 @@ q <- ggplot(train) +
 grid.arrange(p, q, ncol = 2)
 ```
 
-- Both AIC and BIC select fit of degree 3
+- Both AIC and BIC select the fit of degree 3
 - In general AIC and BIC don't have to agree
-
-## AIC/BIC: Biodegradation example
-
-| Model        | p |   SSR   |    AIC    |    BIC    |
-|--------------|---|--------:|----------:|----------:|
-| Exponential  | 2 |   0.36  |  -303.67  |  -299.48  |
-| Single Monod | 3 |   0.16  |  -348.74  |  -342.45  |
-| Double Monod | 6 |   0.01  |  -508.87  |  -496.30  |
-
-<!-- See script "monod-plot.R" for code to compute these numbers -->
+- The U-shape is the bias-variance trade-off in action: adding parameters helps until it starts to hurt
 
 
 ## Statistical hypothesis test
 
-- Choice between 2 models: simple and more complex
-- Is complex model statistically speaking better?
+- Choice between 2 **nested** models: simple and more complex
+- Is the complex model statistically speaking better?
 - Verify using F-test:
 $$
-F = \dfrac{\left( \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}} \right)}{\left( \dfrac{SSR_{complex}}{N-p_{complex}} \right)}
+F = \dfrac{ \dfrac{SSR_{simple}-SSR_{complex}}{p_{complex}-p_{simple}}}{\dfrac{SSR_{complex}}{N-p_{complex}}}
 $$
-- Compare test criterion with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
-- If value larger, complex model better (and vice versa)
+- Compare $F$ with tabulated $F_{1-\alpha,p_{complex}-p_{simple},N-p_{complex}}$ for significance level $\alpha$
+- If $F$ exceeds the critical value, prefer the complex model; otherwise, prefer the simple one
+- Requires normally distributed residuals
 
 ## Residual analysis
 
 - Hypothesis: model is appropriate if properties of residuals are same as properties of measurement errors
-- Two popular techniques for evaluation independence of residuals
+- Two popular techniques for evaluating independence of residuals
     - Autocorrelation test (see Parameter Estimation)
     - Runs test (nonparametric test)
 
-## Autocorrelation test: Biodegradation example
+# Case study: biodegradation data
+
+
+## Waste biodegradation
+
+**Waste treatment**: Measure the oxygen uptake rate (OUR) during oxidation of biodegradable waste products by activated sludge.
+    
+- Shape respirogram depends on degradation kinetics and quantity of added products
+- Not known a priori $\rightarrow$ measure and test several models
 
 ```{r}
 #| echo: false
-#| out-height: 2in
-#| fig-width: 7
-#| fig-height: 3
-#| fig-align: center
+#| out-height: 5in
+#| fig-height: 4
+our.data <- read.csv("datasets/03-parameter-estimation/vanrolleghem_our.csv")
+plot(our.data[,1], our.data[,2], 
+     ylim = c(0, 1), pch = 20,
+     xlab = "Time", ylab = "OUR")
+```
 
+## General model
+
+- $k$ pollutants $S_1, \ldots, S_k$.
+
+- Oxygen uptake rate
+$$
+OUR = \sum_{i=1}^k (1-Y_i)r_{S_i}
+$$
+where $Y_i$ is the yield (fraction of substrate $S_i$ that is not oxidized but transformed in biomass $X$), and $r_{S_i}$ the degradation rate of $S_i$.
+
+- Candidate models differ in number of pollutants $k$ and choice of degradation rates $r_{S_i}$.
+
+## Candidate models
+
+**Model 1**: degradation of one pollutant according to first-order kinetics. Gives *exponentially* decreasing OUR-curve.
+\begin{align*}
+  r_{S_1} & = \dfrac{k_{max1}X}{Y_1}S_1 \\
+  OUR & = (1-Y_1)r_{S_1}
+\end{align*}
+
+## Candidate models
+
+**Model 2**: degradation of one pollutant according to *Monod kinetics*. 
+\begin{align*}
+  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
+  OUR & = (1-Y_1)r_{S_1}
+\end{align*}
+
+## Candidate models
+
+**Model 3**: simultaneous degradation of two pollutants according to Monod kinetics (*double Monod*) without interaction. 
+\begin{align*}
+  r_{S_1} & = \dfrac{\mu_{max1}X}{Y_1}\dfrac{S_1}{K_{S_1}+S_1} \\
+  r_{S_2} & = \dfrac{\mu_{max2}X}{Y_2}\dfrac{S_2}{K_{S_2}+S_2} \\
+  OUR & = (1-Y_1)r_{S_1}+(1-Y_2)r_{S_2}
+\end{align*}
+
+## Parameter estimation
+
+Dataset (dots) and best fits (calibrated candidate models based on an SSR-based objective function) of the different models
+
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-height: 4
 source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
+
 run_all()
 ```
 
-## Autocorrelation test: Residuals as a function of time
+## AIC/BIC/F-test
 
+```{r}
+#| echo: false
+source("scripts/03a-parameter-estimation/monod-plot.R", local = knitr::knit_global())
 
-```{r, include=FALSE}
+bind_rows(
+  model_eval_first_order(),
+  model_eval_single_monod(),
+  model_eval_double_monod()
+) |>
+  mutate(Model = c("Exponential", "Single Monod", "Double Monod"),
+         .before = 1) |>
+  knitr::kable(digits = 2, align = "lrrrr")
+```
+
+## Residuals as a function of time
+
+```{r}
+#| include: false
 source("scripts/03a-parameter-estimation/monod-residuals.R", local = knitr::knit_global())
 ```
 
 ```{r}
 #| echo: false
-#| out-height: 3in
 #| fig-width: 7
-#| fig-height: 3
-#| fig-align: center
-
+#| fig-height: 4
 plot.residuals()
 ```
 
-## Autocorrelation test
-
-- Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
-- Correlations for double Monod decay much quicker than the other two models.
-
+## Autocorrelations
 
 ```{r}
 #| echo: false
-#| out-height: 3in
 #| fig-width: 7
-#| fig-height: 3
-#| fig-align: center
-
+#| fig-height: 4
 plot.acf()
 ```
+
+- Residuals show some correlation for all three models, indicating that there is some unresolved structure in the data.
+- Correlations for double Monod decay much quicker than the other two models.

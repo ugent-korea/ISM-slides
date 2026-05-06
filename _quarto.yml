@@ -6,4 +6,13 @@ project:
     - "!old/"
 
 execute:
-  freeze: auto  
+  freeze: auto
+
+format:
+  beamer:
+    theme: Pittsburgh
+    colortheme: default
+    fonttheme: default
+    pdf-engine: lualatex
+    include-in-header:
+      - file: header.tex

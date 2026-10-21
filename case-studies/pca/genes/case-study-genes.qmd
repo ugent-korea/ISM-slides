@@ -1,0 +1,243 @@
+---
+title: "Gene expression profiles: supervised PCA"
+---
+
+## Problem statement
+
+In this case study, we will perform PCA on a large dataset obtained in the analysis of 4 different types of small, round blue cell tumors (SRBCTs). Khan et al (2001) obtained gene expression data from a cDNA microarray experiment of 2308 genes in 83 patients. The data is provided through the `ISLR2` package; our job is to see if there is a genetic basis for this disease, and to identify which genes, if any, are associated with any of the four tumor types.
+
+::: {.callout-note}
+The figures in this notebook were made with ggplot2, which we do not cover in this course. If you wish to re-run the analysis, you should install the `tidyverse` package.
+:::
+
+## Loading the data
+
+```{r}
+library(ISLR2)
+library(tidyverse)
+
+theme_set(theme_bw())
+```
+
+```{r}
+xtrain <- Khan$xtrain
+ytrain <- as.factor(Khan$ytrain)
+xtest <- Khan$xtest
+ytest <- as.factor(Khan$ytest)
+```
+
+Of the 83 patients, we use 63 for developing our PCA model, and we set 20 aside for a test on unseen data.
+
+```{r}
+dim(xtrain)
+```
+
+```{r}
+dim(xtest)
+```
+Note that the input data (`xtrain`, `xtest`) comes to us as a matrix of "raw" numbers (gene expression levels), while the labels (`ytrain`, `ytest`) are numbers from 1 through 4 indicating the tumor type.
+
+```{r}
+xtrain[1:5, 1:5]
+```
+
+```{r}
+ytrain[1:5]
+```
+
+## Principal component analysis
+
+We start by running a PCA on the `xtrain` data.
+
+```{r}
+pc_train <- prcomp(xtrain)
+summary(pc_train)
+```
+
+```{r}
+importance <- 
+  as_tibble(t(summary(pc_train)$importance),
+            .name_repair = ~ c("Standard Deviation", "Pct. Variance", "Cumulative Variance")) |>
+  mutate(Component = seq_along(`Standard Deviation`))
+
+ggplot(importance) +
+  geom_line(aes(x = Component, y = `Pct. Variance`)) +
+  geom_point(aes(x = Component, y = `Pct. Variance`)) +
+  ggtitle("Scree plot")
+```
+
+
+Observe how the first two PCs explain only about 12-15% of the variation in the data. Moreover, when we make a score plot of the first two PCs, colored by cancer type, we see that the first two PCs don't really tell the cancer types apart. This is disappointing, but also to be expected. We measured very many genes, and due to random genetic variation between people, chances are that there are some very variable genes in our dataset that just aren't correlated that strongly with the cancer type of interest.
+
+```{r}
+train <- tibble(
+  y = ytrain,
+  pc1 = pc_train$x[,"PC1"],
+  pc2 = pc_train$x[,"PC2"])
+
+ggplot(train, aes(x = pc1, y = pc2, color = y)) +
+  geom_point(size = 3) +
+  ggtitle("All genes, train dataset")
+```
+
+## Supervised PCA
+
+What we need is a way to focus on the genes that are correlated with SRBCTs, so that we can run a PCA on those genes only. This is the principle behind _supervised_ PCA.
+
+To make a first selection of relevant genes, let's select not just the ones that are highly variable, but that are highly correlated with the outcome (the kind of cancer). A measure of correlation that we can use in this content is the **F-score** for each gene. Here we consider for each gene individually the 2308 gene expression levels, and we group them by tumor type. We then run a one-way ANOVA and compute the F-score. Remember from semester 1 statistics that this F-score will be "high" when at least one tumor type has mean expression level different from the others, and "low" otherwise. 
+
+If we look at the expression levels for gene 1, we see that this is probably a gene that we want to include in our subsequent analysis. Mean expression levels for tumor type 1 are drastically lower than for the other tumor types.
+
+```{r}
+boxplot(xtrain[, 1] ~ ytrain)
+```
+
+In the ANOVA output, we see that its F-value is high, around 45.
+
+```{r}
+m <- aov(xtrain[, 1] ~ ytrain)
+summary(m)
+```
+
+Gene 100, on the other hand, is probably not that relevant for our analysis. Mean expression levels are more or less the same across tumor types. The F-statistic is low.
+
+```{r}
+boxplot(xtrain[, 100] ~ ytrain)
+```
+
+```{r}
+m <- aov(xtrain[, 100] ~ ytrain)
+summary(m)
+```
+
+We can also look at the distribution of F-statistics for all genes. This shows that a large majority of genes have rather low F-statistic (and hence are not interesting to us), while there are a number of genes (a few 100) with high F-statistic.
+
+```{r}
+compute_f_statistic <- function(gene_no) {
+  aov_model <- aov(xtrain[, gene_no] ~ ytrain)
+  summary(aov_model)[[1]][["F value"]][1]
+}
+
+scores <-
+  tibble(
+    gene = 1:ncol(xtrain),
+    f = map_dbl(gene, compute_f_statistic))
+
+ggplot(scores, aes(x = f)) +
+  geom_histogram() +
+  ggtitle("Distribution of F-scores")
+  
+```
+
+```{r}
+ggplot() +
+  geom_point(aes(
+    x = 1:nrow(scores),
+    y = sort(scores$f, decreasing = TRUE))) +
+  xlab(NULL) + 
+  ylab("F-score") +
+  ggtitle("Ordered F-scores (high to low)")
+```
+
+We now select the genes with F-score greater than 10 to do a PCA. This threshold is *completely arbitrary*, and based solely on the previous plots, as it provides a good number of genes that are implicated with SRBCTs. There is no theoretical guarantee that this is the "optimal" threshold: we may leave out some genes that are implicated, or include some genes that are not. You can try varying this threshold to see how the results differ.
+
+We see a radically different outcome from "just" PCA. The different tumor types are now clearly visible in the first two PCs!
+
+```{r}
+# include genes with F > 10 and do a PCA
+
+genes_to_include <- scores$f > 10
+pc <- prcomp(xtrain[, genes_to_include])
+pc_train <- tibble(
+  y = ytrain,
+  pc1 = pc$x[,"PC1"],
+  pc2 = pc$x[,"PC2"])
+
+ggplot(pc_train, aes(x = pc1, y = pc2, color = y)) +
+  geom_point(size = 3)
+
+```
+
+Let's take a look at the top 5 genes that constitute the first 2 PCs.
+
+```{r}
+top_n_genes <- function(comp, n = 5) {
+  order(abs(pc$rotation[, comp]), decreasing = TRUE)[1:n]
+}
+
+top_n_genes("PC1")
+```
+
+```{r}
+top_n_genes("PC2")
+```
+
+## Unbiased evaluation on the test data
+
+It is very easy to make the performance of an algorithm look good, by evaluating it on the same data that it was trained on. This is the equivalent of me giving you the exam questions beforehand and then evaluating you on questions that you have already solved.
+
+To get an unbiased estimate of your performance in statistical modelling, I should give you completely different questions during the test. So too with algorithms. To get an unbiased insight into the performance of an algorithm, we should evaluate it on data that it has not see before.
+
+Recall that we set aside gene expression profiles from 20 patients at the start of this chapter:
+```{r}
+dim(xtest)
+length(ytest)
+```
+
+First, we make a score plot of just the test data. **Very important**: we use the PCA components obtained from the *training data*, but we calculate the scores on the *test* data. We do not run PCA again on the test data.
+
+```{r}
+# look at the test data
+
+pred_test <- predict(
+  pc, newdata = xtest[, genes_to_include])
+pc_test <- tibble(
+  y = ytest,  
+  pc1 = pred_test[,"PC1"],
+  pc2 = pred_test[,"PC2"])
+
+ggplot(pc_test, aes(x = pc1, y = pc2, color = y)) +
+  geom_point(size = 3)
+
+```
+
+We can also combine the scores for the training and test data. This shows that the clusters that we saw earlier in the train data also persist in the test data, a sign that we have indeed learned something intrinsic in our dataset.
+
+```{r}
+# combined plot
+pc_all <- bind_rows(
+  train = pc_train,
+  test  = pc_test,
+  .id = "set")
+
+ggplot(pc_all, aes(x = pc1, y = pc2, color = y, shape = set)) +
+  geom_point() +
+  geom_point(size = 3) +
+  scale_shape_manual(values = c("test" = 15, "train" = 8))
+
+```
+
+## More advanced dimensionality reduction methods
+
+For this section, you need to install the `Rtsne` package. t-Distributed Stochastic Neighborhood Embedding (t-SNE) is a non-linear alternative to PCA that does dimensionality reduction by approximately preserving local structures so that similar datapoints cluster together. Here we use it to reduce the gene expression profiles.
+
+```{r}
+library(Rtsne)
+
+tsne <- Rtsne(xtrain, dims = 2, perplexity = 5, verbose = TRUE, max_iter = 1500)
+```
+
+It's important to keep in mind that t-SNE is an unsupervised technique: all it sees are the gene expression profiles, the labels (which tumor the sample came from) are not taken into account. This is similar to PCA but quite different from supervised PCA. 
+
+t-SNE will discover clusters of similar samples in the data. We can then plot these clusters and give them a color based on the type of tumor. 
+
+```{r}
+tsne_df <- tibble(
+  y = ytrain,
+  x1 = tsne$Y[, 1],
+  x2 = tsne$Y[, 2])
+
+ggplot(tsne_df, aes(x = x1, y = x2, color = y)) +
+  geom_point(size = 3)
+```
+
